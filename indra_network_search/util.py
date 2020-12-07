@@ -5,6 +5,10 @@ import networkx as nx
 from os import path
 from datetime import datetime
 from botocore.exceptions import ClientError
+from pydantic import BaseModel
+from typing import Optional, Union, List
+
+import networkx as nx
 from fnvhash import fnv1a_32
 
 from indra.util.aws import get_s3_client
@@ -104,6 +108,43 @@ def get_query_hash(query_json, ignore_keys=None):
         query_json = {k: v for k, v in query_json.items()
                       if k not in ignore_keys}
     return fnv1a_32(sorted_json_string(query_json).encode('utf-8'))
+
+
+class NetworkSearchQuery(BaseModel):
+    """The query model for network searches
+
+    Todo: make sure hash
+
+    """
+    source: str
+    target: str
+    stmt_filter: Optional[List[str]]
+    edge_hash_blacklist: Optional[List[int]]
+    node_filter: Optional[List[str]]
+    node_blacklist: Optional[List[str]]
+    path_length: Optional[int]
+    sign: Optional[str]
+    weighted: Optional[bool]
+    bsco: Optional[Union[float, bool]]
+    curated_db_only: Optional[bool]
+    fplx_expand: Optional[bool]
+    k_shortest: Optional[Union[int, bool]]
+    max_per_node: Optional[Union[int, bool]]
+    cull_best_node: Optional[int]
+    mesh_ids: Optional[List[str]]
+    strict_mesh_id_filtering: Optional[bool]
+    const_c: Optional[int]
+    const_tk: Optional[int]
+    user_timeout: Optional[Union[float, bool]]
+    two_way: Optional[bool]
+    shared_regulators: Optional[bool]
+    terminal_ns: Optional[List[str]]
+    format: Optional[str]
+
+    def get_hash(self):
+        """Get the corresponding query hash of the query"""
+        # todo: Check if self.__hash__ might be a good here?
+        return get_query_hash(self.dict())
 
 
 def check_existence_and_date(indranet_date, fname, in_name=True):
