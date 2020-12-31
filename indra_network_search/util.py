@@ -111,39 +111,35 @@ def get_query_hash(query_json, ignore_keys=None):
 
 
 class NetworkSearchQuery(BaseModel):
-    """The query model for network searches
-
-    Todo: make sure hash
-
-    """
+    """The query model for network searches"""
     source: str
     target: str
-    stmt_filter: Optional[List[str]]
-    edge_hash_blacklist: Optional[List[int]]
-    node_filter: Optional[List[str]]
-    node_blacklist: Optional[List[str]]
-    path_length: Optional[int]
-    sign: Optional[str]
-    weighted: Optional[bool]
-    bsco: Optional[Union[float, bool]]
-    curated_db_only: Optional[bool]
-    fplx_expand: Optional[bool]
-    k_shortest: Optional[Union[int, bool]]
-    max_per_node: Optional[Union[int, bool]]
-    cull_best_node: Optional[int]
-    mesh_ids: Optional[List[str]]
-    strict_mesh_id_filtering: Optional[bool]
-    const_c: Optional[int]
-    const_tk: Optional[int]
-    user_timeout: Optional[Union[float, bool]]
-    two_way: Optional[bool]
-    shared_regulators: Optional[bool]
-    terminal_ns: Optional[List[str]]
-    format: Optional[str]
+    stmt_filter: Optional[List[str]] = None
+    edge_hash_blacklist: Optional[List[int]] = None
+    node_filter: Optional[List[str]] = None
+    node_blacklist: Optional[List[str]] = None
+    path_length: Optional[int] = None
+    sign: Optional[str] = None
+    weighted: Optional[bool] = None
+    bsco: Optional[Union[float, bool]] = None
+    curated_db_only: Optional[bool] = None
+    fplx_expand: Optional[bool] = None
+    k_shortest: Optional[Union[int, bool]] = None
+    max_per_node: Optional[Union[int, bool]] = None
+    cull_best_node: Optional[int] = None
+    mesh_ids: Optional[List[str]] = None
+    strict_mesh_id_filtering: Optional[bool] = None
+    const_c: Optional[int] = None
+    const_tk: Optional[int] = None
+    user_timeout: Optional[Union[float, bool]] = None
+    two_way: Optional[bool] = None
+    shared_regulators: Optional[bool] = None
+    terminal_ns: Optional[List[str]] = None
+    format: Optional[str] = None
 
     def get_hash(self):
         """Get the corresponding query hash of the query"""
-        # todo: Check if self.__hash__ might be a good here?
+        # todo: Check if self.__hash__ might be any good here?
         return get_query_hash(self.dict())
 
 
