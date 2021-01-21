@@ -18,6 +18,7 @@ from depmap_analysis.util.io_functions import file_opener, dump_it_to_pickle, \
     DT_YmdHMS, RE_YmdHMS_, RE_YYYYMMDD, get_earliest_date, get_date_from_str, \
     strip_out_date
 from depmap_analysis.util.aws import dump_json_to_s3
+from depmap_analysis.scripts.dump_new_graphs import *
 
 logger = logging.getLogger(__name__)
 
@@ -25,13 +26,6 @@ API_PATH = path.dirname(path.abspath(__file__))
 CACHE = path.join(API_PATH, '_cache')
 STATIC = path.join(API_PATH, 'static')
 JSON_CACHE = path.join(API_PATH, '_json_res')
-
-INDRA_MDG = 'indranet_multi_digraph_latest.pkl'
-INDRA_DG = 'indranet_dir_graph_latest.pkl'
-INDRA_SNG = 'indranet_sign_node_graph_latest.pkl'
-INDRA_SEG = 'indranet_sign_edge_graph_latest.pkl'
-INDRA_PBSNG = 'indranet_sign_node_pybel_latest.pkl'
-INDRA_PBSEG = 'indranet_sign_edge_pybel_latest.pkl'
 
 TEST_MDG_CACHE = path.join(CACHE, 'test_mdg_network.pkl')
 INDRA_MDG_CACHE = path.join(CACHE, INDRA_MDG)
