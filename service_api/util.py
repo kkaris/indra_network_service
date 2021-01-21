@@ -24,12 +24,9 @@ from depmap_analysis.util.aws import get_latest_sif_s3, dump_json_to_s3, \
 logger = logging.getLogger(__name__)
 
 API_PATH = path.dirname(path.abspath(__file__))
-CACHE = path.join(API_PATH,
-                  '../../depmap_analysis/indra_depmap_service/_cache')
-STATIC = path.join(API_PATH,
-                   '../../depmap_analysis/indra_depmap_service/static')
-JSON_CACHE = path.join(API_PATH,
-                       '../../depmap_analysis/indra_depmap_service/_json_res')
+CACHE = path.join(API_PATH, '_cache')
+STATIC = path.join(API_PATH, 'static')
+JSON_CACHE = path.join(API_PATH, '_json_res')
 
 INDRA_MDG = 'indranet_multi_digraph_latest.pkl'
 INDRA_DG = 'indranet_dir_graph_latest.pkl'
