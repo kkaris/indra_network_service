@@ -1,69 +1,43 @@
 import logging
 import unittest
 import numpy as np
-from random import random as rnd
+import pandas as pd
 from collections import defaultdict
-
-import indra_db.tests.util as tu
-from indra_db.util.dump_sif import load_db_content, make_ev_strata, \
-    make_dataframe, NS_LIST
-
 from depmap_analysis.network_functions.net_functions import \
     sif_dump_df_to_digraph
 from indra_network_service.indra_network.indra_network import IndraNetwork
 
-logger = logging.getLogger('IndraNetworkSearch test')
-
-# Get db
-db = tu.get_db_with_views(1000)
-
-# Get stratified evidence and belief scores
-sed = make_ev_strata(pkl_filename=None, db=db)
+logger = logging.getLogger(__name__)
 
 # Get dataframe
-df = make_dataframe(reconvert=True,
-                    db_content=load_db_content(reload=True,
-                                               ns_list=NS_LIST,
-                                               pkl_filename=None,
-                                               db=db),
-                    pkl_filename=None)
-
-# Create fake belief dict
-bsd = {}
-for n, h in df['stmt_hash'].iteritems():
-    bsd[h] = rnd()
+df = pd.DataFrame()
 
 # Add custom row to df that can be checked later
 test_edge = ('GENE_A', 'GENE_B')
 test_medge = (*test_edge, 0)
 test_node = test_edge[0]
-test_hash = 1234567890
-test_type = 'TestStatement'
+test_hash: int = 1234567890
+belief: float = 0.987654321
+test_type = 'Activation'
 test_row = {
     'agA_ns': 'TEST', 'agA_id': '1234', 'agA_name': test_edge[0],
     'agB_ns': 'TEST', 'agB_id': '2345', 'agB_name': test_edge[1],
     'stmt_type': test_type, 'evidence_count': 1, 'stmt_hash': test_hash
 }
-test_source = 'pc11'
-test_evidence = {test_source: 1}
-test_belief = 0.987654321
-df = df.append(test_row,
-    ignore_index=True)
-sed[test_hash] = test_evidence
-bsd[test_hash] = test_belief
+test_source: str = 'pc11'
+test_evidence = {test_hash: {test_source: 1}}
+test_belief = {test_hash: belief}
+df = df.append(test_row, ignore_index=True)
+dg = sif_dump_df_to_digraph(
+    df, strat_ev_dict=test_evidence, belief_dict=test_belief,
+    include_entity_hierarchies=False
+)
 
 
 class TestNetwork(unittest.TestCase):
     def setUp(self):
         self.df = df
-        self.indra_network = IndraNetwork(
-            indra_dir_graph=sif_dump_df_to_digraph(
-                df=self.df, belief_dict=bsd, strat_ev_dict=sed, multi=False,
-                include_entity_hierarchies=True),
-            indra_multi_dir_graph=sif_dump_df_to_digraph(
-                df=self.df, belief_dict=bsd, strat_ev_dict=sed, multi=True,
-                include_entity_hierarchies=True)
-        )
+        self.indra_network = IndraNetwork(indra_dir_graph=dg)
         self.indra_network.verbose = 2
 
     def test_network_search(self):
@@ -81,7 +55,12 @@ class TestNetwork(unittest.TestCase):
             'curated_db_only': False,
             'fplx_expand': False,
             'k_shortest': 1,
-            'two_way': True
+            'two_way': True,
+            'mesh_ids': [],
+            'strict_mesh_id_filtering': False,
+            'const_c': 1,
+            'const_tk': 10,
+            'terminal_ns': [],
         }
 
         result = self.indra_network.handle_query(**query)
@@ -105,7 +84,9 @@ class TestNetwork(unittest.TestCase):
         stmt_dict = stmts[0][test_type][0]
         assert isinstance(stmt_dict['weight'], (np.longfloat, float))
         assert stmt_dict['stmt_type'] == test_row['stmt_type']
-        assert stmt_dict['stmt_hash'] == str(test_row['stmt_hash'])
+        assert str(stmt_dict['stmt_hash']) == str(test_row['stmt_hash']), \
+            f"stmt_dict['stmt_hash']={stmt_dict['stmt_hash']}, test_row[" \
+            f"'stmt_hash']={test_row['stmt_hash']}"
         assert stmt_dict['evidence_count'] == test_row['evidence_count']
         assert isinstance(stmt_dict['source_counts'], dict)
         assert stmt_dict['source_counts'] == test_evidence
