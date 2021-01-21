@@ -2,5 +2,5 @@
    :maxdepth: 4
    :caption: Contents:
 
-   depmap_service
+   network_search_service
    web_ui_introduction
