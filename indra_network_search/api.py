@@ -11,7 +11,7 @@ from indra.statements.agent import default_ns_order as NS_LIST_
 from indra.config import CONFIG_DICT
 from indra.util.aws import get_s3_client
 from indralab_web_templates.path_templates import path_temps
-from indra_network_service.net import IndraNetwork, EMPTY_RESULT, \
+from indra_network_search.net import IndraNetwork, EMPTY_RESULT, \
     list_all_hashes
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from depmap_analysis.util.aws import check_existence_and_date_s3, \

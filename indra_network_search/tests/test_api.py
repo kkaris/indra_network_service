@@ -1,7 +1,7 @@
 import logging
 import unittest
 
-from indra_network_service.api import app
+from indra_network_search.api import app
 
 
 logger = logging.getLogger('api test')

@@ -5,7 +5,7 @@ import pandas as pd
 from collections import defaultdict
 from depmap_analysis.network_functions.net_functions import \
     sif_dump_df_to_digraph
-from indra_network_service.indra_network import IndraNetwork
+from indra_network_search.net import IndraNetwork
 
 logger = logging.getLogger(__name__)
 
