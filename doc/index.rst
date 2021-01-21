@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to INDRA DepMap Analysis's documentation!
-=================================================
+Welcome to the INDRA Network Service documentation!
+===================================================
 
 .. toctree::
    :maxdepth: 2
