@@ -298,7 +298,7 @@ Running the Service Locally
 To run the service locally, two things are needed:
 
 1. Fetch the latest update to the branch
-   `'master' <https://github.com/indralab/indra_network_service/tree/master>`_
+   `'main' <https://github.com/indralab/indra_network_service/tree/main>`_
    of the indra_network_service repository from one of the maintainers.
 2. Download the latest network representations of the indra network
    (might require AWS S3 login):
