@@ -1,7 +1,6 @@
 """Utility functions for the INDRA Causal Network Search API in api.py"""
 import json
 import logging
-import argparse
 
 from os import path
 from datetime import datetime
@@ -18,8 +17,7 @@ from depmap_analysis.network_functions import net_functions as nf
 from depmap_analysis.util.io_functions import file_opener, dump_it_to_pickle, \
     DT_YmdHMS, RE_YmdHMS_, RE_YYYYMMDD, get_earliest_date, get_date_from_str, \
     strip_out_date
-from depmap_analysis.util.aws import get_latest_sif_s3, dump_json_to_s3, \
-    dump_pickle_to_s3, NEW_NETS_PREFIX
+from depmap_analysis.util.aws import dump_json_to_s3
 
 logger = logging.getLogger(__name__)
 
@@ -219,73 +217,7 @@ def dump_query_result_to_s3(filename, json_obj, get_url=False):
     return None
 
 
-def dump_new_nets(mdg=False, dg=False, sg=False, spbg=False, dump_to_s3=False,
-                  overwrite=False, verbosity=0, add_mesh_ids=False):
-    """Main script function for dumping new networks from latest db dumps"""
-    options = dict()
-
-    if add_mesh_ids:
-        df, sev, bd, mid = get_latest_sif_s3(get_mesh_ids=True)
-        mid_dict = dict()
-        for pair in mid:
-            mid_dict.setdefault(pair[0], []).append(pair[1])
-        options['mesh_id_dict'] = mid_dict
-    else:
-        df, sev, bd = get_latest_sif_s3()
-
-    options.update({'df': df, 'belief_dict': bd, 'strat_ev_dict': sev,
-                    'include_entity_hierarchies': True,
-                    'verbosity': verbosity})
-
-    if mdg:
-        network = nf.sif_dump_df_to_digraph(graph_type='multi', **options)
-        dump_it_to_pickle(INDRA_MDG_CACHE, network, overwrite=overwrite)
-        if dump_to_s3:
-            dump_pickle_to_s3(INDRA_MDG, network, prefix=NEW_NETS_PREFIX)
-    if dg:
-        network = nf.sif_dump_df_to_digraph(**options)
-        dump_it_to_pickle(INDRA_DG_CACHE, network, overwrite=overwrite)
-        if dump_to_s3:
-            dump_pickle_to_s3(INDRA_DG, network, prefix=NEW_NETS_PREFIX)
-    if sg:
-        network, isng = nf.sif_dump_df_to_digraph(graph_type='signed',
-                                                  **options)
-        dump_it_to_pickle(INDRA_SEG_CACHE, network, overwrite=overwrite)
-        dump_it_to_pickle(INDRA_SNG_CACHE, isng, overwrite=overwrite)
-        if dump_to_s3:
-            dump_pickle_to_s3(INDRA_SEG, network, prefix=NEW_NETS_PREFIX)
-            dump_pickle_to_s3(INDRA_SNG, isng, prefix=NEW_NETS_PREFIX)
-
-    if spbg:
-        pb_seg, pb_sng = nf.db_dump_to_pybel_sg()
-        dump_it_to_pickle(INDRA_PBSNG_CACHE, pb_sng, overwrite=overwrite)
-        dump_it_to_pickle(INDRA_PBSEG_CACHE, pb_seg, overwrite=overwrite)
-        if dump_to_s3:
-            dump_pickle_to_s3(INDRA_SNG, pb_sng, prefix=NEW_NETS_PREFIX)
-            dump_pickle_to_s3(INDRA_SEG, pb_seg, prefix=NEW_NETS_PREFIX)
-
-
 def find_related_hashes(mesh_ids):
     q = FromMeshIds(mesh_ids)
     result = q.get_hashes()
     return result.json().get('results', [])
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser('Dump new networks')
-    parser.add_argument('--mdg', help='Dump a new MultiDiGraph',
-                        action='store_true', default=False)
-    parser.add_argument('--dg', help='Dump a new DiGraph',
-                        action='store_true', default=False)
-    parser.add_argument('--sg', help='Dump new signed edge and node graphs',
-                        action='store_true', default=False)
-    parser.add_argument('--pb', help='Dump new PyBel signed edge and node '
-                                     'graphs',
-                        action='store_true', default=False)
-    parser.add_argument('--s3', help='Also upload the new graphs to s3',
-                        action='store_true', default=False)
-    parser.add_argument('--overwrite', help='Overwrite local files',
-                        action='store_true', default=False)
-    args = parser.parse_args()
-    dump_new_nets(mdg=args.mdg, dg=args.dg, sg=args.sg, spbg=args.pb,
-                  dump_to_s3=args.s3)
