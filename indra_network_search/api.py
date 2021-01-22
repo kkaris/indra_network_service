@@ -1,21 +1,19 @@
 """INDRA Causal Network Search API"""
+import argparse
+import requests
 from sys import argv
 from os import makedirs, environ
 from time import time, gmtime, strftime
 
-import requests
 from flask import Flask, request, abort, Response, render_template, jsonify, \
     url_for, redirect
 
 from indra.statements.agent import default_ns_order as NS_LIST_
 from indra.config import CONFIG_DICT
-from indra.util.aws import get_s3_client
 from indralab_web_templates.path_templates import path_temps
 from indra_network_search.net import IndraNetwork, EMPTY_RESULT, \
     list_all_hashes
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
-from depmap_analysis.util.aws import check_existence_and_date_s3, \
-    read_query_json_from_s3, load_pickled_net_from_s3
 from .util import *
 
 app = Flask(__name__)

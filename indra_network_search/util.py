@@ -1,23 +1,25 @@
 """Utility functions for the INDRA Causal Network Search API in api.py"""
 import json
 import logging
-
+import networkx as nx
 from os import path
 from datetime import datetime
-
-import networkx as nx
+from botocore.exceptions import ClientError
 from fnvhash import fnv1a_32
 
+from indra.util.aws import get_s3_client
 from indra_db.client.readonly.query import FromMeshIds
 from indra_db.util.dump_sif import load_db_content, make_dataframe, NS_LIST
 from indra.statements import get_all_descendants, Activation, Inhibition, \
     IncreaseAmount, DecreaseAmount, AddModification, RemoveModification, \
     Complex
+
 from depmap_analysis.network_functions import net_functions as nf
 from depmap_analysis.util.io_functions import file_opener, dump_it_to_pickle, \
     DT_YmdHMS, RE_YmdHMS_, RE_YYYYMMDD, get_earliest_date, get_date_from_str, \
     strip_out_date
-from depmap_analysis.util.aws import dump_json_to_s3
+from depmap_analysis.util.aws import dump_json_to_s3, DUMPS_BUCKET, \
+    NETS_PREFIX, load_pickle_from_s3, NET_BUCKET, read_json_from_s3
 from depmap_analysis.scripts.dump_new_graphs import *
 
 logger = logging.getLogger(__name__)
@@ -215,3 +217,46 @@ def find_related_hashes(mesh_ids):
     q = FromMeshIds(mesh_ids)
     result = q.get_hashes()
     return result.json().get('results', [])
+
+
+def check_existence_and_date_s3(query_hash, indranet_date=None):
+    s3 = get_s3_client(unsigned=False)
+    key_prefix = 'indra_network_search/%s' % query_hash
+    query_json_key = key_prefix + '_query.json'
+    result_json_key = key_prefix + '_result.json'
+    exits_dict = {}
+    if indranet_date:
+        # Check 'LastModified' key in results
+        # res_query = s3.head_object(Bucket=SIF_BUCKET, Key=query_json_key)
+        # res_results = s3.head_object(Bucket=SIF_BUCKET, Key=result_json_key)
+        pass
+    else:
+        try:
+            query_json = s3.head_object(Bucket=DUMPS_BUCKET,
+                                        Key=query_json_key)
+        except ClientError:
+            query_json = ''
+        if query_json:
+            exits_dict['query_json_key'] = query_json_key
+        try:
+            result_json = s3.head_object(Bucket=DUMPS_BUCKET,
+                                         Key=result_json_key)
+        except ClientError:
+            result_json = ''
+        if result_json:
+            exits_dict['result_json_key'] = result_json_key
+        return exits_dict
+
+    return {}
+
+
+def load_pickled_net_from_s3(name):
+    s3_cli = get_s3_client(False)
+    key = NETS_PREFIX + name
+    return load_pickle_from_s3(s3_cli, key=key, bucket=NET_BUCKET)
+
+
+def read_query_json_from_s3(s3_key):
+    s3 = get_s3_client(unsigned=False)
+    bucket = DUMPS_BUCKET
+    return read_json_from_s3(s3=s3, key=s3_key, bucket=bucket)
