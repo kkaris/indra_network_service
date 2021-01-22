@@ -22,6 +22,14 @@ from depmap_analysis.util.aws import dump_json_to_s3, DUMPS_BUCKET, \
     NETS_PREFIX, load_pickle_from_s3, NET_BUCKET, read_json_from_s3
 from depmap_analysis.scripts.dump_new_graphs import *
 
+__all__ = ['load_indra_graph', 'list_chunk_gen', 'read_query_json_from_s3',
+           'check_existence_and_date_s3', 'dump_result_json_to_s3',
+           'dump_query_json_to_s3', 'get_query_hash',
+           'dump_query_result_to_s3', 'NS_LIST', 'get_queryable_stmt_types',
+           'load_pickled_net_from_s3', 'get_earliest_date', 'get_s3_client',
+           'CACHE', 'INDRA_DG', 'INDRA_SEG', 'INDRA_SNG', 'INDRA_DG_CACHE',
+           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE']
+
 logger = logging.getLogger(__name__)
 
 API_PATH = path.dirname(path.abspath(__file__))

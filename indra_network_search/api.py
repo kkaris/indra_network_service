@@ -1,9 +1,12 @@
 """INDRA Causal Network Search API"""
+import json
+import logging
 import argparse
 import requests
+from os import makedirs, environ, path
 from sys import argv
-from os import makedirs, environ
 from time import time, gmtime, strftime
+from datetime import datetime
 
 from flask import Flask, request, abort, Response, render_template, jsonify, \
     url_for, redirect
@@ -14,6 +17,7 @@ from indralab_web_templates.path_templates import path_temps
 from indra_network_search.net import IndraNetwork, EMPTY_RESULT, \
     list_all_hashes
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
+from depmap_analysis.util.io_functions import file_opener, dump_it_to_pickle
 from .util import *
 
 app = Flask(__name__)
@@ -21,7 +25,7 @@ app.register_blueprint(path_temps)
 app.config['DEBUG'] = bool(environ.get('APP_DEBUG'))
 STMT_HASH_CACHE = {}
 
-logger = logging.getLogger('INDRA Network Search API')
+logger = logging.getLogger(__name__)
 
 FILES = {
     'dir_graph_path': INDRA_DG_CACHE if path.isfile(INDRA_DG_CACHE)
