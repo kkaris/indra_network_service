@@ -32,7 +32,8 @@ __all__ = ['load_indra_graph', 'list_chunk_gen', 'read_query_json_from_s3',
            'dump_query_result_to_s3', 'NS_LIST', 'get_queryable_stmt_types',
            'load_pickled_net_from_s3', 'get_earliest_date', 'get_s3_client',
            'CACHE', 'INDRA_DG', 'INDRA_SEG', 'INDRA_SNG', 'INDRA_DG_CACHE',
-           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE']
+           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE',
+           'NetworkSearchQuery']
 
 logger = logging.getLogger(__name__)
 
