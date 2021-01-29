@@ -1,6 +1,6 @@
 from typing import Optional, List, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from indra_network_search.util import get_query_hash
 
@@ -31,6 +31,11 @@ class NetworkSearchQuery(BaseModel):
     shared_regulators: Optional[bool] = None
     terminal_ns: Optional[List[str]] = None
     format: Optional[str] = None
+
+    @validator('path_length')
+    def is_positive_int(cls, pl: int):
+        if pl < 1:
+            raise ValueError('path_length must be positive integer')
 
     def get_hash(self):
         """Get the corresponding query hash of the query"""
