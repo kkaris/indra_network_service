@@ -11,7 +11,7 @@ class NetworkSearchQuery(BaseModel):
     target: Optional[str] = None
     stmt_filter: Optional[List[str]] = None
     edge_hash_blacklist: Optional[List[int]] = None
-    node_filter: Optional[List[str]] = None
+    allowed_ns: Optional[List[str]] = None
     node_blacklist: Optional[List[str]] = None
     path_length: Optional[int] = None
     sign: Optional[str] = None
