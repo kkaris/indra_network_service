@@ -7,8 +7,8 @@ from indra_network_search.util import get_query_hash
 
 class NetworkSearchQuery(BaseModel):
     """The query model for network searches"""
-    source: str
-    target: str
+    source: Optional[str] = None
+    target: Optional[str] = None
     stmt_filter: Optional[List[str]] = None
     edge_hash_blacklist: Optional[List[int]] = None
     node_filter: Optional[List[str]] = None
@@ -34,8 +34,9 @@ class NetworkSearchQuery(BaseModel):
 
     @validator('path_length')
     def is_positive_int(cls, pl: int):
-        if pl < 1:
+        if pl is not None and pl < 1:
             raise ValueError('path_length must be positive integer')
+        return pl
 
     def get_hash(self):
         """Get the corresponding query hash of the query"""
