@@ -5,8 +5,6 @@ import networkx as nx
 from os import path
 from datetime import datetime
 from botocore.exceptions import ClientError
-from pydantic import BaseModel
-from typing import Optional, Union, List
 
 import networkx as nx
 from fnvhash import fnv1a_32
@@ -32,8 +30,7 @@ __all__ = ['load_indra_graph', 'list_chunk_gen', 'read_query_json_from_s3',
            'dump_query_result_to_s3', 'NS_LIST', 'get_queryable_stmt_types',
            'load_pickled_net_from_s3', 'get_earliest_date', 'get_s3_client',
            'CACHE', 'INDRA_DG', 'INDRA_SEG', 'INDRA_SNG', 'INDRA_DG_CACHE',
-           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE',
-           'NetworkSearchQuery']
+           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE']
 
 logger = logging.getLogger(__name__)
 
@@ -109,39 +106,6 @@ def get_query_hash(query_json, ignore_keys=None):
         query_json = {k: v for k, v in query_json.items()
                       if k not in ignore_keys}
     return fnv1a_32(sorted_json_string(query_json).encode('utf-8'))
-
-
-class NetworkSearchQuery(BaseModel):
-    """The query model for network searches"""
-    source: str
-    target: str
-    stmt_filter: Optional[List[str]] = None
-    edge_hash_blacklist: Optional[List[int]] = None
-    node_filter: Optional[List[str]] = None
-    node_blacklist: Optional[List[str]] = None
-    path_length: Optional[int] = None
-    sign: Optional[str] = None
-    weighted: Optional[bool] = None
-    bsco: Optional[Union[float, bool]] = None
-    curated_db_only: Optional[bool] = None
-    fplx_expand: Optional[bool] = None
-    k_shortest: Optional[Union[int, bool]] = None
-    max_per_node: Optional[Union[int, bool]] = None
-    cull_best_node: Optional[int] = None
-    mesh_ids: Optional[List[str]] = None
-    strict_mesh_id_filtering: Optional[bool] = None
-    const_c: Optional[int] = None
-    const_tk: Optional[int] = None
-    user_timeout: Optional[Union[float, bool]] = None
-    two_way: Optional[bool] = None
-    shared_regulators: Optional[bool] = None
-    terminal_ns: Optional[List[str]] = None
-    format: Optional[str] = None
-
-    def get_hash(self):
-        """Get the corresponding query hash of the query"""
-        # todo: Check if self.__hash__ might be any good here?
-        return get_query_hash(self.dict())
 
 
 def check_existence_and_date(indranet_date, fname, in_name=True):
