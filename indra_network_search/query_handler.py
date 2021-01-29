@@ -144,6 +144,7 @@ class DijkstraQuery(Query):
     def mesh_options(self) -> Dict[str, Any]:
         pass
 
+
 class QueryHandler:
     """Maps queries from the REST API to a method of the IndraNetworkSearchAPI
 
@@ -152,13 +153,14 @@ class QueryHandler:
     """
 
     def __init__(self, rest_query: NetworkSearchQuery):
-        self.query: NetworkSearchQuery = rest_query
+        self.rest_query: NetworkSearchQuery = rest_query
         self.signed: bool = SIGN_TO_STANDARD.get(rest_query.sign) in ('+', '-')
         self.open: bool = bool(rest_query.source) ^ bool(rest_query.target)
         self.weighted: bool = bool(rest_query.weighted)
         self.mesh: bool = bool(rest_query.mesh_ids)
         self.strict_mesh: bool = rest_query.strict_mesh_id_filtering
-        self.api_method: str = Optional[None]
+        self.api_method: Optional[str] = None
+        self._query: Optional[Query] = None
 
     def _map_to_query_type(self):
         """This method maps the query to an API method"""
@@ -180,8 +182,8 @@ class QueryHandler:
             self._map_to_query_type()
         return self.api_method
 
-    def assert_query(self) -> Query:
-        """Returns the AssertQuery type associated with the search type
+    def get_query(self) -> Query:
+        """Returns the Query type associated with the search type
 
         Returns
         -------
@@ -190,23 +192,25 @@ class QueryHandler:
         Raises
         ------
         ValueError
+            Raised for unknown query types
         """
-        query_type = self.get_query_type()
-        if query_type == bfs_search.__name__:
-            asq = BreadthFirstSearchQuery(self.query)
-        elif query_type == open_dijkstra_search.__name__:
-            asq = DijkstraQuery(self.query)
-        elif query_type == shortest_simple_paths.__name__:
-            asq = ShortestSimplePathsQuery(self.query)
-        else:
-            raise ValueError(f'Unknown query type {query_type}')
+        if not self._query:
+            query_type = self.get_query_type()
+            if query_type == bfs_search.__name__:
+                query = BreadthFirstSearchQuery(self.rest_query)
+            elif query_type == open_dijkstra_search.__name__:
+                query = DijkstraQuery(self.rest_query)
+            elif query_type == shortest_simple_paths.__name__:
+                query = ShortestSimplePathsQuery(self.rest_query)
+            else:
+                raise ValueError(f'Unknown query type {query_type}')
+            self._query = query
 
-        asq.assert_query()
-
-        return asq
+        return self._query
 
     def get_options(self) -> Dict:
-        asq: Query = self.assert_query()
+        """Get the run options matching the query"""
+        asq: Query = self.get_query()
         return asq.alg_options()
 
 
