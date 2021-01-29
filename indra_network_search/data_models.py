@@ -41,5 +41,11 @@ class NetworkSearchQuery(BaseModel):
 
     def get_hash(self):
         """Get the corresponding query hash of the query"""
-        # todo: Check if self.__hash__ might be any good here?
-        return get_query_hash(self.dict())
+        return get_query_hash(self.dict(), ignore_keys=['format'])
+
+    def reverse_search(self) -> BaseModel:
+        """Return a copy of the query with source and target switched"""
+        model_copy = self.copy(deep=True)
+        model_copy.target = self.source
+        model_copy.source = self.target
+        return model_copy
