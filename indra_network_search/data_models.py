@@ -16,7 +16,7 @@ class NetworkSearchQuery(BaseModel):
     path_length: Optional[int] = None
     sign: Optional[str] = None
     weighted: Optional[bool] = None
-    bsco: Optional[Union[float, bool]] = None
+    belief_cutoff: Optional[Union[float, bool]] = None
     curated_db_only: Optional[bool] = None
     fplx_expand: Optional[bool] = None
     k_shortest: Optional[Union[int, bool]] = None
