@@ -1,8 +1,10 @@
 """Utility functions for the INDRA Causal Network Search API in api.py"""
 import json
+import inspect
 import logging
 import networkx as nx
 from os import path
+from typing import Callable
 from datetime import datetime
 from botocore.exceptions import ClientError
 
@@ -270,3 +272,30 @@ def read_query_json_from_s3(s3_key):
     s3 = get_s3_client(unsigned=False)
     bucket = DUMPS_BUCKET
     return read_json_from_s3(s3=s3, key=s3_key, bucket=bucket)
+
+
+def get_default_args(func: Callable):
+    """Reads off the defaults for a function
+
+    Returns a dictionary of {arg: default} of the arguments that have
+    default values. Arguments without default values and **kwargs type
+    arguments are excluded.
+
+    Code copied from: https://stackoverflow.com/a/12627202/10478812
+
+    Parameters
+    ----------
+    func : Callable
+        Function to find defulat arguments for
+
+    Returns
+    -------
+    Dict[str, Any]
+        A dictionary with the default values keyed by argument name
+    """
+    signature = inspect.signature(func)
+    return {
+        k: v.default
+        for k, v in signature.parameters.items()
+        if v.default is not inspect.Parameter.empty
+    }
