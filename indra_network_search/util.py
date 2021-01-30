@@ -4,7 +4,7 @@ import inspect
 import logging
 import networkx as nx
 from os import path
-from typing import Callable
+from typing import Callable, Dict, Any, Set
 from datetime import datetime
 from botocore.exceptions import ClientError
 
@@ -298,4 +298,27 @@ def get_default_args(func: Callable):
         k: v.default
         for k, v in signature.parameters.items()
         if v.default is not inspect.Parameter.empty
+    }
+
+
+def get_mandatory_args(func: Callable) -> Set[str]:
+    """Returns the mandatory args for a function as a set
+
+    Returns the set of arguments names of a functions that are mandatory,
+    i.e. does not have a default value. **kwargs type arguments are ignored.
+
+    Parameters
+    ----------
+    func : Callable
+        Function to find mandatory arguments for
+
+    Returns
+    -------
+    Set[str]
+        The of mandatory arguments
+    """
+    signature = inspect.signature(func)
+    return {
+        k for k, v in signature.parameters.items()
+        if v.default is inspect.Parameter.empty
     }
