@@ -35,8 +35,8 @@ class NetworkSearchQuery(BaseModel):
     @validator('path_length')
     def is_positive_int(cls, pl: int):
         """Validate path_length >= 1 if given"""
-        if pl is not None and pl < 1:
-            raise ValueError('path_length must be positive integer')
+        if pl and pl is not None and pl < 1:
+            raise ValueError('path_length must be integer > 0')
         return pl
 
     def get_hash(self):
