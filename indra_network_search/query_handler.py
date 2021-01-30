@@ -11,6 +11,7 @@ from indra.explanation.pathfinding import shortest_simple_paths, bfs_search,\
     open_dijkstra_search
 from depmap_analysis.network_functions.net_functions import SIGN_TO_STANDARD
 
+from .util import get_mandatory_args
 from .data_models import NetworkSearchQuery
 
 __all__ = ['QueryHandler', 'Query', 'DijkstraQuery',
@@ -40,8 +41,32 @@ class Query:
 
     def assert_query(self, run_options: Dict[str, Any]):
         """Checks if incoming query has the needed data for the api_method"""
-        assert set(run_options.keys()).issubset(
-            set(inspect.signature(self.alg_func).parameters))
+        all_func_args = set(inspect.signature(self.alg_func).parameters)
+
+        # Check that only args that match function are provided
+        if not set(run_options.keys()).issubset(all_func_args):
+            raise InvalidParametersError(
+                'Invalid parameters provided: "%s"' %
+                '", "'.join(set(run_options.keys()).difference(all_func_args))
+            )
+
+        # Check that any args that don't have default values are set,
+        # except the graph argument:
+
+        # 1. Get the args without defaults
+        args_wo_defaults = set(get_mandatory_args(self.alg_func))
+
+        # 2. Remove args with defaults from the provided options
+        options_wo_defaults = set(run_options.keys()).difference(
+            )
+
+        # 3. The difference can only be 0 or 1 (allowing for the graph
+        # argument)
+        if len(args_wo_defaults.difference(options_wo_defaults)) > 1:
+            raise MissingParametersError(
+                f'Missing mandatory arguments for calling {self.method_name}'
+            )
+
         return run_options
 
     def alg_options(self) -> Dict[str, Any]:
