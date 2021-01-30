@@ -15,7 +15,7 @@ class NetworkSearchQuery(BaseModel):
     node_blacklist: Optional[List[str]] = None
     path_length: Optional[int] = None
     sign: Optional[str] = None
-    weighted: Optional[bool] = None
+    weighted: Optional[bool] = False
     belief_cutoff: Optional[Union[float, bool]] = None
     curated_db_only: Optional[bool] = None
     fplx_expand: Optional[bool] = None
@@ -24,8 +24,8 @@ class NetworkSearchQuery(BaseModel):
     cull_best_node: Optional[int] = None
     mesh_ids: Optional[List[str]] = None
     strict_mesh_id_filtering: Optional[bool] = None
-    const_c: Optional[int] = None
-    const_tk: Optional[int] = None
+    const_c: Optional[int] = 1
+    const_tk: Optional[int] = 10
     user_timeout: Optional[Union[float, bool]] = None
     two_way: Optional[bool] = None
     shared_regulators: Optional[bool] = None
