@@ -38,6 +38,7 @@ class Query:
 
     def __init__(self, query: NetworkSearchQuery):
         self.query: NetworkSearchQuery = query
+        self.query_hash: str = query.get_hash()
 
     def assert_query(self, run_options: Dict[str, Any]):
         """Checks if incoming query has the needed data for the api_method"""
