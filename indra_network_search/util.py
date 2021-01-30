@@ -2,7 +2,6 @@
 import json
 import inspect
 import logging
-import networkx as nx
 from os import path
 from typing import Callable, Dict, Any, Set
 from datetime import datetime
