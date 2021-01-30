@@ -21,6 +21,10 @@ class MissingParametersError(Exception):
     """Raise for missing query parameters"""
 
 
+class InvalidParametersError(Exception):
+    """Raise when conflicting or otherwise invalid parameters """
+
+
 class Query:
     """Parent class to all Query classes
 
@@ -59,9 +63,9 @@ class Query:
 
     def _get_mesh_options(self) -> Tuple[Set, Callable]:
         """Get the necessary mesh options"""
-        assert len(self.query.mesh_ids) > 0, \
-            'No mesh ids provided, but method for getting mesh options was ' \
-            'called'
+        if len(self.query.mesh_ids) > 0:
+            raise InvalidParametersError('No mesh ids provided, but method '
+                                         'for getting mesh options was called')
         hash_mesh_dict: Dict[Any, Dict] = get_mesh_ref_counts(
             self.query.mesh_ids)
         related_hashes: Set = set(hash_mesh_dict.keys())
