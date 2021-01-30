@@ -78,7 +78,7 @@ class Query:
 
     def run_options(self):
         """Combines all options to one dict that can be sent to algorithm"""
-        return self.assert_query(**self.alg_options(), **self.mesh_options())
+        return self.assert_query({**self.alg_options(), **self.mesh_options()})
 
 
 class ShortestSimplePathsQuery(Query):
