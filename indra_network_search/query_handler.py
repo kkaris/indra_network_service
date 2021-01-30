@@ -52,7 +52,7 @@ class Query:
         """These options are used when IndraNetworkSearchAPI handles the query
 
         The options here impact decisions on which extra search algorithms
-        to include, if
+        to include and which graph to pick
         """
         return {'sign': self.query.sign,
                 'fplx_expand': self.query.fplx_expand,
