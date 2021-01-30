@@ -109,7 +109,11 @@ class ShortestSimplePathsQuery(Query):
         -------
         Tuple[Set, Callable]
         """
-        hashes, ref_counts_func = self._get_mesh_options()
+        # If any mesh ids are provided:
+        if len(self.query.mesh_ids) > 0:
+            hashes, ref_counts_func = self._get_mesh_options()
+        else:
+            hashes, ref_counts_func = None, None
         return {
             'hashes': hashes,
             'ref_counts_function': ref_counts_func,
