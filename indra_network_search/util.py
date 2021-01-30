@@ -32,7 +32,8 @@ __all__ = ['load_indra_graph', 'list_chunk_gen', 'read_query_json_from_s3',
            'dump_query_result_to_s3', 'NS_LIST', 'get_queryable_stmt_types',
            'load_pickled_net_from_s3', 'get_earliest_date', 'get_s3_client',
            'CACHE', 'INDRA_DG', 'INDRA_SEG', 'INDRA_SNG', 'INDRA_DG_CACHE',
-           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE']
+           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE',
+           'get_default_args', 'get_mandatory_args']
 
 logger = logging.getLogger(__name__)
 
@@ -274,8 +275,8 @@ def read_query_json_from_s3(s3_key):
     return read_json_from_s3(s3=s3, key=s3_key, bucket=bucket)
 
 
-def get_default_args(func: Callable):
-    """Reads off the defaults for a function
+def get_default_args(func: Callable) -> Dict[str, Any]:
+    """Returns the default args of a function as a dictionary
 
     Returns a dictionary of {arg: default} of the arguments that have
     default values. Arguments without default values and **kwargs type
@@ -286,7 +287,7 @@ def get_default_args(func: Callable):
     Parameters
     ----------
     func : Callable
-        Function to find defulat arguments for
+        Function to find default arguments for
 
     Returns
     -------
