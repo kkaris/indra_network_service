@@ -113,9 +113,6 @@ class Query:
 
 class ShortestSimplePathsQuery(Query):
     """Check queries that will use the shortest_simple_paths algorithm"""
-    # Get graph from API; so ignore here
-    # Args that need some pre-processing:
-    #   -
     method_name: str = shortest_simple_paths.__name__
     alg_func: Callable = shortest_simple_paths
 
@@ -123,14 +120,13 @@ class ShortestSimplePathsQuery(Query):
         super().__init__(query)
 
     def alg_options(self) -> Dict[str, Any]:
-        """Match input to shortest_simple_paths from query"""
-        options = {'source': self.query.source,
-                   'target': self.query.target,
-                   'ignore_nodes': self.query.node_blacklist,
-                   'weight': 'weight' if self.query.weighted else None,
-                   'readonly': False}
+        """Match arguments of shortest_simple_paths from query"""
+        return {'source': self.query.source,
+                'target': self.query.target,
+                'ignore_nodes': self.query.node_blacklist,
+                'weight': 'weight' if self.query.weighted else None,
+                'readonly': False}
         # Set 'readonly' to True if running in a parallel/threading context
-        return options
 
     def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Union[Set, Callable]]:
