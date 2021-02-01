@@ -315,7 +315,7 @@ class QueryHandler:
     def get_options(self) -> Dict:
         """Get the run options matching the query"""
         asq: Query = self.get_query()
-        return asq.alg_options()
+        return asq.run_options()
 
 
 def _is_context_weighted(mesh_id_list: bool, strict_filtering: bool):
