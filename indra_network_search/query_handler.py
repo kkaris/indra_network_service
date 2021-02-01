@@ -159,10 +159,52 @@ class BreadthFirstSearchQuery(Query):
         super().__init__(query)
 
     def alg_options(self) -> Dict[str, Any]:
-        pass
+        """Match arguments of bfs_search from query"""
+        if self.query.source and not self.query.target:
+            source_node, reverse = self.query.source, False
+        elif not self.query.source and self.query.target:
+            source_node, reverse = self.query.target, True
+        else:
+            raise InvalidParametersError(
+                f'Cannot use {self.method_name} with both source and target '
+                f'set.'
+            )
+        depth_limit = self.query.path_length - 1 if self.query.path_length \
+            else 2
+        return {'source_node': source_node,
+                'reverse': reverse,
+                'depth_limit': depth_limit,
+                'path_limit': None,  # Sets limit inside algorithm
+                'max_per_node': self.query.max_per_node or 5,
+                'node_filter': self.query.allowed_ns,
+                'node_blacklist': self.query.node_blacklist,
+                'terminal_ns': self.query.terminal_ns,
+                'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
+                'max_memory': int(2**29)}  # Currently not set in UI
 
-    def mesh_options(self) -> Dict[str, Any]:
-        pass
+    def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
+            -> Dict[str, Any]:
+        """Match input to bfs_search"""
+        # If any mesh ids are provided:
+        if len(self.query.mesh_ids) > 0:
+            if not isinstance(graph, nx.DiGraph):
+                raise InvalidParametersError(
+                    f'Must provide graph when doing {self.method_name} with '
+                    f'mesh options.'
+                )
+            hashes, _ = self._get_mesh_options(get_func=False)
+            allowed_edge = {graph.graph['edge_by_hash'][h] for h in
+                            hashes if h in graph.graph['edge_by_hash']}
+            def _allow_edge_func(u: Union[str, Tuple[str, int]],
+                                 v: Union[str, Tuple[str, int]]):
+                return (u, v) in allowed_edge
+        else:
+            hashes, _allow_edge_func = None, lambda u, v: True
+        return {
+            'hashes': hashes,
+            'strict_mesh_id_filtering': self.query.strict_mesh_id_filtering,
+            'allow_edge': _allow_edge_func
+        }
 
 
 class DijkstraQuery(Query):
