@@ -35,9 +35,16 @@ class NetworkSearchQuery(BaseModel):
     @validator('path_length')
     def is_positive_int(cls, pl: int):
         """Validate path_length >= 1 if given"""
-        if pl and pl is not None and pl < 1:
+        if isinstance(pl, int) and pl < 1:
             raise ValueError('path_length must be integer > 0')
         return pl
+
+    @validator('max_per_node')
+    def is_pos_int(cls, mpn: Union[int, bool]):
+        """Validate path_length >= 1 if given"""
+        if isinstance(mpn, int) and mpn < 1:
+            raise ValueError('max_per_node must be integer > 0')
+        return mpn
 
     def get_hash(self):
         """Get the corresponding query hash of the query"""
