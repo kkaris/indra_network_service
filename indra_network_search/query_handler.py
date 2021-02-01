@@ -101,7 +101,8 @@ class Query:
             _get_ref_counts_func(hash_mesh_dict) if get_func else None
         return related_hashes, ref_counts_from_hashes
 
-    def mesh_options(self) -> Dict[str, Any]:
+    def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
+            -> Dict[str, Any]:
         """Return algorithm specific mesh options"""
         raise NotImplementedError
 
@@ -131,7 +132,8 @@ class ShortestSimplePathsQuery(Query):
         # Set 'readonly' to True if running in a parallel/threading context
         return options
 
-    def mesh_options(self) -> Dict[str, Union[Set, Callable]]:
+    def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
+            -> Dict[str, Union[Set, Callable]]:
         """Match input to shortest_simple_paths
 
         Returns
