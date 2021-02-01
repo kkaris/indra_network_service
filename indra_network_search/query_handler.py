@@ -9,7 +9,8 @@ from typing import Optional, Dict, Callable, Any, List, Tuple, Set, Union
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search,\
     open_dijkstra_search
-from depmap_analysis.network_functions.net_functions import SIGN_TO_STANDARD
+from depmap_analysis.network_functions.net_functions import \
+    SIGN_TO_STANDARD, SIGNS_TO_INT_SIGN
 
 from .util import get_mandatory_args
 from .data_models import NetworkSearchQuery
@@ -80,7 +81,7 @@ class Query:
         The options here impact decisions on which extra search algorithms
         to include and which graph to pick
         """
-        return {'sign': self.query.sign,
+        return {'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
                 'fplx_expand': self.query.fplx_expand,
                 'user_timout': self.query.user_timeout,
                 'two_way': self.query.two_way,
