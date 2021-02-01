@@ -216,10 +216,39 @@ class DijkstraQuery(Query):
         super().__init__(query)
 
     def alg_options(self) -> Dict[str, Any]:
-        pass
+        """Match arguments of open_dijkstra_search from query"""
+        if self.query.source and not self.query.target:
+            start, reverse = self.query.source, False
+        elif not self.query.source and self.query.target:
+            start, reverse = self.query.target, True
+        else:
+            raise InvalidParametersError(
+                f'Cannot use {self.method_name} with both source and target '
+                f'set.'
+            )
+        return {'start': start,
+                'reverse': reverse,
+                'path_limit': None,  # Sets yield limit inside algorithm
+                'node_filter': None,  # Unused in algorithm currently
+                'ignore_nodes': self.query.node_blacklist,
+                'ignore_edges': None,  # Not provided as an option in UI
+                'terminal_ns': self.query.terminal_ns,
+                'weight': 'weight' if self.query.weighted else None}
 
-    def mesh_options(self) -> Dict[str, Any]:
-        pass
+    def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
+            -> Dict[str, Union[Set, bool, Callable]]:
+        """Produces mesh arguments matching open_dijkstra_search from query
+
+        Parameters
+        """
+        if len(self.query.mesh_ids) > 0:
+            hashes, ref_counts_func = self._get_mesh_options()
+        else:
+            hashes, ref_counts_func = None, None
+        return {'ref_counts_function': ref_counts_func,
+                'hashes': hashes,
+                'const_c': self.query.const_c,
+                'const_tk': self.query.const_tk}
 
 
 class QueryHandler:
