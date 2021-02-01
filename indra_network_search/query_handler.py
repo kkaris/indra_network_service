@@ -124,9 +124,7 @@ class ShortestSimplePathsQuery(Query):
         return {'source': self.query.source,
                 'target': self.query.target,
                 'ignore_nodes': self.query.node_blacklist,
-                'weight': 'weight' if self.query.weighted else None,
-                'readonly': False}
-        # Set 'readonly' to True if running in a parallel/threading context
+                'weight': 'weight' if self.query.weighted else None}
 
     def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Union[Set, int, bool, Callable]]:
