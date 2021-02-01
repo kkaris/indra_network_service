@@ -172,7 +172,7 @@ class BreadthFirstSearchQuery(Query):
         return {'source_node': source_node,
                 'reverse': reverse,
                 'depth_limit': depth_limit,
-                'path_limit': None,  # Sets limit inside algorithm
+                'path_limit': None,  # Sets yield limit inside algorithm
                 'max_per_node': self.query.max_per_node or 5,
                 'node_filter': self.query.allowed_ns,
                 'node_blacklist': self.query.node_blacklist,
