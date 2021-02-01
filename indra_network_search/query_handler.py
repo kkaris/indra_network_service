@@ -87,7 +87,8 @@ class Query:
                 'shared_regulators': self.query.shared_regulators,
                 'format': self.query.format}
 
-    def _get_mesh_options(self) -> Tuple[Set, Callable]:
+    def _get_mesh_options(self, get_func: bool = True) \
+            -> Tuple[Set, Union[Callable, None]]:
         """Get the necessary mesh options"""
         if len(self.query.mesh_ids) > 0:
             raise InvalidParametersError('No mesh ids provided, but method '
@@ -95,7 +96,8 @@ class Query:
         hash_mesh_dict: Dict[Any, Dict] = get_mesh_ref_counts(
             self.query.mesh_ids)
         related_hashes: Set = set(hash_mesh_dict.keys())
-        ref_counts_from_hashes = _get_ref_counts_func(hash_mesh_dict)
+        ref_counts_from_hashes = \
+            _get_ref_counts_func(hash_mesh_dict) if get_func else None
         return related_hashes, ref_counts_from_hashes
 
     def mesh_options(self) -> Dict[str, Any]:
