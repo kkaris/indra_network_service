@@ -129,7 +129,7 @@ class ShortestSimplePathsQuery(Query):
         # Set 'readonly' to True if running in a parallel/threading context
 
     def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
-            -> Dict[str, Union[Set, Callable]]:
+            -> Dict[str, Union[Set, int, bool, Callable]]:
         """Match input to shortest_simple_paths
 
         Returns
@@ -183,7 +183,7 @@ class BreadthFirstSearchQuery(Query):
                 'max_memory': int(2**29)}  # Currently not set in UI
 
     def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
-            -> Dict[str, Any]:
+            -> Dict[str, Union[Set, bool, Callable]]:
         """Match input to bfs_search"""
         # If any mesh ids are provided:
         if len(self.query.mesh_ids) > 0:
