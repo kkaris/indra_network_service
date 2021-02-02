@@ -106,9 +106,11 @@ class Query:
         """Return algorithm specific mesh options"""
         raise NotImplementedError
 
-    def run_options(self):
+    def run_options(self, graph: Optional[nx.DiGraph] = None) \
+            -> Dict[str, Any]:
         """Combines all options to one dict that can be sent to algorithm"""
-        return self.assert_query({**self.alg_options(), **self.mesh_options()})
+        return self.assert_query({**self.alg_options(),
+                                  **self.mesh_options(graph=graph)})
 
 
 class ShortestSimplePathsQuery(Query):
@@ -313,10 +315,10 @@ class QueryHandler:
 
         return self._query
 
-    def get_options(self) -> Dict:
+    def get_options(self, graph: nx.DiGraph) -> Dict:
         """Get the run options matching the query"""
         asq: Query = self.get_query()
-        return asq.run_options()
+        return asq.run_options(graph=graph)
 
 
 def _is_context_weighted(mesh_id_list: bool, strict_filtering: bool):
