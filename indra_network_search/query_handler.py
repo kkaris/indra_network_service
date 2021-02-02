@@ -258,6 +258,7 @@ class QueryHandler:
 
     def __init__(self, rest_query: NetworkSearchQuery):
         self.rest_query: NetworkSearchQuery = rest_query
+        self.rest_query_hash: int = rest_query.get_hash()
         self.signed: bool = SIGN_TO_STANDARD.get(rest_query.sign) in ('+', '-')
         self.open: bool = bool(rest_query.source) ^ bool(rest_query.target)
         self.weighted: bool = bool(rest_query.weighted)
