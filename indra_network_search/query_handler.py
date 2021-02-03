@@ -34,7 +34,7 @@ class Query:
     IndraNetworkSearchAPI that are used receive the data needed from the
     NetworkSearchQuery
     """
-    method_name: str = NotImplemented
+    alg_name: str = NotImplemented
     alg_func: Callable = NotImplemented
 
     def __init__(self, query: NetworkSearchQuery):
@@ -66,7 +66,7 @@ class Query:
         # argument)
         if len(args_wo_defaults.difference(options_wo_defaults)) > 1:
             raise MissingParametersError(
-                f'Missing mandatory arguments for calling {self.method_name}'
+                f'Missing mandatory arguments for calling {self.alg_name}'
             )
 
         return run_options
@@ -115,7 +115,7 @@ class Query:
 
 class ShortestSimplePathsQuery(Query):
     """Check queries that will use the shortest_simple_paths algorithm"""
-    method_name: str = shortest_simple_paths.__name__
+    alg_name: str = shortest_simple_paths.__name__
     alg_func: Callable = shortest_simple_paths
 
     def __init__(self, query: NetworkSearchQuery):
@@ -152,7 +152,7 @@ class ShortestSimplePathsQuery(Query):
 
 class BreadthFirstSearchQuery(Query):
     """Check queries that will use the bfs_search algorithm"""
-    method_name: str = bfs_search.__name__
+    alg_name: str = bfs_search.__name__
     alg_func: Callable = bfs_search
 
     def __init__(self, query: NetworkSearchQuery):
@@ -209,7 +209,7 @@ class BreadthFirstSearchQuery(Query):
 
 class DijkstraQuery(Query):
     """Check queries that will use the open_dijkstra_search algorithm"""
-    method_name = open_dijkstra_search.__name__
+    alg_name = open_dijkstra_search.__name__
     alg_func: Callable = open_dijkstra_search
 
     def __init__(self, query: NetworkSearchQuery):
