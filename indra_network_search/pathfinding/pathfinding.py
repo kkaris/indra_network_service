@@ -58,7 +58,8 @@ def shared_interactors(graph: Union[DiGraph, MultiDiGraph],
                        source_filter: Optional[List[str]] = None,
                        max_results: int = 50,
                        regulators: bool = False,
-                       sign: Optional[int] = None) -> Iterator:
+                       sign: Optional[int] = None) \
+        -> Iterator[Tuple[List[str], List[str]]]:
     """Get shared regulators or targets and filter them based on sign
 
     Closely resembles get_st and get_sr from
