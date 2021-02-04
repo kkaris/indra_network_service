@@ -10,15 +10,15 @@ agA_names = ['X1', 'X2', 'X1', 'X2', 'Z2', 'Z2']
 agA_ns_list = ['nsX1', 'nsX2', 'nsX1', 'nsX2', 'nsZ2', 'nsZ2']
 agA_ids = ['idX1', 'idX2', 'idX1', 'idX2', 'idZ2', 'idZ2']
 agB_names = ['Y1', 'Y2', 'Z1', 'Z1', 'X1', 'X2']
-agB_ns_list = ['nsY1', 'nsY2']
-agB_ids = ['idY1', 'idY2']
+agB_ns_list = ['nsY1', 'nsY2', 'nsZ1', 'nsZ1', 'nsX1', 'nsX2']
+agB_ids = ['idY1', 'idY2', 'idZ1', 'idZ1', 'idX1', 'idX2']
 h1, h2, h3, h4, h5, h6 = 1234657890, 9876543210, 1212121212, \
                          5454545454, 7878787878, 9191919191
 hashes = [h1, h2, h3, h4, h5, h6]
 bd = [0.685, 0.95, 0.64, 0.897, 0.486, 0.684]
 stmt_types = ['Activation', 'Complex', 'Activation', 'Phosphorylation',
               'IncreaseAmount', 'DecreaseAmount']
-ev_counts = [7, 13]
+ev_counts = [7, 13, 13, 13, 13, 13]
 src = [{'srcA': 2, 'srcB': 5}, {'srcA': 5, 'srcB': 8}, {'srcA': 5, 'srcB': 8},
        {'srcA': 2, 'srcB': 5}, {'srcA': 5, 'srcB': 8}, {'srcA': 5, 'srcB': 8}]
 
@@ -48,8 +48,21 @@ def test_shared_parents():
 
 
 def test_shared_targets():
-    pass
+    source = 'X1'
+    target = 'X2'
+    shared_target = 'Z1'
+
+    res = shared_interactors(graph=idg, source=source, target=target,
+                             regulators=False)
+    assert ([source, shared_target], [target, shared_target]) in list(res)
 
 
 def test_shared_regulators():
-    pass
+    source = 'X1'
+    target = 'X2'
+    shared_regulator = 'Z1'
+
+    res = shared_interactors(graph=idg, source=source, target=target,
+                             regulators=True)
+    assert ([source, shared_regulator], [target, shared_regulator]) in \
+           list(res)
