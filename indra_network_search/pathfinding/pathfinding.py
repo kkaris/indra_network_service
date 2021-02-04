@@ -3,7 +3,7 @@ Pathfinding algorithms local to this repo
 """
 from itertools import islice, product
 from networkx import DiGraph, MultiDiGraph
-from typing import Generator, List, Union, Optional, Set
+from typing import Generator, List, Union, Optional, Set, Iterator
 
 from depmap_analysis.scripts.depmap_script_expl_funcs import \
     _get_signed_shared_targets, _get_signed_shared_regulators, _src_filter, \
@@ -20,7 +20,7 @@ def shared_interactors(graph: Union[DiGraph, MultiDiGraph],
                        source_filter: Optional[List[str]] = None,
                        max_results: int = 50,
                        regulators: bool = False,
-                       sign: Optional[int] = None) -> Generator:
+                       sign: Optional[int] = None) -> Iterator:
     """Get shared regulators or targets and filter them based on sign
 
     Closely resembles get_st and get_sr from
@@ -97,7 +97,7 @@ def shared_interactors(graph: Union[DiGraph, MultiDiGraph],
     else:
         path_gen: Generator = (([source, x], [target, x])
                                for x in interm_sorted)
-    return path_gen
+    return islice(path_gen, max_results)
 
 
 def _stmt_types_filter(start_node: str, neighbor_nodes: Set[str],
