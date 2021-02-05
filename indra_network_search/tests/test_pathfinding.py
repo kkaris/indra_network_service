@@ -54,15 +54,16 @@ def test_shared_targets():
 
     res = shared_interactors(graph=idg, source=source, target=target,
                              regulators=False)
-    assert ([source, shared_target], [target, shared_target]) in list(res)
+    res_list = [t for t in res]
+    assert ([source, shared_target], [target, shared_target]) in res_list
 
 
 def test_shared_regulators():
     source = 'X1'
     target = 'X2'
-    shared_regulator = 'Z1'
+    shared_regulator = 'Z2'
 
     res = shared_interactors(graph=idg, source=source, target=target,
                              regulators=True)
-    assert ([source, shared_regulator], [target, shared_regulator]) in \
-           list(res)
+    res_list = [t for t in res]
+    assert ([shared_regulator, source], [shared_regulator, target]) in res_list
