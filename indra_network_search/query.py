@@ -11,8 +11,9 @@ from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
-from indra_network_search.data_models import NetworkSearchQuery
-from indra_network_search.util import get_mandatory_args
+from .util import get_mandatory_args
+from .data_models import NetworkSearchQuery
+from .pathfinding import *
 
 
 __all__ = ['ShortestSimplePathsQuery', 'BreadthFirstSearchQuery',
@@ -268,6 +269,8 @@ class DijkstraQuery(PathQuery):
 
 class SharedInteractorsQuery(Query):
     """Parent class for shared target and shared regulator search"""
+    alg_name: str = shared_interactors.__name__
+    alg_func: Callable = shared_interactors
     reverse: bool = NotImplemented
 
     def __init__(self, query: NetworkSearchQuery):
