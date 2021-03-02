@@ -108,8 +108,8 @@ def shared_interactors(graph: Union[DiGraph, MultiDiGraph],
         o_neigh = _stmt_types_filter(target, o_neigh, *st_args)
 
     # Filter source
-    src_args = (graph, regulators, source_filter)
     if source_filter:
+        src_args = (graph, regulators, source_filter)
         s_neigh = _src_filter(source, s_neigh, *src_args)
         o_neigh = _src_filter(target, o_neigh, *src_args)
 
