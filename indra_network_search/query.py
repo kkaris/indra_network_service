@@ -303,6 +303,38 @@ class SharedTargetsQuery(SharedInteractorsQuery):
     reverse = False
 
 
+class OntologyQuery(Query):
+    """Check queries that will use shared_parents"""
+
+    def __init__(self, query: NetworkSearchQuery):
+        super().__init__(query)
+
+    @staticmethod
+    def _get_ns_id(graph: nx.DiGraph, node_name: str) -> Tuple[str, str]:
+        return (graph.nodes.get(node_name, {}).get('ns'),
+                graph.nodes.get(node_name, {}).get('id'))
+
+    def _get_ontology_options(self, graph: nx.DiGraph):
+        source_ns, source_id = self._get_ns_id(graph=graph,
+                                               node_name=self.query.source)
+        target_ns, target_id = self._get_ns_id(graph=graph,
+                                               node_name=self.query.target)
+        return {'source_ns': source_ns, 'source_id': source_id,
+                'target_ns': target_ns, 'target_id': target_id}
+
+    def alg_options(self) -> Dict[str, Any]:
+        """Match arguments of shared_parents from query"""
+        return {'immediate_only': False,
+                'is_a_part_of': None}
+
+    def run_options(self, graph: Optional[nx.DiGraph] = None) \
+            -> Dict[str, Any]:
+        """Check query options and return them"""
+        ontology_options: Dict[str, str] = self._get_ontology_options(graph)
+        return self.assert_query({**ontology_options,
+                                  **self.alg_options()})
+
+
 def _get_ref_counts_func(hash_mesh_dict: Dict):
     def _func(graph: nx.DiGraph, u: str, v: str):
         # Get hashes for edge
