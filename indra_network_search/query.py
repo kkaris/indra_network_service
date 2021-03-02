@@ -35,7 +35,6 @@ class Query:
     """
     alg_func: Callable = NotImplemented  # Function to call
     alg_name: str = NotImplemented  # String with name of alg_func
-    method_name: str = NotImplemented  # Name of IndraNetworkSearchAPI method
 
     def __init__(self, query: NetworkSearchQuery):
         self.query: NetworkSearchQuery = query
@@ -182,7 +181,7 @@ class BreadthFirstSearchQuery(PathQuery):
             source_node, reverse = self.query.target, True
         else:
             raise InvalidParametersError(
-                f'Cannot use {self.method_name} with both source and target '
+                f'Cannot use {self.alg_name} with both source and target '
                 f'set.'
             )
         depth_limit = self.query.path_length - 1 if self.query.path_length \
@@ -205,7 +204,7 @@ class BreadthFirstSearchQuery(PathQuery):
         if len(self.query.mesh_ids) > 0:
             if not isinstance(graph, nx.DiGraph):
                 raise InvalidParametersError(
-                    f'Must provide graph when doing {self.method_name} with '
+                    f'Must provide graph when doing {self.alg_name} with '
                     f'mesh options.'
                 )
             hashes, _ = self._get_mesh_options(get_func=False)
@@ -239,7 +238,7 @@ class DijkstraQuery(PathQuery):
             start, reverse = self.query.target, True
         else:
             raise InvalidParametersError(
-                f'Cannot use {self.method_name} with both source and target '
+                f'Cannot use {self.alg_name} with both source and target '
                 f'set.'
             )
         return {'start': start,
