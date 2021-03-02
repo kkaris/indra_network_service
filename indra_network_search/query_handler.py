@@ -102,5 +102,3 @@ def _is_weighted(weight: bool, mesh_ids: bool, strict_mesh_id_filtering: bool):
         return weight or ctx_w
     else:
         return weight
-
-
