@@ -31,11 +31,11 @@ class Query:
     """Parent class to all Query classes
 
     The Query classes are helpers that make sure the methods of the
-    IndraNetworkSearchAPI that are used receive the data needed from the
-    NetworkSearchQuery
+    IndraNetworkSearchAPI receive the data needed from the NetworkSearchQuery
     """
-    alg_name: str = NotImplemented
-    alg_func: Callable = NotImplemented
+    alg_func: Callable = NotImplemented  # Function to call
+    alg_name: str = NotImplemented  # String with name of alg_func
+    method_name: str = NotImplemented  # Name of IndraNetworkSearchAPI method
 
     def __init__(self, query: NetworkSearchQuery):
         self.query: NetworkSearchQuery = query
@@ -287,7 +287,7 @@ class QueryHandler:
 
     def _map_to_query_type(self):
         """This method maps the query to an API method"""
-        # If not open, run shortest_simple_paths
+        # If not open, run shortest_simple_paths and other queries
         if not self.open:
             self.api_method = shortest_simple_paths.__name__
         # If open: check if weighted options
