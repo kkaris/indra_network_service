@@ -1,3 +1,7 @@
+"""
+This file contains the Query classes that maps to different algorithms used
+in the search api.
+"""
 import inspect
 from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List
 
