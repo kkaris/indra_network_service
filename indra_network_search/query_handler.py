@@ -72,7 +72,7 @@ class Query:
         return run_options
 
     def alg_options(self) -> Dict[str, Any]:
-        """Returns the options for the algorithm used, excl mesh options"""
+        """Returns the options for the algorithm used"""
         raise NotImplementedError
 
     def api_options(self) -> Dict[str, Any]:
@@ -88,18 +88,20 @@ class Query:
                 'shared_regulators': self.query.shared_regulators,
                 'format': self.query.format}
 
-    def _get_mesh_options(self, get_func: bool = True) \
-            -> Tuple[Set, Union[Callable, None]]:
-        """Get the necessary mesh options"""
-        if len(self.query.mesh_ids) > 0:
-            raise InvalidParametersError('No mesh ids provided, but method '
-                                         'for getting mesh options was called')
-        hash_mesh_dict: Dict[Any, Dict] = get_mesh_ref_counts(
-            self.query.mesh_ids)
-        related_hashes: Set = set(hash_mesh_dict.keys())
-        ref_counts_from_hashes = \
-            _get_ref_counts_func(hash_mesh_dict) if get_func else None
-        return related_hashes, ref_counts_from_hashes
+    def run_options(self, graph: Optional[nx.DiGraph] = None) \
+            -> Dict[str, Any]:
+        """Combines all options to one dict that can be sent to algorithm"""
+        raise NotImplementedError
+
+
+class PathQuery(Query):
+    """Parent Class for ShortestSimplePaths, Dijkstra and BreadthFirstSearch"""
+    def __init__(self, query: NetworkSearchQuery):
+        super().__init__(query)
+
+    def alg_options(self) -> Dict[str, Any]:
+        """Returns the options for the algorithm used, excl mesh options"""
+        raise NotImplementedError
 
     def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Any]:
@@ -112,8 +114,22 @@ class Query:
         return self.assert_query({**self.alg_options(),
                                   **self.mesh_options(graph=graph)})
 
+    # This method is specific for PathQuery classes
+    def _get_mesh_options(self, get_func: bool = True) \
+            -> Tuple[Set, Union[Callable, None]]:
+        """Get the necessary mesh options"""
+        if len(self.query.mesh_ids) > 0:
+            raise InvalidParametersError('No mesh ids provided, but method '
+                                         'for getting mesh options was called')
+        hash_mesh_dict: Dict[Any, Dict] = \
+            get_mesh_ref_counts(self.query.mesh_ids)
+        related_hashes: Set = set(hash_mesh_dict.keys())
+        ref_counts_from_hashes = \
+            _get_ref_counts_func(hash_mesh_dict) if get_func else None
+        return related_hashes, ref_counts_from_hashes
 
-class ShortestSimplePathsQuery(Query):
+
+class ShortestSimplePathsQuery(PathQuery):
     """Check queries that will use the shortest_simple_paths algorithm"""
     alg_name: str = shortest_simple_paths.__name__
     alg_func: Callable = shortest_simple_paths
@@ -150,7 +166,7 @@ class ShortestSimplePathsQuery(Query):
         }
 
 
-class BreadthFirstSearchQuery(Query):
+class BreadthFirstSearchQuery(PathQuery):
     """Check queries that will use the bfs_search algorithm"""
     alg_name: str = bfs_search.__name__
     alg_func: Callable = bfs_search
@@ -207,7 +223,7 @@ class BreadthFirstSearchQuery(Query):
         }
 
 
-class DijkstraQuery(Query):
+class DijkstraQuery(PathQuery):
     """Check queries that will use the open_dijkstra_search algorithm"""
     alg_name = open_dijkstra_search.__name__
     alg_func: Callable = open_dijkstra_search
