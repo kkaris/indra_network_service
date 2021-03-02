@@ -266,6 +266,40 @@ class DijkstraQuery(PathQuery):
                 'const_tk': self.query.const_tk}
 
 
+class SharedInteractorsQuery(Query):
+    """Parent class for shared target and shared regulator search"""
+    reverse: bool = NotImplemented
+
+    def __init__(self, query: NetworkSearchQuery):
+        super().__init__(query)
+
+    def alg_options(self) -> Dict[str, Any]:
+        """Match arguments of shared_interactors from query"""
+        return {'source': self.query.source,
+                'target': self.query.target,
+                'allowed_ns': self.query.allowed_ns,
+                'stmt_types': self.query.stmt_filter,
+                'source_filter': None,  # Not implemented in UI
+                'max_results': self.query.k_shortest,
+                'regulators': self.reverse,
+                'sign': SIGNS_TO_INT_SIGN.get(self.query.sign)}
+
+    def run_options(self, graph: Optional[nx.DiGraph] = None) \
+            -> Dict[str, Any]:
+        """Check query options and return them"""
+        return self.assert_query(**self.alg_options())
+
+
+class SharedRegulatorsQuery(SharedInteractorsQuery):
+    """Check queries that will use shared_interactors(regulators=True)"""
+    reverse = True
+
+
+class SharedTargetsQuery(SharedInteractorsQuery):
+    """Check queries that will use shared_interactors(regulators=False)"""
+    reverse = False
+
+
 def _get_ref_counts_func(hash_mesh_dict: Dict):
     def _func(graph: nx.DiGraph, u: str, v: str):
         # Get hashes for edge
