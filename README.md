@@ -8,6 +8,6 @@ knowledge in INDRA for network path searches. The service is available at
 [https://network.indra.bio](https://network.indra.bio).
 
 Read the 
-[documentation](https://indra_network_service.readthedocs.io/en/latest/)
+[documentation](https://indra_network_search.readthedocs.io/en/latest/)
 for more information about how to use the different POST endpoints and the
 web ui.
