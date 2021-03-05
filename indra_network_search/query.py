@@ -308,6 +308,9 @@ class SharedTargetsQuery(SharedInteractorsQuery):
 
 class OntologyQuery(Query):
     """Check queries that will use shared_parents"""
+    alg_name = shared_parents.__name__
+    alg_func = shared_parents
+    options: OntologyOptions = OntologyOptions
 
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
