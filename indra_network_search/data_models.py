@@ -1,8 +1,11 @@
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Callable, Tuple, Set
 
 from pydantic import BaseModel, validator
 
 from indra_network_search.util import get_query_hash
+
+
+__all__ = ['NetworkSearchQuery', 'ShortestSimplePathOptions', 'ApiOptions']
 
 
 class NetworkSearchQuery(BaseModel):
@@ -56,3 +59,31 @@ class NetworkSearchQuery(BaseModel):
         model_copy.target = self.source
         model_copy.source = self.target
         return model_copy
+
+
+# Model for API options
+class ApiOptions(BaseModel):
+    """Options that determine API behaviour"""
+    sign: Optional[int] = None
+    fplx_expand: Optional[bool] = False
+    user_timout: Optional[Union[float, bool]] = False
+    two_way: Optional[bool] = False
+    shared_regulators: Optional[bool] = False
+    format: Optional[str] = 'json'
+
+
+# Models for the run options
+class ShortestSimplePathOptions(BaseModel):
+    """Arguments for indra.explanation.pathfinding.shortest_simple_paths"""
+    source: str
+    target: str
+    weight: Optional[str] = None
+    ignore_nodes: Optional[Set[str]] = None
+    ignore_edges: Optional[Set[Tuple[str, str]]] = None
+    hashes: Optional[List[int]] = None
+    ref_counts_function: Optional[Callable] = None
+    strict_mesh_id_filtering: Optional[bool] = False
+    const_c: Optional[int] = 1
+    const_tk: Optional[int] = 10
+
+
