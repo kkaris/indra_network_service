@@ -6,7 +6,7 @@ from indra_network_search.util import get_query_hash
 
 __all__ = ['NetworkSearchQuery', 'ApiOptions', 'ShortestSimplePathOptions',
            'BreadthFirstSearchOptions', 'DijkstraOptions',
-           'SharedInteractorsOptions']
+           'SharedInteractorsOptions', 'OntologyOptions']
 
 
 class NetworkSearchQuery(BaseModel):
@@ -131,3 +131,13 @@ class SharedInteractorsOptions(BaseModel):
     max_results: Optional[int] = 50
     regulators: Optional[bool] = False
     sign: Optional[int] = None
+
+
+class OntologyOptions(BaseModel):
+    """Arguments for indra_network_search.pathfinding.shared_parents"""
+    source_ns: str
+    source_id: str
+    target_ns: str
+    target_id: str
+    immediate_only: Optional[bool] = False
+    is_a_part_of: Optional[Set[str]] = None
