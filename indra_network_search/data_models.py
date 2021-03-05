@@ -4,9 +4,9 @@ from pydantic import BaseModel, validator
 
 from indra_network_search.util import get_query_hash
 
-
 __all__ = ['NetworkSearchQuery', 'ApiOptions', 'ShortestSimplePathOptions',
-           'BreadthFirstSearchOptions', 'DijkstraOptions', ]
+           'BreadthFirstSearchOptions', 'DijkstraOptions',
+           'SharedInteractorsOptions']
 
 
 class NetworkSearchQuery(BaseModel):
@@ -119,3 +119,15 @@ class DijkstraOptions(BaseModel):
     ref_counts_function: Optional[Callable] = None
     const_c: Optional[int] = 1
     const_tk: Optional[int] = 10
+
+
+class SharedInteractorsOptions(BaseModel):
+    """Arguments for indra_network_search.pathfinding.shared_interactors"""
+    source: str
+    target: str
+    allowed_ns: Optional[List[str]] = None
+    stmt_types: Optional[List[str]] = None
+    source_filter: Optional[List[str]] = None
+    max_results: Optional[int] = 50
+    regulators: Optional[bool] = False
+    sign: Optional[int] = None
