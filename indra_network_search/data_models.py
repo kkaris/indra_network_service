@@ -29,7 +29,7 @@ class NetworkSearchQuery(BaseModel):
     strict_mesh_id_filtering: Optional[bool] = None
     const_c: Optional[int] = 1
     const_tk: Optional[int] = 10
-    user_timeout: Optional[Union[float, bool]] = None
+    user_timeout: Optional[Union[float, bool]] = False
     two_way: Optional[bool] = None
     shared_regulators: Optional[bool] = None
     terminal_ns: Optional[List[str]] = None
