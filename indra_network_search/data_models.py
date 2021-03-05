@@ -5,7 +5,8 @@ from pydantic import BaseModel, validator
 from indra_network_search.util import get_query_hash
 
 
-__all__ = ['NetworkSearchQuery', 'ShortestSimplePathOptions', 'ApiOptions']
+__all__ = ['NetworkSearchQuery', 'ApiOptions', 'ShortestSimplePathOptions',
+           'BreadthFirstSearchOptions', 'DijkstraOptions', ]
 
 
 class NetworkSearchQuery(BaseModel):
@@ -102,3 +103,19 @@ class BreadthFirstSearchOptions(BaseModel):
     hashes: Optional[List[int]] = None
     allow_edge: Optional[Callable] = None
     strict_mesh_id_filtering: Optional[bool] = False
+
+
+class DijkstraOptions(BaseModel):
+    """Arguments for open_dijkstra_search"""
+    start: str
+    reverse: Optional[bool] = False
+    path_limit: Optional[int] = None
+    # node_filter: Optional[List[str]] = None  # Currently not implemented
+    hashes: Optional[List[int]] = None
+    ignore_nodes: Optional[List[str]] = None
+    ignore_edges: Optional[List[Tuple[str, str]]] = None
+    terminal_ns: Optional[List[str]] = None
+    weight: Optional[str] = None
+    ref_counts_function: Optional[Callable] = None
+    const_c: Optional[int] = 1
+    const_tk: Optional[int] = 10
