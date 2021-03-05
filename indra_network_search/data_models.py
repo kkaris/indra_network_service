@@ -87,3 +87,18 @@ class ShortestSimplePathOptions(BaseModel):
     const_tk: Optional[int] = 10
 
 
+class BreadthFirstSearchOptions(BaseModel):
+    """Arguments for indra.explanation.pathfinding.bfs_search"""
+    source_node: str
+    reverse: Optional[bool] = False
+    depth_limit: Optional[int] = 2
+    path_limit: Optional[int] = None
+    max_per_node: Optional[int] = 5
+    node_filter: Optional[List[str]] = None
+    node_blacklist: Optional[Set[str]] = None
+    terminal_ns: Optional[List[str]] = None
+    sign: Optional[int] = None
+    max_memory: Optional[int] = int(2**29)
+    hashes: Optional[List[int]] = None
+    allow_edge: Optional[Callable] = None
+    strict_mesh_id_filtering: Optional[bool] = False
