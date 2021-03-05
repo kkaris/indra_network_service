@@ -37,7 +37,7 @@ class Query:
     """
     alg_func: Callable = NotImplemented  # Function to call
     alg_name: str = NotImplemented  # String with name of alg_func
-    options: BaseModel = NotImplemented  # BaseModel of options
+    options = NotImplemented  # options model
 
     def __init__(self, query: NetworkSearchQuery):
         self.query: NetworkSearchQuery = query
@@ -113,8 +113,8 @@ class PathQuery(Query):
     def run_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Any]:
         """Combines all options to one dict that can be sent to algorithm"""
-        return self.assert_query({**self.alg_options(),
-                                  **self.mesh_options(graph=graph)})
+        return self.options(**self.alg_options(),
+                            **self.mesh_options(graph=graph)).dict()
 
     # This method is specific for PathQuery classes
     def _get_mesh_options(self, get_func: bool = True) \
@@ -173,6 +173,7 @@ class BreadthFirstSearchQuery(PathQuery):
     """Check queries that will use the bfs_search algorithm"""
     alg_name: str = bfs_search.__name__
     alg_func: Callable = bfs_search
+    options: BaseModel = BreadthFirstSearchOptions
 
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
@@ -228,8 +229,9 @@ class BreadthFirstSearchQuery(PathQuery):
 
 class DijkstraQuery(PathQuery):
     """Check queries that will use the open_dijkstra_search algorithm"""
-    alg_name = open_dijkstra_search.__name__
+    alg_name: str = open_dijkstra_search.__name__
     alg_func: Callable = open_dijkstra_search
+    options: DijkstraOptions = DijkstraOptions
 
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
@@ -274,6 +276,7 @@ class SharedInteractorsQuery(Query):
     """Parent class for shared target and shared regulator search"""
     alg_name: str = shared_interactors.__name__
     alg_func: Callable = shared_interactors
+    options: SharedInteractorsOptions = SharedInteractorsOptions
     reverse: bool = NotImplemented
 
     def __init__(self, query: NetworkSearchQuery):
@@ -293,7 +296,7 @@ class SharedInteractorsQuery(Query):
     def run_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Any]:
         """Check query options and return them"""
-        return self.assert_query(**self.alg_options())
+        return self.options(**self.alg_options()).dict()
 
 
 class SharedRegulatorsQuery(SharedInteractorsQuery):
@@ -337,8 +340,8 @@ class OntologyQuery(Query):
             -> Dict[str, Any]:
         """Check query options and return them"""
         ontology_options: Dict[str, str] = self._get_ontology_options(graph)
-        return self.assert_query({**ontology_options,
-                                  **self.alg_options()})
+        return self.options(**ontology_options,
+                            **self.alg_options()).dict()
 
 
 def _get_ref_counts_func(hash_mesh_dict: Dict):
