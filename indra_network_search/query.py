@@ -6,13 +6,14 @@ import inspect
 from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List
 
 import networkx as nx
+from pydantic import BaseModel
 
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
 from .util import get_mandatory_args
-from .data_models import NetworkSearchQuery
+from .data_models import *
 from .pathfinding import *
 
 
@@ -32,10 +33,11 @@ class Query:
     """Parent class to all Query classes
 
     The Query classes are helpers that make sure the methods of the
-    IndraNetworkSearchAPI receive the data needed from the NetworkSearchQuery
+    IndraNetworkSearchAPI receive the data needed from a NetworkSearchQuery
     """
     alg_func: Callable = NotImplemented  # Function to call
     alg_name: str = NotImplemented  # String with name of alg_func
+    options: BaseModel = NotImplemented  # BaseModel of options
 
     def __init__(self, query: NetworkSearchQuery):
         self.query: NetworkSearchQuery = query
@@ -81,12 +83,12 @@ class Query:
         The options here impact decisions on which extra search algorithms
         to include and which graph to pick
         """
-        return {'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
-                'fplx_expand': self.query.fplx_expand,
-                'user_timout': self.query.user_timeout,
-                'two_way': self.query.two_way,
-                'shared_regulators': self.query.shared_regulators,
-                'format': self.query.format}
+        return ApiOptions(sign=SIGNS_TO_INT_SIGN.get(self.query.sign),
+                          fplx_expand=self.query.fplx_expand,
+                          user_timout=self.query.user_timeout,
+                          two_way=self.query.two_way,
+                          shared_regulators=self.query.shared_regulators,
+                          format=self.query.format).dict()
 
     def run_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Any]:
@@ -133,6 +135,7 @@ class ShortestSimplePathsQuery(PathQuery):
     """Check queries that will use the shortest_simple_paths algorithm"""
     alg_name: str = shortest_simple_paths.__name__
     alg_func: Callable = shortest_simple_paths
+    options: ShortestSimplePathOptions = ShortestSimplePathOptions
 
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
