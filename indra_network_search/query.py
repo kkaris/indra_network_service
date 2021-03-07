@@ -16,7 +16,8 @@ from .pathfinding import *
 
 
 __all__ = ['ShortestSimplePathsQuery', 'BreadthFirstSearchQuery',
-           'DijkstraQuery', 'Query', 'PathQuery']
+           'DijkstraQuery', 'SharedTargetsQuery', 'SharedRegulatorsQuery',
+           'OntologyQuery', 'Query', 'PathQuery']
 
 
 class MissingParametersError(Exception):
