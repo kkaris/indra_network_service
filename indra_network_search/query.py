@@ -274,11 +274,13 @@ class SharedInteractorsQuery(Query):
 
 class SharedRegulatorsQuery(SharedInteractorsQuery):
     """Check queries that will use shared_interactors(regulators=True)"""
+    alg_name = 'shared_regulators'
     reverse = True
 
 
 class SharedTargetsQuery(SharedInteractorsQuery):
     """Check queries that will use shared_interactors(regulators=False)"""
+    alg_name = 'shared_targets'
     reverse = False
 
 
