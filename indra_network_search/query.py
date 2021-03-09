@@ -17,7 +17,7 @@ from .pathfinding import *
 
 __all__ = ['ShortestSimplePathsQuery', 'BreadthFirstSearchQuery',
            'DijkstraQuery', 'SharedTargetsQuery', 'SharedRegulatorsQuery',
-           'OntologyQuery', 'Query', 'PathQuery']
+           'OntologyQuery', 'Query', 'PathQuery', 'alg_func_mapping']
 
 
 class MissingParametersError(Exception):
@@ -28,14 +28,22 @@ class InvalidParametersError(Exception):
     """Raise when conflicting or otherwise invalid parameters """
 
 
+alg_func_mapping = {bfs_search.__name__: bfs_search,
+                    shortest_simple_paths.__name__: shortest_simple_paths,
+                    open_dijkstra_search.__name__: open_dijkstra_search,
+                    shared_parents.__name__: shared_parents,
+                    shared_interactors.__name__: shared_interactors,
+                    'shared_regulators': shared_interactors,
+                    'shared_targets': shared_interactors}
+
+
 class Query:
     """Parent class to all Query classes
 
     The Query classes are helpers that make sure the methods of the
     IndraNetworkSearchAPI receive the data needed from a NetworkSearchQuery
     """
-    alg_func: Callable = NotImplemented  # Function to call
-    alg_name: str = NotImplemented  # String with name of alg_func
+    alg_name: str = NotImplemented  # String with name of algorithm function
     options = NotImplemented  # options model
 
     def __init__(self, query: NetworkSearchQuery):
@@ -103,7 +111,6 @@ class PathQuery(Query):
 class ShortestSimplePathsQuery(PathQuery):
     """Check queries that will use the shortest_simple_paths algorithm"""
     alg_name: str = shortest_simple_paths.__name__
-    alg_func: Callable = shortest_simple_paths
     options: ShortestSimplePathOptions = ShortestSimplePathOptions
 
     def __init__(self, query: NetworkSearchQuery):
@@ -141,7 +148,6 @@ class ShortestSimplePathsQuery(PathQuery):
 class BreadthFirstSearchQuery(PathQuery):
     """Check queries that will use the bfs_search algorithm"""
     alg_name: str = bfs_search.__name__
-    alg_func: Callable = bfs_search
     options: BaseModel = BreadthFirstSearchOptions
 
     def __init__(self, query: NetworkSearchQuery):
@@ -199,7 +205,6 @@ class BreadthFirstSearchQuery(PathQuery):
 class DijkstraQuery(PathQuery):
     """Check queries that will use the open_dijkstra_search algorithm"""
     alg_name: str = open_dijkstra_search.__name__
-    alg_func: Callable = open_dijkstra_search
     options: DijkstraOptions = DijkstraOptions
 
     def __init__(self, query: NetworkSearchQuery):
@@ -243,8 +248,7 @@ class DijkstraQuery(PathQuery):
 
 class SharedInteractorsQuery(Query):
     """Parent class for shared target and shared regulator search"""
-    alg_name: str = shared_interactors.__name__
-    alg_func: Callable = shared_interactors
+    alg_name: str = NotImplemented
     options: SharedInteractorsOptions = SharedInteractorsOptions
     reverse: bool = NotImplemented
 
@@ -281,7 +285,6 @@ class SharedTargetsQuery(SharedInteractorsQuery):
 class OntologyQuery(Query):
     """Check queries that will use shared_parents"""
     alg_name = shared_parents.__name__
-    alg_func = shared_parents
     options: OntologyOptions = OntologyOptions
 
     def __init__(self, query: NetworkSearchQuery):
