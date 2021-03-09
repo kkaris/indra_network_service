@@ -51,7 +51,7 @@ def shared_parents(source_ns: str, source_id: str, target_ns: str,
                   key=lambda t: (t[0], t[1]))
 
 
-def shared_interactors(graph: Union[DiGraph, MultiDiGraph],
+def shared_interactors(graph: DiGraph,
                        source: str, target: str,
                        allowed_ns: Optional[List[str]] = None,
                        stmt_types: Optional[List[str]] = None,
@@ -67,16 +67,25 @@ def shared_interactors(graph: Union[DiGraph, MultiDiGraph],
 
     Parameters
     ----------
-    graph
-    source
-    target
-    allowed_ns
-    stmt_types
-    source_filter
-    max_results
-    regulators
-        If True, the do shared regulator search (upstream), otherwise do
-        shared target search (downstream). Default False.
+    graph : DiGraph
+        The graph to perform the search in
+    source : str
+        Node to look for common up- or downstream parents from
+    target : str
+        Node to look for common up- or downstream parents from
+    allowed_ns : Optional[List[str]]
+        If provided, filter common nodes to these namespaces
+    stmt_types : Optional[List[str]]
+        If provided, filter the statements in the supporting edges to these
+        statement types
+    source_filter : Optional[List[str]]
+        If provided, filter the statements in the supporting edges to those
+        with these sources
+    max_results : int
+        The maximum number of results to return
+    regulators : bool
+        If True, do shared regulator search (upstream), otherwise do shared
+        target search (downstream). Default False.
     sign
 
     Returns
