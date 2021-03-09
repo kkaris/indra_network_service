@@ -89,7 +89,7 @@ class PathQuery(Query):
     def _get_mesh_options(self, get_func: bool = True) \
             -> Tuple[Set, Union[Callable, None]]:
         """Get the necessary mesh options"""
-        if len(self.query.mesh_ids) > 0:
+        if self.query.mesh_ids is None or len(self.query.mesh_ids) == 0:
             raise InvalidParametersError('No mesh ids provided, but method '
                                          'for getting mesh options was called')
         hash_mesh_dict: Dict[Any, Dict] = \
@@ -125,7 +125,7 @@ class ShortestSimplePathsQuery(PathQuery):
         Tuple[Set, Callable]
         """
         # If any mesh ids are provided:
-        if len(self.query.mesh_ids) > 0:
+        if self.query.mesh_ids and len(self.query.mesh_ids) > 0:
             hashes, ref_counts_func = self._get_mesh_options()
         else:
             hashes, ref_counts_func = None, None
@@ -175,7 +175,7 @@ class BreadthFirstSearchQuery(PathQuery):
             -> Dict[str, Union[Set, bool, Callable]]:
         """Match input to bfs_search"""
         # If any mesh ids are provided:
-        if len(self.query.mesh_ids) > 0:
+        if self.query.mesh_ids and len(self.query.mesh_ids) > 0:
             if not isinstance(graph, nx.DiGraph):
                 raise InvalidParametersError(
                     f'Must provide graph when doing {self.alg_name} with '
@@ -231,7 +231,7 @@ class DijkstraQuery(PathQuery):
 
         Parameters
         """
-        if len(self.query.mesh_ids) > 0:
+        if self.query.mesh_ids and len(self.query.mesh_ids) > 0:
             hashes, ref_counts_func = self._get_mesh_options()
         else:
             hashes, ref_counts_func = None, None
