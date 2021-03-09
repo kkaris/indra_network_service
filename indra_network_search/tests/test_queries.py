@@ -89,7 +89,23 @@ def test_shortest_simple_paths_query():
 
 
 def test_breadth_first_search_query():
-    pass
+    # Test regular BFS
+    query = NetworkSearchQuery(source='A')
+    bfsq = BreadthFirstSearchQuery(query)
+    options = set(bfsq.run_options().keys())
+    _match_args(run_options=options, alg_fun=alg_func_mapping[bfsq.alg_name])
+
+    # Test strict context BFS
+    graph = nx.DiGraph()
+    graph.add_nodes_from([('A', {'ns': 'HGNC', 'id': '0'}),
+                          ('B', {'ns': 'HGNC', 'id': '1'})])
+    graph.add_edge('A', 'B')
+    graph.graph['edge_by_hash'] = {'123456': ('A', 'B')}
+    query = NetworkSearchQuery(source='A', mesh_ids=['D000544'],
+                               strict_mesh_id_filtering=True)
+    bfsq = BreadthFirstSearchQuery(query)
+    options = set(bfsq.run_options(graph=graph).keys())
+    _match_args(run_options=options, alg_fun=alg_func_mapping[bfsq.alg_name])
 
 
 def test_dijkstra_query():
