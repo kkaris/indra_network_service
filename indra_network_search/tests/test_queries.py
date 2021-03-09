@@ -1,25 +1,22 @@
 """
 Todo
     Add tests for:
-    - That the Options BaseModels have the correct arguments
-    - That the Options BaseModels have the correct defaults set
-    - Test arg types match if possible
+    - Test arg types match if possible, i.e. is the model's attribute of the
+      same type as the arg of the algorithm function
 FixMe
     Add mock db call for
     indra_db.client.readonly.mesh_ref_counts::get_mesh_ref_counts
     using
 """
-from moto import rds
 from inspect import signature
 import networkx as nx
-from typing import Union, Set, Callable
-from indra_network_search.util import get_default_args, get_mandatory_args
+from typing import Set, Callable
+from indra_network_search.util import get_mandatory_args
 from indra_network_search.data_models import NetworkSearchQuery
 from indra_network_search.query import SharedTargetsQuery,\
     SharedRegulatorsQuery, ShortestSimplePathsQuery, BreadthFirstSearchQuery,\
-    DijkstraQuery, OntologyQuery, shortest_simple_paths, \
-    open_dijkstra_search, bfs_search, shared_parents, shared_interactors, \
-    MissingParametersError, InvalidParametersError, alg_func_mapping
+    DijkstraQuery, OntologyQuery, MissingParametersError, \
+    InvalidParametersError, alg_func_mapping
 
 
 def _match_args(run_options: Set[str], alg_fun: Callable) -> bool:
@@ -60,9 +57,6 @@ def test_shortest_simple_paths_query():
         q_unw = QueryClass(query)
         if QueryClass.__name__ == 'OntologyQuery':
             options = q_unw.run_options(graph=graph)
-            assert {'target_ns', 'source_ns', 'source_id',
-                    'target_id'}.issubset(options.keys())
-            assert q_unw.alg_name == shared_parents.__name__
         else:
             options = q_unw.run_options()
         _match_args(set(options.keys()), alg_func_mapping[q_unw.alg_name])
