@@ -109,5 +109,15 @@ def test_breadth_first_search_query():
 
 
 def test_dijkstra_query():
-    pass
+    # Test belief weight
+    query = NetworkSearchQuery(source='A', weighted=True)
+    dijq = DijkstraQuery(query)
+    options = set(dijq.run_options().keys())
+    _match_args(run_options=options, alg_fun=alg_func_mapping[dijq.alg_name])
 
+    # Test context weight
+    query = NetworkSearchQuery(source='A', mesh_ids=['D000544'],
+                               strict_mesh_id_filtering=False)
+    dijq = DijkstraQuery(query)
+    options = set(dijq.run_options().keys())
+    _match_args(run_options=options, alg_fun=alg_func_mapping[dijq.alg_name])
