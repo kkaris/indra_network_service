@@ -19,7 +19,8 @@ __all__ = ['shared_interactors', 'shared_parents']
 
 
 def shared_parents(source_ns: str, source_id: str, target_ns: str,
-                   target_id: str, immediate_only=False, is_a_part_of=None) \
+                   target_id: str, immediate_only: bool = False,
+                   is_a_part_of: Optional[Set[str]] = None) \
         -> List[Tuple[str, str, str]]:
     """Get shared parents of (source ns, source id) and (target ns, target id)
 
@@ -36,7 +37,7 @@ def shared_parents(source_ns: str, source_id: str, target_ns: str,
     immediate_only : bool
         Determines if all or just the immediate parents should be returned.
         Default: False, i.e. all parents.
-    is_a_part_of
+    is_a_part_of : Set[str]
         If provided, the parents must be in this set of ids. The set is
         assumed to be valid ontology labels (see ontology.label()).
 
