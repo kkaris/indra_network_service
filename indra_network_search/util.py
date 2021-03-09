@@ -1,10 +1,13 @@
 """Utility functions for the INDRA Causal Network Search API in api.py"""
 import json
+import inspect
 import logging
-import networkx as nx
 from os import path
+from typing import Callable, Dict, Any, Set
 from datetime import datetime
 from botocore.exceptions import ClientError
+
+import networkx as nx
 from fnvhash import fnv1a_32
 
 from indra.util.aws import get_s3_client
@@ -28,7 +31,8 @@ __all__ = ['load_indra_graph', 'list_chunk_gen', 'read_query_json_from_s3',
            'dump_query_result_to_s3', 'NS_LIST', 'get_queryable_stmt_types',
            'load_pickled_net_from_s3', 'get_earliest_date', 'get_s3_client',
            'CACHE', 'INDRA_DG', 'INDRA_SEG', 'INDRA_SNG', 'INDRA_DG_CACHE',
-           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE']
+           'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE',
+           'get_default_args', 'get_mandatory_args']
 
 logger = logging.getLogger(__name__)
 
@@ -268,3 +272,53 @@ def read_query_json_from_s3(s3_key):
     s3 = get_s3_client(unsigned=False)
     bucket = DUMPS_BUCKET
     return read_json_from_s3(s3=s3, key=s3_key, bucket=bucket)
+
+
+def get_default_args(func: Callable) -> Dict[str, Any]:
+    """Returns the default args of a function as a dictionary
+
+    Returns a dictionary of {arg: default} of the arguments that have
+    default values. Arguments without default values and **kwargs type
+    arguments are excluded.
+
+    Code copied from: https://stackoverflow.com/a/12627202/10478812
+
+    Parameters
+    ----------
+    func : Callable
+        Function to find default arguments for
+
+    Returns
+    -------
+    Dict[str, Any]
+        A dictionary with the default values keyed by argument name
+    """
+    signature = inspect.signature(func)
+    return {
+        k: v.default
+        for k, v in signature.parameters.items()
+        if v.default is not inspect.Parameter.empty
+    }
+
+
+def get_mandatory_args(func: Callable) -> Set[str]:
+    """Returns the mandatory args for a function as a set
+
+    Returns the set of arguments names of a functions that are mandatory,
+    i.e. does not have a default value. **kwargs type arguments are ignored.
+
+    Parameters
+    ----------
+    func : Callable
+        Function to find mandatory arguments for
+
+    Returns
+    -------
+    Set[str]
+        The of mandatory arguments
+    """
+    signature = inspect.signature(func)
+    return {
+        k for k, v in signature.parameters.items()
+        if v.default is inspect.Parameter.empty
+    }
