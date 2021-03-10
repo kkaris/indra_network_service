@@ -54,6 +54,9 @@ class NetworkSearchQuery(BaseModel):
             raise ValueError('max_per_node must be integer > 0')
         return mpn
 
+    class Config:
+        allow_mutation = False  # Error for any attempt to change attributes
+
     def get_hash(self):
         """Get the corresponding query hash of the query"""
         return get_query_hash(self.dict(), ignore_keys=['format'])
