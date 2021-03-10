@@ -172,7 +172,7 @@ class StmtData(BaseModel):
 
 class EdgeData(BaseModel):
     """Data for one single edge"""
-    edge: List[str, str]  # Edge supported by stmts
+    edge: Tuple[str, str]  # Edge supported by stmts
     stmts: Dict[str, List[StmtData]]  # key by stmt_type
     belief: float  # Aggregated belief
     weight: float  # Weight corresponding to aggregated weight
