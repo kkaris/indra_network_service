@@ -61,12 +61,12 @@ class NetworkSearchQuery(BaseModel):
         """Get the corresponding query hash of the query"""
         return get_query_hash(self.dict(), ignore_keys=['format'])
 
-    def reverse_search(self) -> BaseModel:
+    def reverse_search(self):
         """Return a copy of the query with source and target switched"""
-        model_copy = self.copy(deep=True)
-        model_copy.target = self.source
-        model_copy.source = self.target
-        return model_copy
+        model_copy = self.copy(deep=True).dict(exclude={'source', 'target'})
+        source = self.target
+        target = self.source
+        return self.__class__(source=source, target=target, **model_copy)
 
 
 # Model for API options
