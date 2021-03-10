@@ -1,6 +1,10 @@
-from typing import Optional, List, Union, Callable, Tuple, Set
+"""
+This file contains data models for queries, results and arguments to algorithm
+functions.
+"""
+from typing import Optional, List, Union, Callable, Tuple, Set, Dict
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, AnyUrl
 
 from indra_network_search.util import get_query_hash
 
@@ -141,3 +145,87 @@ class OntologyOptions(BaseModel):
     target_id: str
     immediate_only: Optional[bool] = False
     is_a_part_of: Optional[Set[str]] = None
+
+
+# Models and sub-models for the Results
+class Node(BaseModel):
+    """Data for a node"""
+    name: str
+    namespace: str
+    identifier: str
+    lookup: Optional[AnyUrl] = ''
+
+
+class StmtData(BaseModel):
+    """Data for one statement supporting an edge"""
+    stmt_type: str
+    evidence_count: int
+    stmt_hash: int
+    source_counts: Dict[str, int]
+    belief: float
+    curated: bool
+    english: str
+    weight: Optional[float] = None
+    residue: Optional[str] = ''
+    position: Optional[str] = ''
+
+
+class EdgeData(BaseModel):
+    """Data for one single edge"""
+    edge: List[str, str]  # Edge supported by stmts
+    stmts: Dict[str, List[StmtData]]  # key by stmt_type
+    belief: float  # Aggregated belief
+    weight: float  # Weight corresponding to aggregated weight
+    sign: Optional[int]  # Used for signed paths
+    context_weight: Optional[Union[str, float]] = 'N/A'  # Set for context
+
+
+class Path(BaseModel):
+    """Results for a single path"""
+    # The entries are assumed to be co-ordered
+    # path = [a, b, c]
+    # edge_data = [EdgeData(a, b), EdgeData(b, c)]
+    path: List[Node]  # Contains the path
+    edge_data: List[EdgeData]  # Contains supporting data, in same order as
+
+
+class PathResults(BaseModel):
+    """Results for any of the path algorithms"""
+    # Results for bfs_search, shortest_simple_paths and open_dijkstra_search
+    # It is assumed that at least one of source or target will be set
+    source: Optional[Node] = None
+    target: Optional[Node] = None
+    paths: Dict[int, List[Path]]  # keyed by node count
+
+
+class ParentData(BaseModel):
+    """Single shared parent result"""
+    ns: str
+    id: str
+    identifier_link: AnyUrl
+
+
+class OntologyResults(BaseModel):
+    """Results for shared_parents"""
+    source: str
+    target: str
+    parents: List[ParentData]
+
+
+class SharedInteractorsResults(BaseModel):
+    """Results for shared targets and shared regulators"""
+    # s->x; t->x
+    source_data: List[EdgeData]
+    target_data: List[EdgeData]
+    interactor: str
+    downstream: bool
+
+
+class Results(BaseModel):
+    """The model wrapping all results"""
+    query_hash: str
+    hashes: Optional[List[str]] = []  # Cast as string for JavaScript
+    path_results: Optional[PathResults] = None
+    ontology_results: Optional[OntologyResults] = None
+    shared_target_results: Optional[SharedInteractorsResults] = None
+    shared_regulators_results: Optional[SharedInteractorsResults] = None
