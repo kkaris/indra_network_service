@@ -77,12 +77,16 @@ function submitQuery() {
   let nodeBlackList = [];
   for (nn of document.getElementById('node-blacklist').value.split(',')) {
     // Strip leading and trailing whitespace and push to array
-    if (nn.replace(/\s/g, '')) nodeBlackList.push(nn.replace(/\s/g, ''));
+    if (nn.trim()) {
+      nodeBlackList.push(nn.trim());
+    }
   }
   let edgeHashBlacklist = [];
   for (eh of document.getElementById('edge-hash-blacklist').value.split(',')) {
     // Strip whitespace
-    if (eh.replace(/\s/g, '')) edgeHashBlacklist.push(eh.replace(/\s/g, ''))
+    if (eh.trim()) {
+      edgeHashBlacklist.push(eh.trim());
+    }
   }
   let cullBestNode = parseInt(document.getElementById('cull-best-node').value) || 0;
   if (cullBestNode && cullBestNode < 1) {
@@ -92,7 +96,9 @@ function submitQuery() {
   let meshIdList = []
   for (id of document.getElementById('mesh-id-list').value.split(',')) {
     // Strip whitespace
-    if (id.replace(/\s/g, ''))  meshIdList.push(id.replace(/\s/g, ''))
+    if (id.trim()) {
+      meshIdList.push(id.trim());
+    }
   }
   let constC = parseInRange(document.getElementById('const_c').value,
                             document.getElementById('const_c').min,
