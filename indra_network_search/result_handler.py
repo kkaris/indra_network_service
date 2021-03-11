@@ -12,12 +12,10 @@ Todo: consider using a wrapper for checking time elapsed
 from datetime import datetime
 from typing import Generator, Union, List, Optional, Iterator, Iterable
 
-from networkx import DiGraph, MultiDiGraph
-
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from .pathfinding import *
-from .data_models import OntologyResults, Node, NetworkSearchQuery
+from .data_models import OntologyResults, Node
 
 __all__ = ['ResultHandler', 'Dijkstra', 'ShortestSimplePaths',
            'BreadthFirstSearch']
@@ -28,22 +26,12 @@ class ResultHandler:
     alg_name: str = NotImplemented
 
     def __init__(self, path_generator: Generator,
-                 graph: Union[DiGraph, MultiDiGraph],
-                 query: NetworkSearchQuery,
                  max_paths: int = 50):
         self.path_gen: Generator = path_generator
-        self.graph: Union[DiGraph, MultiDiGraph] = graph
-        self.query: NetworkSearchQuery = query
         self.start_time: Optional[datetime] = None  # Set when starting to
         # loop paths
         self.max_paths: int = max_paths
         self.timed_out = False
-
-    def get_node(self, node: str) -> Node:
-        """Get a Node model given a node name"""
-        return Node(name=node,
-                    namespace=self.graph.nodes[node]['ns'],
-                    identifier=self.graph.nodes[node]['id'])
 
     def _filter_results(self):
         pass
@@ -63,10 +51,8 @@ class PathResultsHandler(ResultHandler):
     alg_name = NotImplemented
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
-                 graph: Union[DiGraph, MultiDiGraph],
-                 query: NetworkSearchQuery, max_paths: int):
-        super().__init__(path_generator=path_generator, graph=graph,
-                         query=query, max_paths=max_paths)
+                 max_paths: int):
+        super().__init__(path_generator=path_generator, max_paths=max_paths)
         self.paths: List = []
 
     def get_results(self):
@@ -98,10 +84,10 @@ class Ontology(ResultHandler):
     alg_name = shared_parents.__name__
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
-                 graph: Union[DiGraph, MultiDiGraph],
-                 query: NetworkSearchQuery, max_paths: int = 50):
-        super().__init__(path_generator=path_generator, graph=graph,
-                         query=query, max_paths=max_paths)
+                 source: Node, target: Node, max_paths: int = 50):
+        super().__init__(path_generator=path_generator, max_paths=max_paths)
+        self.source: Node = source
+        self.target: Node = target
         self._parents: List[Node] = []
 
     def _get_parents(self):
@@ -112,9 +98,7 @@ class Ontology(ResultHandler):
     def get_results(self) -> OntologyResults:
         """Get results for shared_parents"""
         self._get_parents()
-        source_node: Node = self.get_node(self.query.source)
-        target_node: Node = self.get_node(self.query.target)
-        return OntologyResults(source=source_node, target=target_node,
+        return OntologyResults(source=self.source, target=self.target,
                                parents=self._parents)
 
 
