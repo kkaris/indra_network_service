@@ -205,9 +205,9 @@ class PathResults(BaseModel):
 
 class OntologyResults(BaseModel):
     """Results for shared_parents"""
-    source: str
-    target: str
-    parents: List[ParentData]
+    source: Node
+    target: Node
+    parents: List[Node]
 
 
 class SharedInteractorsResults(BaseModel):
