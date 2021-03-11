@@ -4,7 +4,7 @@ functions.
 """
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict
 
-from pydantic import BaseModel, validator, AnyUrl
+from pydantic import BaseModel, validator
 
 from indra_network_search.util import get_query_hash
 
@@ -158,7 +158,7 @@ class Node(BaseModel):
     name: str
     namespace: str
     identifier: str
-    lookup: Optional[AnyUrl] = ''
+    lookup: Optional[str] = ''
 
 
 class StmtData(BaseModel):
