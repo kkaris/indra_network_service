@@ -62,11 +62,12 @@ class ResultHandler:
 class PathResultsHandler(ResultHandler):
     """Parent class for path results"""
     alg_name = NotImplemented
+
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
-                 graph: Union[DiGraph, MultiDiGraph], max_paths: int):
-        super().__init__(path_generator=path_generator,
-                         graph=graph,
-                         max_paths=max_paths)
+                 graph: Union[DiGraph, MultiDiGraph],
+                 query: NetworkSearchQuery, max_paths: int):
+        super().__init__(path_generator=path_generator, graph=graph,
+                         query=query, max_paths=max_paths)
         self.paths: List = []
 
     def get_results(self):
@@ -98,9 +99,10 @@ class Ontology(ResultHandler):
     alg_name = shared_parents.__name__
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
-                 graph: Union[DiGraph, MultiDiGraph], max_paths: int = 50):
+                 graph: Union[DiGraph, MultiDiGraph],
+                 query: NetworkSearchQuery, max_paths: int = 50):
         super().__init__(path_generator=path_generator, graph=graph,
-                         max_paths=max_paths)
+                         query=query, max_paths=max_paths)
         self._parents: Optional[List[Node]] = None
 
     def _get_parents(self):
