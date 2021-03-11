@@ -10,7 +10,9 @@ from indra_network_search.util import get_query_hash
 
 __all__ = ['NetworkSearchQuery', 'ApiOptions', 'ShortestSimplePathOptions',
            'BreadthFirstSearchOptions', 'DijkstraOptions',
-           'SharedInteractorsOptions', 'OntologyOptions']
+           'SharedInteractorsOptions', 'OntologyOptions', 'Node',
+           'StmtData', 'EdgeData', 'Path', 'PathResults', 'ParentData',
+           'OntologyResults', 'SharedInteractorsResults', 'Results']
 
 
 class NetworkSearchQuery(BaseModel):
