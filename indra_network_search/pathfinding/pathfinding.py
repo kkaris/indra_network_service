@@ -3,15 +3,15 @@ Pathfinding algorithms local to this repo
 """
 import logging
 from itertools import islice, product
-from networkx import DiGraph, MultiDiGraph
 from typing import Generator, List, Union, Optional, Set, Iterator, Tuple
 
+from networkx import DiGraph, MultiDiGraph
+
 from depmap_analysis.network_functions.famplex_functions import \
-    common_parent, get_identifiers_url
+    common_parent, get_identifiers_url, ns_id_to_name
 from depmap_analysis.scripts.depmap_script_expl_funcs import \
     _get_signed_shared_targets, _get_signed_shared_regulators, _src_filter, \
     _node_ns_filter
-
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ __all__ = ['shared_interactors', 'shared_parents']
 def shared_parents(source_ns: str, source_id: str, target_ns: str,
                    target_id: str, immediate_only: bool = False,
                    is_a_part_of: Optional[Set[str]] = None) \
-        -> List[Tuple[str, str, str]]:
+        -> List[Tuple[str, str, str, str]]:
     """Get shared parents of (source ns, source id) and (target ns, target id)
 
     Parameters
@@ -43,13 +43,16 @@ def shared_parents(source_ns: str, source_id: str, target_ns: str,
 
     Returns
     -------
-    List[Tuple[str, str, str]]
+    List[Tuple[str, str, str, str]]
     """
     sp_set = common_parent(id1=source_id, id2=target_id, ns1=source_ns,
                            ns2=target_ns, immediate_only=immediate_only,
                            is_a_part_of=is_a_part_of)
-    return sorted([(n, i, get_identifiers_url(n, i)) for n, i in sp_set],
-                  key=lambda t: (t[0], t[1]))
+    return sorted([
+        (ns_id_to_name(n, i) or '',
+         n, i, get_identifiers_url(n, i))
+        for n, i in sp_set
+    ], key=lambda t: (t[0], t[1]))
 
 
 def shared_interactors(graph: DiGraph,

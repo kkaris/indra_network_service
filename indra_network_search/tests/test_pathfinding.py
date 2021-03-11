@@ -9,7 +9,7 @@ def test_shared_parents():
     id2 = '1101'
     res = shared_parents(source_ns=ns1, target_ns=ns2, source_id=id1,
                          target_id=id2)
-    short_res = [(ns, _id) for ns, _id, _ in res]
+    short_res = [(ns, _id) for _, ns, _id, _ in res]
     assert ('FPLX', 'BRCA') in short_res
     assert ('FPLX', 'FANC') in short_res
 

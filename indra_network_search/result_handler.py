@@ -105,9 +105,8 @@ class Ontology(ResultHandler):
         self._parents: List[Node] = []
 
     def _get_parents(self):
-        for ns, _id, idurl in self.path_gen:
-            # Todo get name and use instead of identifier
-            self._parents.append(Node(name=_id, namespace=ns,
+        for name, ns, _id, idurl in self.path_gen:
+            self._parents.append(Node(name=name, namespace=ns,
                                       identifier=_id, lookup=idurl))
 
     def get_results(self) -> OntologyResults:
