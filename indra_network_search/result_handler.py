@@ -16,8 +16,7 @@ from indra.explanation.pathfinding import shortest_simple_paths, bfs_search,\
     open_dijkstra_search
 from .pathfinding import *
 from .data_models import OntologyResults, Node, StmtData, EdgeData, Path, \
-    PathResults, ParentData, SharedInteractorsResults, Results, \
-    NetworkSearchQuery
+    PathResults, SharedInteractorsResults, Results, NetworkSearchQuery
 
 
 __all__ = ['ResultHandler', 'Dijkstra', 'ShortestSimplePaths',

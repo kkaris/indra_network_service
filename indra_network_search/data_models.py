@@ -11,7 +11,7 @@ from indra_network_search.util import get_query_hash
 __all__ = ['NetworkSearchQuery', 'ApiOptions', 'ShortestSimplePathOptions',
            'BreadthFirstSearchOptions', 'DijkstraOptions',
            'SharedInteractorsOptions', 'OntologyOptions', 'Node',
-           'StmtData', 'EdgeData', 'Path', 'PathResults', 'ParentData',
+           'StmtData', 'EdgeData', 'Path', 'PathResults',
            'OntologyResults', 'SharedInteractorsResults', 'Results']
 
 
@@ -201,13 +201,6 @@ class PathResults(BaseModel):
     source: Optional[Node] = None
     target: Optional[Node] = None
     paths: Dict[int, List[Path]]  # keyed by node count
-
-
-class ParentData(BaseModel):
-    """Single shared parent result"""
-    ns: str
-    id: str
-    identifier_link: AnyUrl
 
 
 class OntologyResults(BaseModel):
