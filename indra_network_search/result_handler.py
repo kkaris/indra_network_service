@@ -10,14 +10,14 @@ The results handler deals with things like:
 Todo: consider using a wrapper for checking time elapsed
 """
 from datetime import datetime
+from typing import Generator, Union, List, Optional, Iterator, Iterable
+
 from networkx import DiGraph, MultiDiGraph
-from typing import Generator, Union, Dict, List, Optional, Iterator, Iterable
-from indra.explanation.pathfinding import shortest_simple_paths, bfs_search,\
+
+from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from .pathfinding import *
-from .data_models import OntologyResults, Node, StmtData, EdgeData, Path, \
-    PathResults, SharedInteractorsResults, Results, NetworkSearchQuery
-
+from .data_models import OntologyResults, Node, NetworkSearchQuery
 
 __all__ = ['ResultHandler', 'Dijkstra', 'ShortestSimplePaths',
            'BreadthFirstSearch']
@@ -102,7 +102,7 @@ class Ontology(ResultHandler):
                  query: NetworkSearchQuery, max_paths: int = 50):
         super().__init__(path_generator=path_generator, graph=graph,
                          query=query, max_paths=max_paths)
-        self._parents: Optional[List[Node]] = None
+        self._parents: List[Node] = []
 
     def _get_parents(self):
         for ns, _id, idurl in self.path_gen:
