@@ -40,6 +40,22 @@ class ResultHandler:
         self.filter_options: FilterOptions = filter_options
         self._graph: DiGraph = graph
 
+    def _pass_node(self, node: Node) -> bool:
+        if self.filter_options.no_node_filters():
+            return True
+
+        # Check allowed namespaces
+        if len(self.filter_options.allowed_ns) > 0 and \
+                node.namespace.lower() in self.filter_options.allowed_ns:
+            return False
+
+        # Check node blacklist
+        if self.filter_options.node_blacklist and \
+                node.name.lower() in self.filter_options.node_blacklist:
+            return False
+
+        return True
+
     def _pass_stmts(self,
                     stmt_dict: Dict[str, Union[str, int, float,
                                                Dict[str, int]]]) -> bool:
@@ -156,16 +172,20 @@ class Ontology(ResultHandler):
     alg_name: str = shared_parents.__name__
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
-                 source: Node, target: Node, max_paths: int = 50):
-        super().__init__(path_generator=path_generator, max_paths=max_paths)
+                 filter_options: FilterOptions, source: Node, target: Node,
+                 max_paths: int = 50):
+        super().__init__(path_generator=path_generator,
+                         filter_options=filter_options, max_paths=max_paths)
         self.source: Node = source
         self.target: Node = target
         self._parents: List[Node] = []
 
     def _get_parents(self):
         for name, ns, _id, idurl in self.path_gen:
-            self._parents.append(Node(name=name, namespace=ns,
-                                      identifier=_id, lookup=idurl))
+            node = Node(name=name, namespace=ns, identifier=_id, lookup=idurl)
+            if self._pass_node(node):
+                self._parents.append(node)
+
             if len(self._parents) >= self.max_paths:
                 break
 
