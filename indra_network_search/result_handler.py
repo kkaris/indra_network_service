@@ -46,7 +46,7 @@ class ResultHandler:
 
         # Check allowed namespaces
         if len(self.filter_options.allowed_ns) > 0 and \
-                node.namespace.lower() in self.filter_options.allowed_ns:
+                node.namespace.lower() not in self.filter_options.allowed_ns:
             return False
 
         # Check node blacklist
