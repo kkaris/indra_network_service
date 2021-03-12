@@ -254,7 +254,6 @@ class SharedInteractorsResults(BaseModel):
     # s->x; t->x
     source_data: List[EdgeData]
     target_data: List[EdgeData]
-    interactor: str
     downstream: bool
 
 
