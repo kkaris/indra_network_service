@@ -71,7 +71,7 @@ class NetworkSearchQuery(BaseModel):
         return self.__class__(source=source, target=target, **model_copy)
 
 
-# Model for API options
+# Models for API options and filtering options
 class ApiOptions(BaseModel):
     """Options that determine API behaviour"""
     sign: Optional[int] = None
@@ -80,6 +80,27 @@ class ApiOptions(BaseModel):
     two_way: Optional[bool] = False
     shared_regulators: Optional[bool] = False
     format: Optional[str] = 'json'
+
+
+class FilterOptions(BaseModel):
+    """Options for filtering out nodes or edges"""
+    exclude_stmts: List[str] = []
+    hash_blacklist: List[int] = []
+    allowed_ns: List[str] = []
+    node_blacklist: Optional[List[str]] = []
+    path_length: Optional[int] = None
+    belief_cutoff: Optional[float] = 0.0
+    curated_db_only: bool = False
+
+    def no_filters(self) -> bool:
+        """Return True if all filter options are set to defaults"""
+        return len(self.exclude_stmts) == 0 and \
+            len(self.hash_blacklist) == 0 and \
+            len(self.allowed_ns) == 0 and \
+            len(self.node_blacklist) == 0 and \
+            self.path_length is None and \
+            self.belief_cutoff == 0.0 and \
+            self.curated_db_only is False
 
 
 # Models for the run options
