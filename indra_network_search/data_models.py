@@ -110,6 +110,9 @@ class FilterOptions(BaseModel):
             self.belief_cutoff == 0.0 and \
             self.curated_db_only is False
 
+    def no_node_filters(self):
+        """Return True if the node filter options are set to defults"""
+        return len(self.node_blacklist) == 0 and len(self.allowed_ns) == 0
 
 
 # Models for the run options
