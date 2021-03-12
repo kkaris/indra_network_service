@@ -102,6 +102,14 @@ class FilterOptions(BaseModel):
             self.belief_cutoff == 0.0 and \
             self.curated_db_only is False
 
+    def no_stmt_filters(self):
+        """Return True if all stmt filter options are set to defaults"""
+        return len(self.exclude_stmts) == 0 and \
+            len(self.hash_blacklist) == 0 and \
+            self.belief_cutoff == 0.0 and \
+            self.curated_db_only is False
+
+
 
 # Models for the run options
 class ShortestSimplePathOptions(BaseModel):
