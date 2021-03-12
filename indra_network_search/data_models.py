@@ -190,6 +190,15 @@ class Node(BaseModel):
     lookup: Optional[str] = ''
 
 
+class SignedNode(BaseModel):
+    """Data for a node"""
+    name: str
+    namespace: str
+    identifier: str
+    sign: int
+    lookup: Optional[str] = ''
+
+
 class StmtData(BaseModel):
     """Data for one statement supporting an edge"""
     stmt_type: str
@@ -212,7 +221,7 @@ class EdgeData(BaseModel):
     belief: float  # Aggregated belief
     weight: float  # Weight corresponding to aggregated weight
     sign: Optional[int]  # Used for signed paths
-    context_weight: Optional[Union[str, float]] = 'N/A'  # Set for context
+    context_weight: Union[str, float] = 'N/A'  # Set for context
 
 
 class Path(BaseModel):
