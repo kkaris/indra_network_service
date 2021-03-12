@@ -177,7 +177,7 @@ class StmtData(BaseModel):
 
 class EdgeData(BaseModel):
     """Data for one single edge"""
-    edge: Tuple[str, str]  # Edge supported by stmts
+    edge: Tuple[Node, Node]  # Edge supported by stmts
     stmts: Dict[str, List[StmtData]]  # key by stmt_type
     belief: float  # Aggregated belief
     weight: float  # Weight corresponding to aggregated weight
@@ -191,7 +191,7 @@ class Path(BaseModel):
     # path = [a, b, c]
     # edge_data = [EdgeData(a, b), EdgeData(b, c)]
     path: List[Node]  # Contains the path
-    edge_data: List[EdgeData]  # Contains supporting data, in same order as
+    edge_data: List[EdgeData]  # Contains supporting data, same order as path
 
 
 class PathResults(BaseModel):
