@@ -172,9 +172,9 @@ class Ontology(ResultHandler):
     alg_name: str = shared_parents.__name__
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
-                 filter_options: FilterOptions, source: Node, target: Node,
-                 max_paths: int = 50):
-        super().__init__(path_generator=path_generator,
+                 graph: DiGraph, filter_options: FilterOptions,
+                 source: Node, target: Node, max_paths: int = 50):
+        super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, max_paths=max_paths)
         self.source: Node = source
         self.target: Node = target
