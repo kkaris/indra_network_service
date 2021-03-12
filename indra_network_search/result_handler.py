@@ -81,7 +81,7 @@ class SharedInteractors(ResultHandler):
 
 class Ontology(ResultHandler):
     """Handles results from shared_parents"""
-    alg_name = shared_parents.__name__
+    alg_name: str = shared_parents.__name__
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  source: Node, target: Node, max_paths: int = 50):
@@ -94,6 +94,8 @@ class Ontology(ResultHandler):
         for name, ns, _id, idurl in self.path_gen:
             self._parents.append(Node(name=name, namespace=ns,
                                       identifier=_id, lookup=idurl))
+            if len(self._parents) >= self.max_paths:
+                break
 
     def get_results(self) -> OntologyResults:
         """Get results for shared_parents"""
