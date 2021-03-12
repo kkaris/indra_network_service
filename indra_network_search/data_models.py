@@ -87,9 +87,9 @@ class FilterOptions(BaseModel):
     exclude_stmts: List[str] = []
     hash_blacklist: List[int] = []
     allowed_ns: List[str] = []
-    node_blacklist: Optional[List[str]] = []
+    node_blacklist: List[str] = []
     path_length: Optional[int] = None
-    belief_cutoff: Optional[float] = 0.0
+    belief_cutoff: float = 0.0
     curated_db_only: bool = False
 
     def no_filters(self) -> bool:
