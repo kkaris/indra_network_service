@@ -173,11 +173,14 @@ class Ontology(ResultHandler):
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Node, target: Node, max_paths: int = 50):
+                 source: Union[Node, str], target: Union[Node, str],
+                 max_paths: int = 50):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, max_paths=max_paths)
-        self.source: Node = source
-        self.target: Node = target
+        self.source: Node = source if isinstance(source, Node) else \
+            self._get_node(source)
+        self.target: Node = target if isinstance(target, Node) else \
+            self._get_node(target)
         self._parents: List[Node] = []
 
     def _get_parents(self):
