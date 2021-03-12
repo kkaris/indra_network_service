@@ -194,6 +194,7 @@ class StmtData(BaseModel):
     weight: Optional[float] = None
     residue: Optional[str] = ''
     position: Optional[str] = ''
+    initial_sign: Optional[int] = None
 
 
 class EdgeData(BaseModel):
