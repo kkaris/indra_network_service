@@ -12,7 +12,8 @@ __all__ = ['NetworkSearchQuery', 'ApiOptions', 'ShortestSimplePathOptions',
            'BreadthFirstSearchOptions', 'DijkstraOptions',
            'SharedInteractorsOptions', 'OntologyOptions', 'Node',
            'StmtData', 'EdgeData', 'Path', 'PathResults',
-           'OntologyResults', 'SharedInteractorsResults', 'Results']
+           'OntologyResults', 'SharedInteractorsResults', 'Results', 
+           'FilterOptions']
 
 
 class NetworkSearchQuery(BaseModel):
