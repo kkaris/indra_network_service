@@ -10,12 +10,18 @@ The results handler deals with things like:
 Todo: consider using a wrapper for checking time elapsed
 """
 from datetime import datetime
-from typing import Generator, Union, List, Optional, Iterator, Iterable
+from typing import Generator, Union, List, Optional, Iterator, Iterable, \
+    Dict, Any
 
+from networkx import DiGraph
+
+from depmap_analysis.network_functions.famplex_functions import \
+    get_identifiers_url
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from .pathfinding import *
-from .data_models import OntologyResults, Node
+from .data_models import OntologyResults, SharedInteractorsResults, \
+    EdgeData, StmtData, Node, FilterOptions
 
 __all__ = ['ResultHandler', 'Dijkstra', 'ShortestSimplePaths',
            'BreadthFirstSearch']
@@ -25,20 +31,86 @@ class ResultHandler:
     """Applies post-search filtering and assembles edge data for paths"""
     alg_name: str = NotImplemented
 
-    def __init__(self, path_generator: Generator,
-                 max_paths: int = 50):
+    def __init__(self, path_generator: Generator, graph: DiGraph,
+                 filter_options: FilterOptions, max_paths: int = 50):
         self.path_gen: Generator = path_generator
-        self.start_time: Optional[datetime] = None  # Set when starting to
-        # loop paths
+        self.start_time: Optional[datetime] = None  # Start when looping paths
         self.max_paths: int = max_paths
         self.timed_out = False
+        self.filter_options: FilterOptions = filter_options
+        self._graph: DiGraph = graph
 
-    def _filter_results(self):
-        pass
+    def _pass_stmts(self,
+                    stmt_dict: Dict[str, Union[str, int, float,
+                                               Dict[str, int]]]) -> bool:
+        if self.filter_options.no_stmt_filters():
+            return True
 
-    def _build_result_data(self):
-        # loop the generator and fill in paths list and edge data dictionary
-        pass
+        # Check stmt types
+        if stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+            return False
+
+        # Check curated db
+        if self.filter_options.curated_db_only and \
+                stmt_dict['curated'] is False:
+            return False
+
+        # Check belief
+        if stmt_dict['belief'] < self.filter_options.belief_cutoff:
+            return False
+
+        # Check hashes
+        if stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
+            return False
+
+        return True
+
+    def _get_node(self, node_name: str) -> Union[Node, None]:
+        db_ns = self._graph.nodes.get(node_name, {}).get('ns')
+        db_id = self._graph.nodes.get(node_name, {}).get('id')
+        lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
+        if db_id is None and db_ns is None:
+            return None
+        return Node(name=node_name, namespace=db_ns,
+                    identifier=db_id, lookup=lookup)
+
+    def _get_stmt_data(self, stmt_dict: Dict[str, Union[str, int, float,
+                                                        Dict[str, int]]]) -> \
+            Union[StmtData, None]:
+        if not self._pass_stmts(stmt_dict):
+            return None
+
+        return StmtData(**stmt_dict)
+
+    def _get_edge_data(self, a: Union[str, Node], b: Union[str, Node]) -> \
+            Union[EdgeData, None]:
+        a_node = a if isinstance(a, Node) else self._get_node(a)
+        b_node = b if isinstance(b, Node) else self._get_node(b)
+        edge = (a_node, b_node)
+        ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
+        stmt_dict: Dict[str, List[StmtData]] = {}
+        for sd in ed['statements']:
+            stmt_data = self._get_stmt_data(stmt_dict=sd)
+            if stmt_data:
+                try:
+                    stmt_dict[stmt_data.stmt_type].append(stmt_data)
+                except KeyError:
+                    stmt_dict[stmt_data.stmt_type] = [stmt_data]
+
+        # If all support was filtered out
+        if not stmt_dict:
+            return None
+
+        edge_belief = ed['belief']
+        edge_weight = ed['weight']
+
+        # FixMe: assume signed paths are (node, sign) tuples, and translate
+        #  sign from there
+        # sign = ed.get('sign')
+        context_weight = ed.get('context_weight')
+
+        return EdgeData(edge=edge, stmts=stmt_dict, belief=edge_belief,
+                        weight=edge_weight, context_weight=context_weight)
 
     def get_results(self):
         """Loops out and builds results from the paths from the generator"""
