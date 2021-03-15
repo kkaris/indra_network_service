@@ -60,29 +60,29 @@ class FilterOptions(BaseModel):
 
 class NetworkSearchQuery(BaseModel):
     """The query model for network searches"""
-    source: Optional[str] = None
-    target: Optional[str] = None
-    stmt_filter: Optional[List[str]] = None
-    edge_hash_blacklist: Optional[List[int]] = None
-    allowed_ns: Optional[List[str]] = None
-    node_blacklist: Optional[List[str]] = None
+    source: str = ''
+    target: str = ''
+    stmt_filter: List[str] = []
+    edge_hash_blacklist: List[int] = []
+    allowed_ns: List[str] = []
+    node_blacklist: List[str] = []
     path_length: Optional[int] = None
     sign: Optional[str] = None
-    weighted: Optional[bool] = False
-    belief_cutoff: Optional[Union[float, bool]] = None
-    curated_db_only: Optional[bool] = None
-    fplx_expand: Optional[bool] = None
-    k_shortest: Optional[Union[int, bool]] = None
-    max_per_node: Optional[Union[int, bool]] = None
-    cull_best_node: Optional[int] = None
-    mesh_ids: Optional[List[str]] = None
-    strict_mesh_id_filtering: Optional[bool] = None
-    const_c: Optional[int] = 1
-    const_tk: Optional[int] = 10
-    user_timeout: Optional[Union[float, bool]] = False
+    weighted: bool = False
+    belief_cutoff: Union[float, bool] = 0.0
+    curated_db_only: bool = False
+    fplx_expand: bool = False
+    k_shortest: Optional[int] = None
+    max_per_node: int = 5
+    cull_best_node: List[int] = []
+    mesh_ids: List[str] = []
+    strict_mesh_id_filtering: bool = False
+    const_c: int = 1
+    const_tk: int = 10
+    user_timeout: Union[float, bool] = 30
     two_way: Optional[bool] = None
     shared_regulators: Optional[bool] = None
-    terminal_ns: Optional[List[str]] = None
+    terminal_ns: List[str] = []
     format: Optional[str] = None
 
     @validator('path_length')
