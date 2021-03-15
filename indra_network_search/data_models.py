@@ -11,9 +11,51 @@ from indra_network_search.util import get_query_hash
 __all__ = ['NetworkSearchQuery', 'ApiOptions', 'ShortestSimplePathOptions',
            'BreadthFirstSearchOptions', 'DijkstraOptions',
            'SharedInteractorsOptions', 'OntologyOptions', 'Node',
-           'StmtData', 'EdgeData', 'Path', 'PathResults',
-           'OntologyResults', 'SharedInteractorsResults', 'Results', 
-           'FilterOptions']
+           'StmtData', 'EdgeData', 'Path', 'PathResults', 'OntologyResults',
+           'SharedInteractorsResults', 'Results', 'FilterOptions']
+
+
+# Models for API options and filtering options
+class ApiOptions(BaseModel):
+    """Options that determine API behaviour"""
+    sign: Optional[int] = None
+    fplx_expand: Optional[bool] = False
+    user_timout: Optional[Union[float, bool]] = False
+    two_way: Optional[bool] = False
+    shared_regulators: Optional[bool] = False
+    format: Optional[str] = 'json'
+
+
+class FilterOptions(BaseModel):
+    """Options for filtering out nodes or edges"""
+    exclude_stmts: List[str] = []
+    hash_blacklist: List[int] = []
+    allowed_ns: List[str] = []
+    node_blacklist: List[str] = []
+    path_length: Optional[int] = None
+    belief_cutoff: float = 0.0
+    curated_db_only: bool = False
+
+    def no_filters(self) -> bool:
+        """Return True if all filter options are set to defaults"""
+        return len(self.exclude_stmts) == 0 and \
+            len(self.hash_blacklist) == 0 and \
+            len(self.allowed_ns) == 0 and \
+            len(self.node_blacklist) == 0 and \
+            self.path_length is None and \
+            self.belief_cutoff == 0.0 and \
+            self.curated_db_only is False
+
+    def no_stmt_filters(self):
+        """Return True if all stmt filter options are set to defaults"""
+        return len(self.exclude_stmts) == 0 and \
+            len(self.hash_blacklist) == 0 and \
+            self.belief_cutoff == 0.0 and \
+            self.curated_db_only is False
+
+    def no_node_filters(self):
+        """Return True if the node filter options are set to defults"""
+        return len(self.node_blacklist) == 0 and len(self.allowed_ns) == 0
 
 
 class NetworkSearchQuery(BaseModel):
@@ -71,48 +113,15 @@ class NetworkSearchQuery(BaseModel):
         target = self.source
         return self.__class__(source=source, target=target, **model_copy)
 
-
-# Models for API options and filtering options
-class ApiOptions(BaseModel):
-    """Options that determine API behaviour"""
-    sign: Optional[int] = None
-    fplx_expand: Optional[bool] = False
-    user_timout: Optional[Union[float, bool]] = False
-    two_way: Optional[bool] = False
-    shared_regulators: Optional[bool] = False
-    format: Optional[str] = 'json'
-
-
-class FilterOptions(BaseModel):
-    """Options for filtering out nodes or edges"""
-    exclude_stmts: List[str] = []
-    hash_blacklist: List[int] = []
-    allowed_ns: List[str] = []
-    node_blacklist: List[str] = []
-    path_length: Optional[int] = None
-    belief_cutoff: float = 0.0
-    curated_db_only: bool = False
-
-    def no_filters(self) -> bool:
-        """Return True if all filter options are set to defaults"""
-        return len(self.exclude_stmts) == 0 and \
-            len(self.hash_blacklist) == 0 and \
-            len(self.allowed_ns) == 0 and \
-            len(self.node_blacklist) == 0 and \
-            self.path_length is None and \
-            self.belief_cutoff == 0.0 and \
-            self.curated_db_only is False
-
-    def no_stmt_filters(self):
-        """Return True if all stmt filter options are set to defaults"""
-        return len(self.exclude_stmts) == 0 and \
-            len(self.hash_blacklist) == 0 and \
-            self.belief_cutoff == 0.0 and \
-            self.curated_db_only is False
-
-    def no_node_filters(self):
-        """Return True if the node filter options are set to defults"""
-        return len(self.node_blacklist) == 0 and len(self.allowed_ns) == 0
+    def get_filter_options(self) -> FilterOptions:
+        """Returns the filter options"""
+        return FilterOptions(exclude_stmts=self.stmt_filter,
+                             hash_blacklist=self.edge_hash_blacklist,
+                             allowed_ns=self.allowed_ns,
+                             node_blacklist=self.node_blacklist,
+                             path_length=self.path_length,
+                             belief_cutoff=self.belief_cutoff,
+                             curated_db_only=self.curated_db_only)
 
 
 # Models for the run options
