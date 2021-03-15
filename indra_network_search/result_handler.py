@@ -124,9 +124,13 @@ class ResultHandler:
         #  sign from there
         # sign = ed.get('sign')
         context_weight = ed.get('context_weight')
+        if context_weight:
+            ct_dict = {'context_weight': context_weight}
+        else:
+            ct_dict = {}
 
         return EdgeData(edge=edge, stmts=stmt_dict, belief=edge_belief,
-                        weight=edge_weight, context_weight=context_weight)
+                        weight=edge_weight, **ct_dict)
 
     def get_results(self):
         """Loops out and builds results from the paths from the generator"""
