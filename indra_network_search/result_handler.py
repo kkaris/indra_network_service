@@ -24,7 +24,7 @@ from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions
 
 __all__ = ['ResultHandler', 'Dijkstra', 'ShortestSimplePaths',
-           'BreadthFirstSearch']
+           'BreadthFirstSearch', 'SharedInteractors', 'Ontology']
 
 
 class ResultHandler:
@@ -163,8 +163,32 @@ class ShortestSimplePaths(PathResultsHandler):
 
 
 class SharedInteractors(ResultHandler):
-    """Handles results from shared_interactors, both up and downstream"""
-    alg_name = shared_interactors
+    """Handles results from shared_interactors, both up and downstream
+
+    downstream is True for shared targets and False for shared regulators
+    """
+    alg_name: str = shared_interactors.__name__
+
+    def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
+                 filter_options: FilterOptions, graph: DiGraph,
+                 is_targets_query: bool, max_paths: int = 50):
+        super().__init__(path_generator=path_generator, graph=graph,
+                         filter_options=filter_options, max_paths=max_paths)
+        self._downstream: bool = is_targets_query
+
+    def get_results(self) -> SharedInteractorsResults:
+        source_edges: List[EdgeData] = []
+        target_edges: List[EdgeData] = []
+        for (s1, s2), (t1, t2) in self.path_gen:
+            source_edge = self._get_edge_data(a=s1, b=s2)
+            target_edge = self._get_edge_data(a=t1, b=t2)
+            if source_edge and target_edge:
+                source_edges.append(source_edge)
+                target_edges.append(target_edge)
+
+        return SharedInteractorsResults(source_data=source_edges,
+                                        target_data=target_edges,
+                                        downstream=self._downstream)
 
 
 class Ontology(ResultHandler):
