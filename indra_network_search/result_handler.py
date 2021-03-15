@@ -23,11 +23,12 @@ from .pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions
 
-__all__ = ['ResultHandler', 'Dijkstra', 'ShortestSimplePaths',
-           'BreadthFirstSearch', 'SharedInteractors', 'Ontology']
+__all__ = ['Result', 'DijkstraResult', 'ShortestSimplePathsResult',
+           'BreadthFirstSearchResult', 'SharedInteractorsResult',
+           'OntologyResult']
 
 
-class ResultHandler:
+class Result:
     """Applies post-search filtering and assembles edge data for paths"""
     alg_name: str = NotImplemented
 
@@ -138,7 +139,7 @@ class ResultHandler:
         raise NotImplementedError
 
 
-class PathResultsHandler(ResultHandler):
+class PathResult(Result):
     """Parent class for path results"""
     alg_name = NotImplemented
 
@@ -151,22 +152,22 @@ class PathResultsHandler(ResultHandler):
         raise NotImplementedError
 
 
-class Dijkstra(PathResultsHandler):
+class DijkstraResult(PathResult):
     """Handles results from open_dijkstra_search"""
     alg_name = open_dijkstra_search.__name__
 
 
-class BreadthFirstSearch(PathResultsHandler):
+class BreadthFirstSearchResult(PathResult):
     """Handles results from bfs_search"""
     alg_name = bfs_search.__name__
 
 
-class ShortestSimplePaths(PathResultsHandler):
+class ShortestSimplePathsResult(PathResult):
     """Handles results from shortest_simple_paths"""
     alg_name = shortest_simple_paths.__name__
 
 
-class SharedInteractors(ResultHandler):
+class SharedInteractorsResult(Result):
     """Handles results from shared_interactors, both up and downstream
 
     downstream is True for shared targets and False for shared regulators
@@ -195,7 +196,7 @@ class SharedInteractors(ResultHandler):
                                         downstream=self._downstream)
 
 
-class Ontology(ResultHandler):
+class OntologyResult(Result):
     """Handles results from shared_parents"""
     alg_name: str = shared_parents.__name__
 
@@ -227,12 +228,12 @@ class Ontology(ResultHandler):
                                parents=self._parents)
 
 
-# Map result algorithm names to result handlers
+# Map algorithm names to result classes
 alg_handler_mapping = {
-    shortest_simple_paths.__name__: ShortestSimplePaths,
-    open_dijkstra_search.__name__: Dijkstra,
-    bfs_search.__name__: BreadthFirstSearch,
-    'shared_targets': SharedInteractors,
-    'shared_regulators': SharedInteractors,
-    shared_parents.__name__: Ontology
+    shortest_simple_paths.__name__: ShortestSimplePathsResult,
+    open_dijkstra_search.__name__: DijkstraResult,
+    bfs_search.__name__: BreadthFirstSearchResult,
+    'shared_targets': SharedInteractorsResult,
+    'shared_regulators': SharedInteractorsResult,
+    shared_parents.__name__: OntologyResult
 }
