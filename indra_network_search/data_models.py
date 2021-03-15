@@ -285,7 +285,7 @@ class SharedInteractorsResults(BaseModel):
 class Results(BaseModel):
     """The model wrapping all results"""
     query_hash: str
-    hashes: Optional[List[str]] = []  # Cast as string for JavaScript
+    hashes: List[str] = []  # Cast as string for JavaScript
     path_results: Optional[PathResults] = None
     ontology_results: Optional[OntologyResults] = None
     shared_target_results: Optional[SharedInteractorsResults] = None
