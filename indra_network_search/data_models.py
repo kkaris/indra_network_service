@@ -254,12 +254,20 @@ class PathResults(BaseModel):
     target: Optional[Node] = None
     paths: Dict[int, List[Path]]  # keyed by node count
 
+    def is_empty(self) -> bool:
+        """Return True if paths list is empty"""
+        return len(self.paths) == 0
+
 
 class OntologyResults(BaseModel):
     """Results for shared_parents"""
     source: Node
     target: Node
     parents: List[Node]
+
+    def is_empty(self) -> bool:
+        """Return True if parents list is empty"""
+        return len(self.parents) == 0
 
 
 class SharedInteractorsResults(BaseModel):
@@ -268,6 +276,10 @@ class SharedInteractorsResults(BaseModel):
     source_data: List[EdgeData]
     target_data: List[EdgeData]
     downstream: bool
+
+    def is_empty(self):
+        """Return True if both source and target data is empty"""
+        return len(self.source_data) == 0 and len(self.target_data) == 0
 
 
 class Results(BaseModel):
