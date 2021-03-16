@@ -6,7 +6,7 @@ from typing import Optional, List, Union, Callable, Tuple, Set, Dict
 
 from pydantic import BaseModel, validator
 
-from indra_network_search.util import get_query_hash
+from .util import get_query_hash, is_weighted, is_context_weighted
 
 __all__ = ['NetworkSearchQuery', 'ApiOptions', 'ShortestSimplePathOptions',
            'BreadthFirstSearchOptions', 'DijkstraOptions',
@@ -35,6 +35,9 @@ class FilterOptions(BaseModel):
     path_length: Optional[int] = None
     belief_cutoff: float = 0.0
     curated_db_only: bool = False
+    weighted: bool = False
+    context_weighted: bool = False
+    overall_weighted: bool = False
 
     def no_filters(self) -> bool:
         """Return True if all filter options are set to defaults"""
@@ -121,7 +124,18 @@ class NetworkSearchQuery(BaseModel):
                              node_blacklist=self.node_blacklist,
                              path_length=self.path_length,
                              belief_cutoff=self.belief_cutoff,
-                             curated_db_only=self.curated_db_only)
+                             curated_db_only=self.curated_db_only,
+                             overall_weighted=is_weighted(
+                                 weighted=self.weighted,
+                                 mesh_ids=self.mesh_ids,
+                                 strict_mesh_filtering=
+                                 self.strict_mesh_id_filtering
+                             ),
+                             weighted=self.weighted,
+                             context_weighted=is_context_weighted(
+                                 mesh_id_list=self.mesh_ids,
+                                 strict_filtering=self.strict_mesh_id_filtering
+                             ))
 
 
 # Models for the run options
