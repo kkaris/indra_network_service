@@ -11,7 +11,7 @@ from indra_network_search.util import get_query_hash
 __all__ = ['NetworkSearchQuery', 'ApiOptions', 'ShortestSimplePathOptions',
            'BreadthFirstSearchOptions', 'DijkstraOptions',
            'SharedInteractorsOptions', 'OntologyOptions', 'Node',
-           'StmtData', 'EdgeData', 'Path', 'PathResults', 'OntologyResults',
+           'StmtData', 'EdgeData', 'Path', 'PathResultData', 'OntologyResults',
            'SharedInteractorsResults', 'Results', 'FilterOptions']
 
 
@@ -246,7 +246,7 @@ class Path(BaseModel):
     edge_data: List[EdgeData]  # Contains supporting data, same order as path
 
 
-class PathResults(BaseModel):
+class PathResultData(BaseModel):
     """Results for any of the path algorithms"""
     # Results for bfs_search, shortest_simple_paths and open_dijkstra_search
     # It is assumed that at least one of source or target will be set
@@ -286,7 +286,7 @@ class Results(BaseModel):
     """The model wrapping all results"""
     query_hash: str
     hashes: List[str] = []  # Cast as string for JavaScript
-    path_results: Optional[PathResults] = None
+    path_results: Optional[PathResultData] = None
     ontology_results: Optional[OntologyResults] = None
     shared_target_results: Optional[SharedInteractorsResults] = None
     shared_regulators_results: Optional[SharedInteractorsResults] = None
