@@ -211,6 +211,10 @@ class SignedNode(BaseModel):
     sign: int
     lookup: Optional[str] = ''
 
+    def get_unsigned_node(self) -> Node:
+        """Get unsigned version of this node instance"""
+        return Node(**self.dict(exclude={'sign'}, exclude_defaults=True))
+
 
 class StmtData(BaseModel):
     """Data for one statement supporting an edge"""
