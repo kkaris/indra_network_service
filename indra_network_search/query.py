@@ -257,6 +257,11 @@ class SharedInteractorsQuery(Query):
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shared_interactors from query"""
+        # shared_regulators <=> reverse
+        if self.query.shared_regulators != self.reverse:
+            raise InvalidParametersError('Request for shared regulators in '
+                                         'query does not match class '
+                                         'attribute reverse')
         return {'source': self.query.source,
                 'target': self.query.target,
                 'allowed_ns': self.query.allowed_ns,
