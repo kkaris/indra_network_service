@@ -9,6 +9,7 @@ The results handler deals with things like:
 
 Todo: consider using a wrapper for checking time elapsed
 """
+import logging
 from datetime import datetime
 from typing import Generator, Union, List, Optional, Iterator, Iterable, \
     Dict, Any
@@ -26,6 +27,9 @@ from .data_models import OntologyResults, SharedInteractorsResults, \
 __all__ = ['Result', 'DijkstraResult', 'ShortestSimplePathsResult',
            'BreadthFirstSearchResult', 'SharedInteractorsResult',
            'OntologyResult']
+
+
+logger = logging.getLogger(__name__)
 
 
 class Result:
