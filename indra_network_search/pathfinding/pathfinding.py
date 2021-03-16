@@ -74,9 +74,9 @@ def shared_interactors(graph: DiGraph,
     graph : DiGraph
         The graph to perform the search in
     source : str
-        Node to look for common up- or downstream parents from
+        Node to look for common up- or downstream interactors from with target
     target : str
-        Node to look for common up- or downstream parents from
+        Node to look for common up- or downstream interactors from with source
     allowed_ns : Optional[List[str]]
         If provided, filter common nodes to these namespaces
     stmt_types : Optional[List[str]]
