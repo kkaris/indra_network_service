@@ -22,7 +22,7 @@ from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from .pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
-    EdgeData, StmtData, Node, FilterOptions
+    EdgeData, StmtData, Node, FilterOptions, PathResultData, Path
 
 __all__ = ['Result', 'DijkstraResult', 'ShortestSimplePathsResult',
            'BreadthFirstSearchResult', 'SharedInteractorsResult',
@@ -139,7 +139,7 @@ class Result:
 
     def get_results(self):
         """Loops out and builds results from the paths from the generator"""
-        # Main method for executing the path finding and results assembly
+        # Main method for looping the path finding and results assembly
         raise NotImplementedError
 
 
@@ -148,12 +148,73 @@ class PathResult(Result):
     alg_name = NotImplemented
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
-                 max_paths: int):
-        super().__init__(path_generator=path_generator, max_paths=max_paths)
-        self.paths: List = []
+                 graph: DiGraph, filter_options: FilterOptions,
+                 max_paths: int, source: Union[Node, str],
+                 target: Union[Node, str]):
+        super().__init__(path_generator=path_generator, graph=graph,
+                         filter_options=filter_options, max_paths=max_paths)
+        # Use _out_of_alg_filter to reset the filter options to only those
+        # that need to be checked outside of the algorithm
+        self._out_of_alg_filter: FilterOptions = NotImplemented
+        self.paths: Dict[int, List[Path]] = {}
 
-    def get_results(self):
-        raise NotImplementedError
+        # Set path source and/or target
+        if not source and not target:
+            raise ValueError('Must provide at least source or target for '
+                             'path results')
+        if source:
+            self.source: Node = source if isinstance(source, Node) else \
+                self._get_node(source)
+        else:
+            self.source = None
+        if target:
+            self.target: Node = target if isinstance(target, Node) else \
+                self._get_node(target)
+        else:
+            self.target = None
+
+    def _build_paths(self):
+        for path in self.path_gen:
+            if self.filter_options.path_length and \
+                    not self.filter_options.overall_weighted:
+                if len(path) < self.filter_options.path_length:
+                    continue
+                elif len(path) > self.filter_options.path_length:
+                    logger.info(f'Found all paths of length '
+                                f'{self.filter_options.path_length}')
+                    break
+                else:
+                    pass
+
+            # Initialize variables for this iteration
+            npath: List[Node] = []
+            edge_data_list = []
+            filtered_out = False  # Flag for continuing loop
+            edge_data = None  # To catch cases when no paths come out
+            for s, o in zip(path[:-1], path[1:]):
+                edge_data = self._get_edge_data(a=s, b=o)
+                if edge_data is None or edge_data.is_empty():
+                    filtered_out = True
+                    break
+                # Build PathResultData
+                edge_data_list.append(edge_data)
+                npath.append(edge_data.edge[0])
+            if filtered_out or edge_data is None:
+                continue
+            npath.append(edge_data.edge[1])
+            assert len(npath) == len(path)
+            path_data = Path(path=npath, edge_data=edge_data_list)
+            try:
+                self.paths[len(path)].append(path_data)
+            except KeyError:
+                self.paths[len(path)] = [path_data]
+
+    def get_results(self) -> PathResultData:
+        """Returns the result for the associated algorithm"""
+        if len(self.paths) == 0:
+            self._build_paths()
+        return PathResultData(source=self.source, target=self.target,
+                              paths=self.paths)
 
 
 class DijkstraResult(PathResult):
