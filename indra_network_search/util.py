@@ -348,7 +348,7 @@ def is_context_weighted(mesh_id_list: List[str],
 
 
 def is_weighted(weighted: bool, mesh_ids: List[str],
-                strict_mesh_id_filtering: bool) -> bool:
+                strict_mesh_filtering: bool) -> bool:
     """Return True if the combination is either weighted or context weighted
 
     Parameters
@@ -357,7 +357,7 @@ def is_weighted(weighted: bool, mesh_ids: List[str],
         If a query is weighted or not
     mesh_ids : List[str]
         A list of mesh ids
-    strict_mesh_id_filtering : bool
+    strict_mesh_filtering : bool
         whether to run strict context filtering or not
 
     Returns
@@ -367,7 +367,7 @@ def is_weighted(weighted: bool, mesh_ids: List[str],
     """
     if mesh_ids:
         ctx_w = is_context_weighted(mesh_id_list=mesh_ids,
-                                    strict_filtering=strict_mesh_id_filtering)
+                                    strict_filtering=strict_mesh_filtering)
         return weighted or ctx_w
     else:
         return weighted
