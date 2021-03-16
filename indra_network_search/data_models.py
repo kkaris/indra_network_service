@@ -236,6 +236,10 @@ class EdgeData(BaseModel):
     sign: Optional[int]  # Used for signed paths
     context_weight: Union[str, float] = 'N/A'  # Set for context
 
+    def is_empty(self) -> bool:
+        """Return True if len(stmts) == 0"""
+        return len(self.stmts) == 0
+
 
 class Path(BaseModel):
     """Results for a single path"""
@@ -244,6 +248,10 @@ class Path(BaseModel):
     # edge_data = [EdgeData(a, b), EdgeData(b, c)]
     path: List[Node]  # Contains the path
     edge_data: List[EdgeData]  # Contains supporting data, same order as path
+
+    def is_empty(self) -> bool:
+        """Return True if len(path) == 0 or len(edge_data) == 0"""
+        return len(self.path) == 0 or len(self.edge_data) == 0
 
 
 class PathResultData(BaseModel):
