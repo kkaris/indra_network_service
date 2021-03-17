@@ -128,7 +128,11 @@ class Result:
 
 
 class PathResult(Result):
-    """Parent class for path results"""
+    """Parent class for path results
+
+    The only thing needed in the children is defining _pass_node,
+    _pass_stmt, alg_name and _remove_used_filters
+    """
     alg_name = NotImplemented
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
