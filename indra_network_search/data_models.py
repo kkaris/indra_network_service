@@ -35,6 +35,7 @@ class FilterOptions(BaseModel):
     path_length: Optional[int] = None
     belief_cutoff: float = 0.0
     curated_db_only: bool = False
+    max_paths: int = 50
     weighted: bool = False
     context_weighted: bool = False
     overall_weighted: bool = False
@@ -125,6 +126,7 @@ class NetworkSearchQuery(BaseModel):
                              path_length=self.path_length,
                              belief_cutoff=self.belief_cutoff,
                              curated_db_only=self.curated_db_only,
+                             max_paths=self.k_shortest,
                              overall_weighted=is_weighted(
                                  weighted=self.weighted,
                                  mesh_ids=self.mesh_ids,
