@@ -367,7 +367,7 @@ class OntologyResult(Result):
     def _get_parents(self):
         for name, ns, _id, idurl in self.path_gen:
             node = Node(name=name, namespace=ns, identifier=_id, lookup=idurl)
-            if self._pass_node(node):
+            if self.filter_options.no_node_filters() or self._pass_node(node):
                 self._parents.append(node)
 
     def get_results(self) -> OntologyResults:
