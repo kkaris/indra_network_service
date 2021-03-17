@@ -416,21 +416,23 @@ class OntologyResult(Result):
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        pass
+        # No filters are applied
+        return FilterOptions()
 
     def _pass_node(self, node: Node) -> bool:
-        pass
+        # No filters are applied
+        return True
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
                                               Dict[str, int]]]) -> bool:
-        pass
+        # No filters are applied
+        return True
 
     def _get_parents(self):
         for name, ns, _id, idurl in self.path_gen:
             node = Node(name=name, namespace=ns, identifier=_id, lookup=idurl)
-            if self.filter_options.no_node_filters() or self._pass_node(node):
-                self._parents.append(node)
+            self._parents.append(node)
 
     def get_results(self) -> OntologyResults:
         """Get results for shared_parents"""
