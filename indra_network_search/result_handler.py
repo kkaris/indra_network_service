@@ -56,12 +56,6 @@ class Result:
         """Pass an individual statement based statement dict content"""
         raise NotImplementedError
 
-    def _pass_edge(self,
-                   edge_dict: Dict[str, Union[bool, str, float, int, Dict]])\
-            -> bool:
-        """Pass an individual edge based on edge content, excl statements"""
-        raise NotImplementedError
-
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         raise NotImplementedError
@@ -170,11 +164,6 @@ class PathResult(Result):
                                               Dict[str, int]]]) -> bool:
         raise NotImplementedError
 
-    def _pass_edge(self,
-                   edge_dict: Dict[str, Union[bool, str, float, int, Dict]])\
-            -> bool:
-        raise NotImplementedError
-
     def _build_paths(self):
         paths_built = 0
         for path in self.path_gen:
@@ -273,18 +262,11 @@ class DijkstraResult(PathResult):
                 self.filter_options.belief_cutoff > stmt_dict['belief']:
             return False
 
-        if self.filter_options.hash_blacklist and \
-                stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
+        if self.filter_options.curated_db_only and not stmt_dict['curated']:
             return False
 
-        return True
-
-    def _pass_edge(self,
-                   edge_dict: Dict[str, Union[bool, str, float, int, Dict]])\
-            -> bool:
-        # Need to check:
-        # - DB source or not
-        if self.filter_options.curated_db_only and not edge_dict['curated']:
+        if self.filter_options.hash_blacklist and \
+                stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
             return False
 
         return True

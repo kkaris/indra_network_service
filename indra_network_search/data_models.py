@@ -50,14 +50,10 @@ class FilterOptions(BaseModel):
             self.belief_cutoff == 0.0 and \
             self.curated_db_only is False
 
-    def no_edge_filters(self):
-        """Return True if the edge filters allow all edges"""
-        return self.curated_db_only is False
-
     def no_stmt_filters(self):
         """Return True if the stmt filter options allow all statements"""
         return self.belief_cutoff == 0.0 and len(self.exclude_stmts) == 0 and \
-            len(self.hash_blacklist) == 0
+            len(self.hash_blacklist) == 0 and self.curated_db_only is False
 
     def no_node_filters(self):
         """Return True if the node filter options allow all nodes"""
