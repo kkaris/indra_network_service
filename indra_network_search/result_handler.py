@@ -225,7 +225,17 @@ class DijkstraResult(PathResult):
         ))
 
     def _pass_node(self, node: Node) -> bool:
-        pass
+        # open_dijkstra_search already checks:
+        # node_blacklist
+        # terminal_ns
+        #
+        # Still need to check:
+        # allowed_ns
+
+        if node.namespace not in self.filter_options.allowed_ns:
+            return False
+
+        return True
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
