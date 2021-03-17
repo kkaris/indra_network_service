@@ -3,7 +3,8 @@ Pathfinding algorithms local to this repo
 """
 import logging
 from itertools import islice, product
-from typing import Generator, List, Union, Optional, Set, Iterator, Tuple
+from typing import Generator, List, Union, Optional, Set, Iterator, Tuple, \
+    Any
 
 from networkx import DiGraph, MultiDiGraph
 
@@ -20,8 +21,9 @@ __all__ = ['shared_interactors', 'shared_parents']
 
 def shared_parents(source_ns: str, source_id: str, target_ns: str,
                    target_id: str, immediate_only: bool = False,
-                   is_a_part_of: Optional[Set[str]] = None) \
-        -> List[Tuple[str, str, str, str]]:
+                   is_a_part_of: Optional[Set[str]] = None,
+                   max_paths: int = 50) \
+        -> Iterator[Tuple[str, Any, Any, str]]:
     """Get shared parents of (source ns, source id) and (target ns, target id)
 
     Parameters
@@ -40,6 +42,8 @@ def shared_parents(source_ns: str, source_id: str, target_ns: str,
     is_a_part_of : Set[str]
         If provided, the parents must be in this set of ids. The set is
         assumed to be valid ontology labels (see ontology.label()).
+    max_paths : int
+        Maximum number of results to return. Default: 50.
 
     Returns
     -------
@@ -48,11 +52,11 @@ def shared_parents(source_ns: str, source_id: str, target_ns: str,
     sp_set = common_parent(id1=source_id, id2=target_id, ns1=source_ns,
                            ns2=target_ns, immediate_only=immediate_only,
                            is_a_part_of=is_a_part_of)
-    return sorted([
+    return islice(sorted([
         (ns_id_to_name(n, i) or '',
          n, i, get_identifiers_url(n, i))
         for n, i in sp_set
-    ], key=lambda t: (t[0], t[1]))
+    ], key=lambda t: (t[0], t[1])), max_paths)
 
 
 def shared_interactors(graph: DiGraph,

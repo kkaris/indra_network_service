@@ -204,6 +204,7 @@ class OntologyOptions(BaseModel):
     source_id: str
     target_ns: str
     target_id: str
+    max_paths: int = 50
     immediate_only: Optional[bool] = False
     is_a_part_of: Optional[Set[str]] = None
 

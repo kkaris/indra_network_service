@@ -313,7 +313,8 @@ class OntologyQuery(Query):
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shared_parents from query"""
         return {'immediate_only': False,
-                'is_a_part_of': None}
+                'is_a_part_of': None,
+                'max_paths': self.query.k_shortest}
 
     def run_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Any]:
