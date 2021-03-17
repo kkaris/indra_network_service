@@ -189,18 +189,29 @@ class PathResult(Result):
             edge_data_list = []
             filtered_out = False  # Flag for continuing loop
             edge_data = None  # To catch cases when no paths come out
+
+            # Loop edges of path
             for s, o in zip(path[:-1], path[1:]):
+                # Get edge data: if None, edge has been filtered out,
+                # break and go to next path
                 edge_data = self._get_edge_data(a=s, b=o)
                 if edge_data is None or edge_data.is_empty():
                     filtered_out = True
                     break
+
                 # Build PathResultData
                 edge_data_list.append(edge_data)
                 npath.append(edge_data.edge[0])
+
+            # If inner loop was broken
             if filtered_out or edge_data is None:
                 continue
+
+            # Append final node
             npath.append(edge_data.edge[1])
             assert len(npath) == len(path)
+
+            # Build data for current path
             path_data = Path(path=npath, edge_data=edge_data_list)
             try:
                 self.paths[len(path)].append(path_data)
