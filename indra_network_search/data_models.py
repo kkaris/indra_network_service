@@ -50,15 +50,17 @@ class FilterOptions(BaseModel):
             self.belief_cutoff == 0.0 and \
             self.curated_db_only is False
 
+    def no_edge_filters(self):
+        """Return True if the edge filters allow all edges"""
+        return self.curated_db_only is False
+
     def no_stmt_filters(self):
-        """Return True if all stmt filter options are set to defaults"""
-        return len(self.exclude_stmts) == 0 and \
-            len(self.hash_blacklist) == 0 and \
-            self.belief_cutoff == 0.0 and \
-            self.curated_db_only is False
+        """Return True if the stmt filter options allow all statements"""
+        return self.belief_cutoff == 0.0 and len(self.exclude_stmts) == 0 and \
+            len(self.hash_blacklist) == 0
 
     def no_node_filters(self):
-        """Return True if the node filter options are set to defults"""
+        """Return True if the node filter options allow all nodes"""
         return len(self.node_blacklist) == 0 and len(self.allowed_ns) == 0
 
 
@@ -141,6 +143,18 @@ class NetworkSearchQuery(BaseModel):
 
 
 # Models for the run options
+# Todo:
+#  1. instead of manually setting defaults here, use introspection of
+#     function and look up functions default:
+#     >>> def func(par: int = 0):
+#     ...     return par
+#     >>> import inspect
+#     >>> func_pars = inspect.signature(func).parameters
+#     >>> arg = func_pars['par']
+#     >>> arg.default
+#  2. For "not-None" defaults: set value to default if None is provided:
+#     https://stackoverflow.com/q/63616798/10478812
+#     Good for e.g. max_paths
 class ShortestSimplePathOptions(BaseModel):
     """Arguments for indra.explanation.pathfinding.shortest_simple_paths"""
     source: str
