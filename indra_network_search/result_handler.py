@@ -66,14 +66,22 @@ class Result:
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         raise NotImplementedError
 
-    def _get_node(self, node_name: str) -> Union[Node, None]:
+    def _get_node(self, node_name: str,
+                  apply_filter: bool = True) -> Union[Node, None]:
         db_ns = self._graph.nodes.get(node_name, {}).get('ns')
         db_id = self._graph.nodes.get(node_name, {}).get('id')
         lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
         if db_id is None or db_ns is None:
             return None
-        return Node(name=node_name, namespace=db_ns,
+        node = Node(name=node_name, namespace=db_ns,
                     identifier=db_id, lookup=lookup)
+        if not apply_filter:
+            return node
+        elif self.filter_options.no_node_filters() or \
+                self._pass_node(node=node):
+            return node
+
+        return None
 
     def _get_stmt_data(self, stmt_dict: Dict[str, Union[str, int, float,
                                                         Dict[str, int]]]) -> \
