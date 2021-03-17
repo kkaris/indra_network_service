@@ -322,6 +322,7 @@ class SharedInteractorsResult(Result):
         pass
 
     def get_results(self) -> SharedInteractorsResults:
+        """Get results for shared_targets and shared_regulators"""
         source_edges: List[EdgeData] = []
         target_edges: List[EdgeData] = []
         for (s1, s2), (t1, t2) in self.path_gen:
