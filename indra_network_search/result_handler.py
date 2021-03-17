@@ -37,53 +37,26 @@ class Result:
     alg_name: str = NotImplemented
 
     def __init__(self, path_generator: Generator, graph: DiGraph,
-                 filter_options: FilterOptions):
+                 filter_options: FilterOptions) -> FilterOptions:
         self.path_gen: Generator = path_generator
         self.start_time: Optional[datetime] = None  # Start when looping paths
         self.timed_out = False
-        self.filter_options: FilterOptions = filter_options
+        # Remove used filters per algorithm
+        self.filter_options: FilterOptions = \
+            self._remove_used_filters(filter_options)
         self._graph: DiGraph = graph
 
     def _pass_node(self, node: Node) -> bool:
-        if self.filter_options.no_node_filters():
-            return True
+        raise NotImplementedError
 
-        # Check allowed namespaces
-        if len(self.filter_options.allowed_ns) > 0 and \
-                node.namespace.lower() not in self.filter_options.allowed_ns:
-            return False
-
-        # Check node blacklist
-        if self.filter_options.node_blacklist and \
-                node.name.lower() in self.filter_options.node_blacklist:
-            return False
-
-        return True
-
-    def _pass_stmts(self,
-                    stmt_dict: Dict[str, Union[str, int, float,
+    def _pass_stmt(self,
+                   stmt_dict: Dict[str, Union[str, int, float,
                                                Dict[str, int]]]) -> bool:
-        if self.filter_options.no_stmt_filters():
-            return True
+        raise NotImplementedError
 
-        # Check stmt types
-        if stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
-            return False
-
-        # Check curated db
-        if self.filter_options.curated_db_only and \
-                stmt_dict['curated'] is False:
-            return False
-
-        # Check belief
-        if stmt_dict['belief'] < self.filter_options.belief_cutoff:
-            return False
-
-        # Check hashes
-        if stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
-            return False
-
-        return True
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        raise NotImplementedError
 
     def _get_node(self, node_name: str) -> Union[Node, None]:
         db_ns = self._graph.nodes.get(node_name, {}).get('ns')
@@ -97,7 +70,7 @@ class Result:
     def _get_stmt_data(self, stmt_dict: Dict[str, Union[str, int, float,
                                                         Dict[str, int]]]) -> \
             Union[StmtData, None]:
-        if not self._pass_stmts(stmt_dict):
+        if not self._pass_stmt(stmt_dict):
             return None
 
         return StmtData(**stmt_dict)
@@ -169,6 +142,18 @@ class PathResult(Result):
         else:
             self.target = None
 
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        raise NotImplementedError
+
+    def _pass_node(self, node: Node) -> bool:
+        raise NotImplementedError
+
+    def _pass_stmt(self,
+                   stmt_dict: Dict[str, Union[str, int, float,
+                                               Dict[str, int]]]) -> bool:
+        raise NotImplementedError
+
     def _build_paths(self):
         paths_built = 0
         for path in self.path_gen:
@@ -223,15 +208,91 @@ class DijkstraResult(PathResult):
     """Handles results from open_dijkstra_search"""
     alg_name = open_dijkstra_search.__name__
 
+    def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
+                 graph: DiGraph, filter_options: FilterOptions,
+                 source: Union[Node, str], target: Union[Node, str]):
+        super().__init__(path_generator=path_generator, graph=graph,
+                         filter_options=filter_options, source=source,
+                         target=target)
+
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        # Filters already done in algorithm
+        # node_blacklist
+        # terminal_ns
+        return FilterOptions(**filter_options.dict(
+            exclude={'node_blacklist'}, exclude_defaults=True
+        ))
+
+    def _pass_node(self, node: Node) -> bool:
+        pass
+
+    def _pass_stmt(self,
+                   stmt_dict: Dict[str, Union[str, int, float,
+                                               Dict[str, int]]]) -> bool:
+        pass
+
 
 class BreadthFirstSearchResult(PathResult):
     """Handles results from bfs_search"""
     alg_name = bfs_search.__name__
 
+    def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
+                 graph: DiGraph, filter_options: FilterOptions,
+                 source: Union[Node, str], target: Union[Node, str]):
+        super().__init__(path_generator=path_generator, graph=graph,
+                         filter_options=filter_options, source=source,
+                         target=target)
+
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        # Filters already done in algorithm
+        # ns filter
+        # node blacklist
+        # path len <-- not really though, BFS stops when paths starts to be
+        #              longer than path_len, but also allows paths that are
+        #              shorter
+        # terminal ns <-- not in post filtering anyway
+        return FilterOptions(**filter_options.dict(
+            exclude={'allowed_ns', 'node_blacklist', }, exclude_defaults=True
+        ))
+
+    def _pass_node(self, node: Node) -> bool:
+        pass
+
+    def _pass_stmt(self,
+                   stmt_dict: Dict[str, Union[str, int, float,
+                                              Dict[str, int]]]) -> bool:
+        pass
+
 
 class ShortestSimplePathsResult(PathResult):
     """Handles results from shortest_simple_paths"""
     alg_name = shortest_simple_paths.__name__
+
+    def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
+                 graph: DiGraph, filter_options: FilterOptions,
+                 source: Union[Node, str], target: Union[Node, str]):
+        super().__init__(path_generator=path_generator, graph=graph,
+                         filter_options=filter_options, source=source,
+                         target=target)
+
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        # Filters already done in algorithm
+        #
+        #
+        return FilterOptions(**filter_options.dict(
+            exclude={''}, exclude_defaults=True
+        ))
+
+    def _pass_node(self, node: Node) -> bool:
+        pass
+
+    def _pass_stmt(self,
+                   stmt_dict: Dict[str, Union[str, int, float,
+                                               Dict[str, int]]]) -> bool:
+        pass
 
 
 class SharedInteractorsResult(Result):
@@ -247,6 +308,18 @@ class SharedInteractorsResult(Result):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options)
         self._downstream: bool = is_targets_query
+
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        pass
+
+    def _pass_node(self, node: Node) -> bool:
+        pass
+
+    def _pass_stmt(self,
+                   stmt_dict: Dict[str, Union[str, int, float,
+                                               Dict[str, int]]]) -> bool:
+        pass
 
     def get_results(self) -> SharedInteractorsResults:
         source_edges: List[EdgeData] = []
@@ -277,6 +350,18 @@ class OntologyResult(Result):
         self.target: Node = target if isinstance(target, Node) else \
             self._get_node(target)
         self._parents: List[Node] = []
+
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        pass
+
+    def _pass_node(self, node: Node) -> bool:
+        pass
+
+    def _pass_stmt(self,
+                   stmt_dict: Dict[str, Union[str, int, float,
+                                               Dict[str, int]]]) -> bool:
+        pass
 
     def _get_parents(self):
         for name, ns, _id, idurl in self.path_gen:
