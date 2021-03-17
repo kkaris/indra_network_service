@@ -47,11 +47,19 @@ class Result:
         self._graph: DiGraph = graph
 
     def _pass_node(self, node: Node) -> bool:
+        """Pass an individual node based on node data"""
         raise NotImplementedError
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
-                                               Dict[str, int]]]) -> bool:
+                                              Dict[str, int]]]) -> bool:
+        """Pass an individual statement based statement dict content"""
+        raise NotImplementedError
+
+    def _pass_edge(self,
+                   edge_dict: Dict[str, Union[bool, str, float, int, Dict]])\
+            -> bool:
+        """Pass an individual edge based on edge content, excl statements"""
         raise NotImplementedError
 
     @staticmethod
@@ -154,6 +162,11 @@ class PathResult(Result):
                                               Dict[str, int]]]) -> bool:
         raise NotImplementedError
 
+    def _pass_edge(self,
+                   edge_dict: Dict[str, Union[bool, str, float, int, Dict]])\
+            -> bool:
+        raise NotImplementedError
+
     def _build_paths(self):
         paths_built = 0
         for path in self.path_gen:
@@ -240,7 +253,33 @@ class DijkstraResult(PathResult):
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
                                               Dict[str, int]]]) -> bool:
-        pass
+        # Need to check:
+        # - stmt_type
+        # - hash_blacklist
+        # - belief
+        if self.filter_options.exclude_stmts and \
+                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+            return False
+
+        if self.filter_options.belief_cutoff > 0.0 and \
+                self.filter_options.belief_cutoff > stmt_dict['belief']:
+            return False
+
+        if self.filter_options.hash_blacklist and \
+                stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
+            return False
+
+        return True
+
+    def _pass_edge(self,
+                   edge_dict: Dict[str, Union[bool, str, float, int, Dict]])\
+            -> bool:
+        # Need to check:
+        # - DB source or not
+        if self.filter_options.curated_db_only and not edge_dict['curated']:
+            return False
+
+        return True
 
 
 class BreadthFirstSearchResult(PathResult):
