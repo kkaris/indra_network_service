@@ -151,7 +151,7 @@ class PathResult(Result):
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
-                                               Dict[str, int]]]) -> bool:
+                                              Dict[str, int]]]) -> bool:
         raise NotImplementedError
 
     def _build_paths(self):
@@ -229,7 +229,7 @@ class DijkstraResult(PathResult):
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
-                                               Dict[str, int]]]) -> bool:
+                                              Dict[str, int]]]) -> bool:
         pass
 
 
@@ -291,7 +291,7 @@ class ShortestSimplePathsResult(PathResult):
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
-                                               Dict[str, int]]]) -> bool:
+                                              Dict[str, int]]]) -> bool:
         pass
 
 
@@ -318,7 +318,7 @@ class SharedInteractorsResult(Result):
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
-                                               Dict[str, int]]]) -> bool:
+                                              Dict[str, int]]]) -> bool:
         pass
 
     def get_results(self) -> SharedInteractorsResults:
@@ -360,7 +360,7 @@ class OntologyResult(Result):
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
-                                               Dict[str, int]]]) -> bool:
+                                              Dict[str, int]]]) -> bool:
         pass
 
     def _get_parents(self):
