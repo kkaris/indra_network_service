@@ -80,7 +80,9 @@ class Result:
     def _get_stmt_data(self, stmt_dict: Dict[str, Union[str, int, float,
                                                         Dict[str, int]]]) -> \
             Union[StmtData, None]:
-        if not self._pass_stmt(stmt_dict):
+        """If statement passes filter, return StmtData model"""
+        if not self.filter_options.no_stmt_filters() and \
+                not self._pass_stmt(stmt_dict):
             return None
 
         return StmtData(**stmt_dict)
