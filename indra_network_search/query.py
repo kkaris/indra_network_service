@@ -50,10 +50,6 @@ class Query:
         self.query: NetworkSearchQuery = query
         self.query_hash: str = query.get_hash()
 
-    def alg_options(self) -> Dict[str, Any]:
-        """Returns the options for the algorithm used"""
-        raise NotImplementedError
-
     def api_options(self) -> Dict[str, Any]:
         """These options are used when IndraNetworkSearchAPI handles the query
 
@@ -66,6 +62,10 @@ class Query:
                           two_way=self.query.two_way,
                           shared_regulators=self.query.shared_regulators,
                           format=self.query.format).dict()
+
+    def alg_options(self) -> Dict[str, Any]:
+        """Returns the options for the algorithm used"""
+        raise NotImplementedError
 
     def run_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Any]:
