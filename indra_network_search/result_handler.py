@@ -7,7 +7,10 @@ The results handler deals with things like:
 - Keeping count of number of paths returned
 - Filtering paths when it's not done in the algorithm
 
-Todo: consider using a wrapper for checking time elapsed
+Todo:
+ - Consider using a wrapper for checking time elapsed
+ - Rename all classes to ...ResultManager/Handler, then the data models can
+   be called ...Result(s) to minimize confusion
 """
 import logging
 from datetime import datetime
@@ -34,6 +37,9 @@ logger = logging.getLogger(__name__)
 
 class Result:
     """Applies post-search filtering and assembles edge data for paths"""
+    # Todo: this class is just a parent class for results, we might also
+    #  need a wrapper class that manages all the results, analogous to
+    #  query vs queryhandler
     alg_name: str = NotImplemented
 
     def __init__(self, path_generator: Generator, graph: DiGraph,
