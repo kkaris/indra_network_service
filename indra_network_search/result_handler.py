@@ -37,10 +37,9 @@ class Result:
     alg_name: str = NotImplemented
 
     def __init__(self, path_generator: Generator, graph: DiGraph,
-                 filter_options: FilterOptions, max_paths: int = 50):
+                 filter_options: FilterOptions):
         self.path_gen: Generator = path_generator
         self.start_time: Optional[datetime] = None  # Start when looping paths
-        self.max_paths: int = max_paths
         self.timed_out = False
         self.filter_options: FilterOptions = filter_options
         self._graph: DiGraph = graph
@@ -149,13 +148,10 @@ class PathResult(Result):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 max_paths: int, source: Union[Node, str],
-                 target: Union[Node, str]):
+                 source: Union[Node, str], target: Union[Node, str]):
         super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options, max_paths=max_paths)
-        # Use _out_of_alg_filter to reset the filter options to only those
-        # that need to be checked outside of the algorithm
-        self._out_of_alg_filter: FilterOptions = NotImplemented
+                         filter_options=filter_options)
+
         self.paths: Dict[int, List[Path]] = {}
 
         # Set path source and/or target
@@ -174,7 +170,12 @@ class PathResult(Result):
             self.target = None
 
     def _build_paths(self):
+        paths_built = 0
         for path in self.path_gen:
+            if paths_built >= self.filter_options.max_paths:
+                logger.info(f'Found all {self.filter_options.max_paths} '
+                            f'shortest paths')
+                break
             if self.filter_options.path_length and \
                     not self.filter_options.overall_weighted:
                 if len(path) < self.filter_options.path_length:
@@ -208,6 +209,7 @@ class PathResult(Result):
                 self.paths[len(path)].append(path_data)
             except KeyError:
                 self.paths[len(path)] = [path_data]
+            paths_built += 1
 
     def get_results(self) -> PathResultData:
         """Returns the result for the associated algorithm"""
@@ -241,9 +243,9 @@ class SharedInteractorsResult(Result):
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  filter_options: FilterOptions, graph: DiGraph,
-                 is_targets_query: bool, max_paths: int = 50):
+                 is_targets_query: bool):
         super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options, max_paths=max_paths)
+                         filter_options=filter_options)
         self._downstream: bool = is_targets_query
 
     def get_results(self) -> SharedInteractorsResults:
@@ -267,10 +269,9 @@ class OntologyResult(Result):
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str],
-                 max_paths: int = 50):
+                 source: Union[Node, str], target: Union[Node, str]):
         super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options, max_paths=max_paths)
+                         filter_options=filter_options)
         self.source: Node = source if isinstance(source, Node) else \
             self._get_node(source)
         self.target: Node = target if isinstance(target, Node) else \
@@ -282,9 +283,6 @@ class OntologyResult(Result):
             node = Node(name=name, namespace=ns, identifier=_id, lookup=idurl)
             if self._pass_node(node):
                 self._parents.append(node)
-
-            if len(self._parents) >= self.max_paths:
-                break
 
     def get_results(self) -> OntologyResults:
         """Get results for shared_parents"""
