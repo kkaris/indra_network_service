@@ -56,7 +56,8 @@ def shared_parents(source_ns: str, source_id: str, target_ns: str,
         (ns_id_to_name(n, i) or '',
          n, i, get_identifiers_url(n, i))
         for n, i in sp_set
-    ], key=lambda t: (t[0], t[1])), max_paths)
+        # sort on     name,  ns,  id
+    ], key=lambda t: (t[0], t[1], t[2])), max_paths)
 
 
 def shared_interactors(graph: DiGraph,
