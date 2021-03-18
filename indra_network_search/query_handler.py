@@ -4,8 +4,6 @@ search functionalities and the REST API that receives queries.
 """
 from typing import List, Tuple, Union, Dict
 
-from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
-    open_dijkstra_search
 from depmap_analysis.network_functions.net_functions import SIGN_TO_STANDARD
 from .query import Query, ShortestSimplePathsQuery, BreadthFirstSearchQuery, \
     DijkstraQuery, SharedTargetsQuery, OntologyQuery, SharedRegulatorsQuery
@@ -37,7 +35,7 @@ class QueryHandler:
         """This method maps the rest_query to API methods"""
         # If not open, run shortest_simple_paths and other queries
         if not self.open:
-            self._query_dict = {shortest_simple_paths.__name__:
+            self._query_dict = {'path_query':
                                 ShortestSimplePathsQuery(self.rest_query)}
             self._query_dict.update(self._aux_queries())
         # If open: check if weighted options
@@ -45,11 +43,11 @@ class QueryHandler:
             if _is_weighted(weight=self.weighted,
                             mesh_ids=self.mesh,
                             strict_mesh_id_filtering=self.strict_mesh):
-                self._query_dict = [(open_dijkstra_search.__name__,
-                                     DijkstraQuery(self.rest_query))]
+                self._query_dict = {'path_query':
+                                    DijkstraQuery(self.rest_query)}
             else:
-                self._query_dict = [(bfs_search.__name__,
-                                     BreadthFirstSearchQuery(self.rest_query))]
+                self._query_dict = {'path_query':
+                                    BreadthFirstSearchQuery(self.rest_query)}
 
     def _aux_queries(self) -> \
             Dict[str, Union[SharedRegulatorsQuery, OntologyQuery]]:
