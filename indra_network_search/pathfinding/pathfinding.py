@@ -173,3 +173,21 @@ def _stmt_types_filter(start_node: str, neighbor_nodes: Set[str],
         if any(sd['stmt_type'].lower() in stmt_types for sd in stmt_list):
             filtered_neighbors.add(n)
     return filtered_neighbors
+
+
+def _filter_curated(start_node: str, neighbor_nodes: Set[str],
+                    graph: Union[DiGraph, MultiDiGraph], reverse: bool) -> \
+        Set[str]:
+    node_list = sorted(neighbor_nodes)
+
+    edge_iter = \
+        product(node_list, [start_node]) if reverse else \
+        product([start_node], node_list)
+
+    # Filter out edges without support from databases
+    filtered_neighbors = set()
+    for n, edge in zip(node_list, edge_iter):
+        stmt_list = graph.edges[edge]['statements']
+        if any(sd['curated'] for sd in stmt_list):
+            filtered_neighbors.add(n)
+    return filtered_neighbors
