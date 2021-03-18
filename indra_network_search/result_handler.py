@@ -273,10 +273,12 @@ class DijkstraResult(PathResult):
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
                                               Dict[str, int]]]) -> bool:
-        # Need to check:
+        # Check:
         # - stmt_type
         # - hash_blacklist
         # - belief
+        # - curated db
+        # Order the checks by likelihood of being applied
         if self.filter_options.exclude_stmts and \
                 stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
             return False
@@ -320,12 +322,35 @@ class BreadthFirstSearchResult(PathResult):
         ))
 
     def _pass_node(self, node: Node) -> bool:
-        pass
+        # allowed_ns, node_blacklist and terminal_ns are all checked in
+        # bfs_search
+        return True
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
                                               Dict[str, int]]]) -> bool:
-        pass
+        # Check:
+        # - stmt_type
+        # - hash_blacklist
+        # - belief
+        # - curated
+        # Order the checks by likelihood of being applied
+        if self.filter_options.exclude_stmts and \
+                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+            return False
+
+        if self.filter_options.belief_cutoff > 0.0 and \
+                self.filter_options.belief_cutoff > stmt_dict['belief']:
+            return False
+
+        if self.filter_options.curated_db_only and not stmt_dict['curated']:
+            return False
+
+        if self.filter_options.hash_blacklist and \
+                stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
+            return False
+
+        return True
 
 
 class ShortestSimplePathsResult(PathResult):
@@ -345,16 +370,41 @@ class ShortestSimplePathsResult(PathResult):
         #
         #
         return FilterOptions(**filter_options.dict(
-            exclude={''}, exclude_defaults=True
+            exclude={'node_blacklist'}, exclude_defaults=True
         ))
 
     def _pass_node(self, node: Node) -> bool:
-        pass
+        # Check:
+        # - allowed_ns
+        if node.namespace not in self.filter_options.allowed_ns:
+            return False
+
+        return True
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
                                               Dict[str, int]]]) -> bool:
-        pass
+        # Check:
+        # - stmt_type
+        # - hash_blacklist
+        # - belief
+        # - curated
+        if self.filter_options.exclude_stmts and \
+                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+            return False
+
+        if self.filter_options.belief_cutoff > 0.0 and \
+                self.filter_options.belief_cutoff > stmt_dict['belief']:
+            return False
+
+        if self.filter_options.curated_db_only and not stmt_dict['curated']:
+            return False
+
+        if self.filter_options.hash_blacklist and \
+                stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
+            return False
+
+        return True
 
 
 class SharedInteractorsResult(Result):
@@ -373,15 +423,19 @@ class SharedInteractorsResult(Result):
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        pass
+        # All filters are applied in algorithm
+        return FilterOptions()
 
     def _pass_node(self, node: Node) -> bool:
-        pass
+        # allowed_ns, node_blacklist are both check in algorithm
+        return True
 
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
                                               Dict[str, int]]]) -> bool:
-        pass
+        # stmt_type, hash_blacklist, belief, curated are all checked in
+        # algorithm
+        return True
 
     def get_results(self) -> SharedInteractorsResults:
         """Get results for shared_targets and shared_regulators"""
