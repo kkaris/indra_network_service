@@ -62,7 +62,7 @@ class QueryHandler:
 
         return aux_queries
 
-    def get_query_list(self) -> Dict[str, Query]:
+    def get_queries(self) -> Dict[str, Query]:
         """Returns a list of (query name, Query) tuples
 
         Returns
