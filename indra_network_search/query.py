@@ -72,6 +72,10 @@ class Query:
         """Combines all options to one dict that can be sent to algorithm"""
         raise NotImplementedError
 
+    def result_options(self):
+        """Provide args to corresponding result class in result_handler"""
+        raise NotImplementedError
+
 
 class PathQuery(Query):
     """Parent Class for ShortestSimplePaths, Dijkstra and BreadthFirstSearch"""
@@ -92,6 +96,10 @@ class PathQuery(Query):
         """Combines all options to one dict that can be sent to algorithm"""
         return self.options(**self.alg_options(),
                             **self.mesh_options(graph=graph)).dict()
+
+    def result_options(self):
+        """Provide args to corresponding result class in result_handler"""
+        raise NotImplementedError
 
     # This method is specific for PathQuery classes
     def _get_mesh_options(self, get_func: bool = True) \
