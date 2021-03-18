@@ -269,7 +269,11 @@ class SharedInteractorsQuery(Query):
                 'source_filter': None,  # Not implemented in UI
                 'max_results': self.query.k_shortest,
                 'regulators': self.reverse,
-                'sign': SIGNS_TO_INT_SIGN.get(self.query.sign)}
+                'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
+                'hash_blacklist': self.query.edge_hash_blacklist,
+                'node_blacklist': self.query.node_blacklist,
+                'belief_cutoff': self.query.belief_cutoff,
+                'curated_db_only': self.query.curated_db_only}
 
     def run_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Any]:
