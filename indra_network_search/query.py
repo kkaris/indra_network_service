@@ -72,7 +72,7 @@ class Query:
         """Combines all options to one dict that can be sent to algorithm"""
         raise NotImplementedError
 
-    def result_options(self):
+    def result_options(self) -> Dict:
         """Provide args to corresponding result class in result_handler"""
         raise NotImplementedError
 
@@ -97,9 +97,10 @@ class PathQuery(Query):
         return self.options(**self.alg_options(),
                             **self.mesh_options(graph=graph)).dict()
 
-    def result_options(self):
+    def result_options(self) -> Dict:
         """Provide args to corresponding result class in result_handler"""
-        raise NotImplementedError
+        return {'filter_options': self.query.get_filter_options(),
+                'source': self.query.source, 'target': self.query.target}
 
     # This method is specific for PathQuery classes
     def _get_mesh_options(self, get_func: bool = True) \
@@ -289,6 +290,11 @@ class SharedInteractorsQuery(Query):
         """Check query options and return them"""
         return self.options(**self.alg_options()).dict()
 
+    def result_options(self) -> Dict:
+        """Provide args to SharedInteractorsResultManager in result_handler"""
+        return {'filter_options': self.query.get_filter_options(),
+                'is_targets_query': not self.reverse}
+
 
 class SharedRegulatorsQuery(SharedInteractorsQuery):
     """Check queries that will use shared_interactors(regulators=True)"""
@@ -335,6 +341,11 @@ class OntologyQuery(Query):
         ontology_options: Dict[str, str] = self._get_ontology_options(graph)
         return self.options(**ontology_options,
                             **self.alg_options()).dict()
+
+    def result_options(self) -> Dict:
+        """Provide args to OntologyResultManager in result_handler"""
+        return {'filter_options': self.query.get_filter_options(),
+                'source': self.query.source, 'target': self.query.target}
 
 
 def _get_ref_counts_func(hash_mesh_dict: Dict):
