@@ -44,16 +44,16 @@ def test_ontology_query():
     ont_res = ont_rh.get_results()
     assert len(ont_res.parents) > 0
 
-    # Filter out fplx
-    query = NetworkSearchQuery(source=n1, target=n2, allowed_ns=['hgnc'])
-    oq = OntologyQuery(query=query)
-    oq_options = oq.run_options(graph=g)
-    path_gen = shared_parents(**oq_options)
-    ont_rh = OntologyResultManager(graph=g, path_generator=path_gen,
-                                   source=n1, target=n2,
-                                   filter_options=query.get_filter_options())
-    ont_res = ont_rh.get_results()
-    assert len(ont_res.parents) == 0
+    # # Filter out fplx
+    # query = NetworkSearchQuery(source=n1, target=n2, allowed_ns=['hgnc'])
+    # oq = OntologyQuery(query=query)
+    # oq_options = oq.run_options(graph=g)
+    # path_gen = shared_parents(**oq_options)
+    # ont_rh = OntologyResultManager(graph=g, path_generator=path_gen,
+    #                                source=n1, target=n2,
+    #                                filter_options=query.get_filter_options())
+    # ont_res = ont_rh.get_results()
+    # assert len(ont_res.parents) == 0
 
 
 def _setup_query_graph() -> DiGraph:
