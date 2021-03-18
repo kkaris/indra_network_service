@@ -38,7 +38,7 @@ class ResultManager:
     """Applies post-search filtering and assembles edge data for paths"""
     # Todo: this class is just a parent class for results, we might also
     #  need a wrapper class that manages all the results, analogous to
-    #  query vs queryhandler
+    #  query vs query_handler
     alg_name: str = NotImplemented
 
     def __init__(self, path_generator: Generator, graph: DiGraph,
@@ -194,7 +194,7 @@ class PathResultManager(ResultManager):
                     pass
 
             # Initialize variables for this iteration
-            npath: List[Node] = []
+            node_path: List[Node] = []
             edge_data_list = []
             filtered_out = False  # Flag for continuing loop
             edge_data = None  # To catch cases when no paths come out
@@ -210,18 +210,18 @@ class PathResultManager(ResultManager):
 
                 # Build PathResultData
                 edge_data_list.append(edge_data)
-                npath.append(edge_data.edge[0])
+                node_path.append(edge_data.edge[0])
 
             # If inner loop was broken
             if filtered_out or edge_data is None:
                 continue
 
             # Append final node
-            npath.append(edge_data.edge[1])
-            assert len(npath) == len(path)
+            node_path.append(edge_data.edge[1])
+            assert len(node_path) == len(path)
 
             # Build data for current path
-            path_data = Path(path=npath, edge_data=edge_data_list)
+            path_data = Path(path=node_path, edge_data=edge_data_list)
             try:
                 self.paths[len(path)].append(path_data)
             except KeyError:
@@ -483,8 +483,8 @@ class OntologyResultManager(ResultManager):
         return True
 
     def _get_parents(self):
-        for name, ns, _id, idurl in self.path_gen:
-            node = Node(name=name, namespace=ns, identifier=_id, lookup=idurl)
+        for name, ns, _id, id_url in self.path_gen:
+            node = Node(name=name, namespace=ns, identifier=_id, lookup=id_url)
             self._parents.append(node)
 
     def get_results(self) -> OntologyResults:
