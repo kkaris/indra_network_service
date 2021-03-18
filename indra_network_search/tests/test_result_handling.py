@@ -2,8 +2,8 @@ from networkx import DiGraph
 
 from indra_network_search.query import OntologyQuery, SharedRegulatorsQuery, \
     SharedTargetsQuery
-from indra_network_search.result_handler import OntologyResult, \
-    SharedInteractorsResult
+from indra_network_search.result_handler import OntologyResultManager, \
+    SharedInteractorsResultManager
 from indra_network_search.data_models import NetworkSearchQuery
 from indra_network_search.pathfinding import shared_parents, shared_interactors
 
@@ -38,9 +38,9 @@ def test_ontology_query():
     oq = OntologyQuery(query=query)
     oq_options = oq.run_options(graph=g)
     path_gen = shared_parents(**oq_options)
-    ont_rh = OntologyResult(graph=g, path_generator=path_gen,
-                            source=n1, target=n2,
-                            filter_options=query.get_filter_options())
+    ont_rh = OntologyResultManager(graph=g, path_generator=path_gen,
+                                   source=n1, target=n2,
+                                   filter_options=query.get_filter_options())
     ont_res = ont_rh.get_results()
     assert len(ont_res.parents) > 0
 
@@ -49,9 +49,9 @@ def test_ontology_query():
     oq = OntologyQuery(query=query)
     oq_options = oq.run_options(graph=g)
     path_gen = shared_parents(**oq_options)
-    ont_rh = OntologyResult(graph=g, path_generator=path_gen,
-                            source=n1, target=n2,
-                            filter_options=query.get_filter_options())
+    ont_rh = OntologyResultManager(graph=g, path_generator=path_gen,
+                                   source=n1, target=n2,
+                                   filter_options=query.get_filter_options())
     ont_res = ont_rh.get_results()
     assert len(ont_res.parents) == 0
 
@@ -104,7 +104,7 @@ def test_shared_targets_result_handling():
     st_query = SharedTargetsQuery(query=rest_query)
     st_options = st_query.run_options()
     path_gen = shared_interactors(graph=g, **st_options)
-    st_rh = SharedInteractorsResult(
+    st_rh = SharedInteractorsResultManager(
         path_generator=path_gen,
         filter_options=rest_query.get_filter_options(),
         graph=g, is_targets_query=True
@@ -126,7 +126,7 @@ def test_shared_regulators_result_handling():
     sr_query = SharedRegulatorsQuery(query=rest_query)
     sr_options = sr_query.run_options()
     path_gen = shared_interactors(graph=g, **sr_options)
-    sr_rh = SharedInteractorsResult(
+    sr_rh = SharedInteractorsResultManager(
         path_generator=path_gen,
         filter_options=rest_query.get_filter_options(),
         graph=g, is_targets_query=False

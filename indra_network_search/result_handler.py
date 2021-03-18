@@ -9,8 +9,6 @@ The results handler deals with things like:
 
 Todo:
  - Consider using a wrapper for checking time elapsed
- - Rename all classes to ...ResultManager/Handler, then the data models can
-   be called ...Result(s) to minimize confusion
 """
 import logging
 from datetime import datetime
@@ -27,15 +25,15 @@ from .pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions, PathResultData, Path
 
-__all__ = ['Result', 'DijkstraResult', 'ShortestSimplePathsResult',
-           'BreadthFirstSearchResult', 'SharedInteractorsResult',
-           'OntologyResult']
+__all__ = ['ResultManager', 'DijkstraResultManager',
+           'ShortestSimplePathsResultManager', 'BreadthFirstSearchResultManager',
+           'SharedInteractorsResultManager', 'OntologyResultManager']
 
 
 logger = logging.getLogger(__name__)
 
 
-class Result:
+class ResultManager:
     """Applies post-search filtering and assembles edge data for paths"""
     # Todo: this class is just a parent class for results, we might also
     #  need a wrapper class that manages all the results, analogous to
@@ -133,7 +131,7 @@ class Result:
         raise NotImplementedError
 
 
-class PathResult(Result):
+class PathResultManager(ResultManager):
     """Parent class for path results
 
     The only thing needed in the children is defining _pass_node,
@@ -237,7 +235,7 @@ class PathResult(Result):
                               paths=self.paths)
 
 
-class DijkstraResult(PathResult):
+class DijkstraResultManager(PathResultManager):
     """Handles results from open_dijkstra_search"""
     alg_name = open_dijkstra_search.__name__
 
@@ -297,7 +295,7 @@ class DijkstraResult(PathResult):
         return True
 
 
-class BreadthFirstSearchResult(PathResult):
+class BreadthFirstSearchResultManager(PathResultManager):
     """Handles results from bfs_search"""
     alg_name = bfs_search.__name__
 
@@ -353,7 +351,7 @@ class BreadthFirstSearchResult(PathResult):
         return True
 
 
-class ShortestSimplePathsResult(PathResult):
+class ShortestSimplePathsResultManager(PathResultManager):
     """Handles results from shortest_simple_paths"""
     alg_name = shortest_simple_paths.__name__
 
@@ -407,7 +405,7 @@ class ShortestSimplePathsResult(PathResult):
         return True
 
 
-class SharedInteractorsResult(Result):
+class SharedInteractorsResultManager(ResultManager):
     """Handles results from shared_interactors, both up and downstream
 
     downstream is True for shared targets and False for shared regulators
@@ -453,7 +451,7 @@ class SharedInteractorsResult(Result):
                                         downstream=self._downstream)
 
 
-class OntologyResult(Result):
+class OntologyResultManager(ResultManager):
     """Handles results from shared_parents"""
     alg_name: str = shared_parents.__name__
 
@@ -497,10 +495,10 @@ class OntologyResult(Result):
 
 # Map algorithm names to result classes
 alg_handler_mapping = {
-    shortest_simple_paths.__name__: ShortestSimplePathsResult,
-    open_dijkstra_search.__name__: DijkstraResult,
-    bfs_search.__name__: BreadthFirstSearchResult,
-    'shared_targets': SharedInteractorsResult,
-    'shared_regulators': SharedInteractorsResult,
-    shared_parents.__name__: OntologyResult
+    shortest_simple_paths.__name__: ShortestSimplePathsResultManager,
+    open_dijkstra_search.__name__: DijkstraResultManager,
+    bfs_search.__name__: BreadthFirstSearchResultManager,
+    'shared_targets': SharedInteractorsResultManager,
+    'shared_regulators': SharedInteractorsResultManager,
+    shared_parents.__name__: OntologyResultManager
 }
