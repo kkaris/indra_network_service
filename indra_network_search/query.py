@@ -14,10 +14,10 @@ from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
 from .data_models import *
 from .pathfinding import *
 
-
 __all__ = ['ShortestSimplePathsQuery', 'BreadthFirstSearchQuery',
            'DijkstraQuery', 'SharedTargetsQuery', 'SharedRegulatorsQuery',
-           'OntologyQuery', 'Query', 'PathQuery', 'alg_func_mapping']
+           'OntologyQuery', 'Query', 'PathQuery', 'alg_func_mapping',
+           'alg_name_query_mapping']
 
 
 class MissingParametersError(Exception):
@@ -363,3 +363,12 @@ def _get_ref_counts_func(hash_mesh_dict: Dict):
         total: int = sum(d['total'] for d in dicts) or 1
         return ref_counts, total
     return _func
+
+
+alg_name_query_mapping = {
+    bfs_search.__name__: BreadthFirstSearchQuery,
+    shortest_simple_paths.__name__: ShortestSimplePathsQuery,
+    open_dijkstra_search.__name__: DijkstraQuery,
+    shared_parents.__name__: OntologyQuery,
+    'shared_regulators': SharedRegulatorsQuery,
+    'shared_targets': SharedTargetsQuery}
