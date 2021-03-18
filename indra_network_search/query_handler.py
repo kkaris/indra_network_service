@@ -4,10 +4,9 @@ search functionalities and the REST API that receives queries.
 """
 from typing import Optional, List, Tuple, Union
 
-from indra.explanation.pathfinding import shortest_simple_paths, bfs_search,\
+from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from depmap_analysis.network_functions.net_functions import SIGN_TO_STANDARD
-
 from .query import Query, ShortestSimplePathsQuery, BreadthFirstSearchQuery, \
     DijkstraQuery, SharedTargetsQuery, OntologyQuery, SharedRegulatorsQuery
 from .data_models import NetworkSearchQuery
@@ -20,7 +19,8 @@ class QueryHandler:
     """Maps queries from the REST API to a method of the IndraNetworkSearchAPI
 
     The QueryHandler's job is to act as a middle layer between the methods
-    of the IndraNetworkSearchAPI and the REST API.
+    of the IndraNetworkSearchAPI and the REST API. It figures out which
+    queries are eligible from the input query.
     """
 
     def __init__(self, rest_query: NetworkSearchQuery):
@@ -46,11 +46,11 @@ class QueryHandler:
             if _is_weighted(weight=self.weighted,
                             mesh_ids=self.mesh,
                             strict_mesh_id_filtering=self.strict_mesh):
-                self._query_list = [open_dijkstra_search.__name__,
-                                    DijkstraQuery(self.rest_query)]
+                self._query_list = [(open_dijkstra_search.__name__,
+                                     DijkstraQuery(self.rest_query))]
             else:
-                self._query_list = [bfs_search.__name__,
-                                    BreadthFirstSearchQuery(self.rest_query)]
+                self._query_list = [(bfs_search.__name__,
+                                     BreadthFirstSearchQuery(self.rest_query))]
 
     def _aux_queries(self) -> \
             List[Tuple[str, Union[SharedRegulatorsQuery, OntologyQuery]]]:
