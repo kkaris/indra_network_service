@@ -191,3 +191,47 @@ def _filter_curated(start_node: str, neighbor_nodes: Set[str],
         if any(sd['curated'] for sd in stmt_list):
             filtered_neighbors.add(n)
     return filtered_neighbors
+
+
+def _hash_filter(start_node: str, neighbor_nodes: Set[str],
+                 graph: Union[DiGraph, MultiDiGraph], reverse: bool,
+                 hashes: List[int]) -> Set[str]:
+    node_list = sorted(neighbor_nodes)
+
+    edge_iter = \
+        product(node_list, [start_node]) if reverse else \
+        product([start_node], node_list)
+
+    # Filter out edges without support from databases
+    filtered_neighbors = set()
+    for n, edge in zip(node_list, edge_iter):
+        stmt_list = graph.edges[edge]['statements']
+
+        # Add node if *any* hash is *not* in blacklist
+        for sd in stmt_list:
+            if sd['stmt_hash'] not in hashes:
+                filtered_neighbors.add(n)
+                break
+    return filtered_neighbors
+
+
+def _belief_filter(start_node: str, neighbor_nodes: Set[str],
+                   graph: Union[DiGraph, MultiDiGraph], reverse: bool,
+                   belief_cutoff: float) -> Set[str]:
+    node_list = sorted(neighbor_nodes)
+
+    edge_iter = \
+        product(node_list, [start_node]) if reverse else \
+        product([start_node], node_list)
+
+    # Filter out edges with belief below the cutoff
+    filtered_neighbors = set()
+    for n, edge in zip(node_list, edge_iter):
+        stmt_list = graph.edges[edge]['statements']
+
+        # Add node if *any* belief score is *above* cutoff
+        for sd in stmt_list:
+            if sd['belief'] > belief_cutoff:
+                filtered_neighbors.add(n)
+                break
+    return filtered_neighbors
