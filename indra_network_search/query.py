@@ -248,7 +248,8 @@ class DijkstraQuery(PathQuery):
 
 class SharedInteractorsQuery(Query):
     """Parent class for shared target and shared regulator search"""
-    alg_name: str = NotImplemented
+    alg_name: str = shared_interactors.__name__
+    alg_alt_name: str = NotImplemented
     options: SharedInteractorsOptions = SharedInteractorsOptions
     reverse: bool = NotImplemented
 
@@ -283,13 +284,13 @@ class SharedInteractorsQuery(Query):
 
 class SharedRegulatorsQuery(SharedInteractorsQuery):
     """Check queries that will use shared_interactors(regulators=True)"""
-    alg_name = 'shared_regulators'
+    alg_alt_name = 'shared_regulators'
     reverse = True
 
 
 class SharedTargetsQuery(SharedInteractorsQuery):
     """Check queries that will use shared_interactors(regulators=False)"""
-    alg_name = 'shared_targets'
+    alg_alt_name = 'shared_targets'
     reverse = False
 
 
