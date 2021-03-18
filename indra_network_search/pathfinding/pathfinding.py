@@ -67,7 +67,11 @@ def shared_interactors(graph: DiGraph,
                        source_filter: Optional[List[str]] = None,
                        max_results: int = 50,
                        regulators: bool = False,
-                       sign: Optional[int] = None) \
+                       sign: Optional[int] = None,
+                       hash_blacklist: Optional[List[str]] = None,
+                       node_blacklist: Optional[List[str]] = None,
+                       belief_cutoff: float = 0.0,
+                       curated_db_only: bool = False) \
         -> Iterator[Tuple[List[str], List[str]]]:
     """Get shared regulators or targets and filter them based on sign
 
@@ -79,9 +83,9 @@ def shared_interactors(graph: DiGraph,
     graph : DiGraph
         The graph to perform the search in
     source : str
-        Node to look for common up- or downstream interactors from with target
+        Node to look for common up- or downstream neighbors from with target
     target : str
-        Node to look for common up- or downstream interactors from with source
+        Node to look for common up- or downstream neighbors from with source
     allowed_ns : Optional[List[str]]
         If provided, filter common nodes to these namespaces
     stmt_types : Optional[List[str]]
@@ -95,7 +99,19 @@ def shared_interactors(graph: DiGraph,
     regulators : bool
         If True, do shared regulator search (upstream), otherwise do shared
         target search (downstream). Default False.
-    sign
+    sign : Optional[int]
+        If provided, match edges to sign:
+            - positive: edges must have same sign
+            - negative: edges must have opposite sign
+    hash_blacklist : Optional[List[int]]
+        A list of hashes to exclude from the edges
+    node_blacklist : Optional[List[str]]
+        A list of node names to exclude
+    belief_cutoff : float
+        Exclude statements that are below the cutoff. Default: 0.0 (no cutoff)
+    curated_db_only : bool
+        If True, exclude statements in edge support that only have readers
+        in their sources. Default: False.
 
     Returns
     -------
@@ -112,26 +128,49 @@ def shared_interactors(graph: DiGraph,
 
     neigh = graph.pred if regulators else graph.succ
     s_neigh: Set[str] = set(neigh[source])
-    o_neigh: Set[str] = set(neigh[target])
+    t_neigh: Set[str] = set(neigh[target])
+
+    # Filter nodes
+    if node_blacklist:
+        s_neigh = {n for n in s_neigh if n not in node_blacklist}
+        t_neigh = {n for n in t_neigh if n not in node_blacklist}
 
     # Filter ns
     if allowed_ns:
         s_neigh = _node_ns_filter(s_neigh, graph, allowed_ns)
-        o_neigh = _node_ns_filter(o_neigh, graph, allowed_ns)
+        t_neigh = _node_ns_filter(t_neigh, graph, allowed_ns)
 
     # Filter statements type
     if stmt_types:
         st_args = (graph, regulators, stmt_types)
         s_neigh = _stmt_types_filter(source, s_neigh, *st_args)
-        o_neigh = _stmt_types_filter(target, o_neigh, *st_args)
+        t_neigh = _stmt_types_filter(target, t_neigh, *st_args)
+
+    # Filter curated db
+    if curated_db_only:
+        curated_args = (graph, regulators)
+        s_neigh = _filter_curated(source, s_neigh, *curated_args)
+        t_neigh = _filter_curated(target, t_neigh, *curated_args)
+
+    # Filter hashes
+    if hash_blacklist:
+        hash_args = (graph, regulators, hash_blacklist)
+        s_neigh = _hash_filter(source, s_neigh, *hash_args)
+        t_neigh = _hash_filter(target, t_neigh, *hash_args)
+
+    # Filter belief
+    if belief_cutoff > 0:
+        belief_args = (graph, regulators, belief_cutoff)
+        s_neigh = _hash_filter(source, s_neigh, *belief_args)
+        t_neigh = _hash_filter(target, t_neigh, *belief_args)
 
     # Filter source
     if source_filter:
         src_args = (graph, regulators, source_filter)
         s_neigh = _src_filter(source, s_neigh, *src_args)
-        o_neigh = _src_filter(target, o_neigh, *src_args)
+        t_neigh = _src_filter(target, t_neigh, *src_args)
 
-    intermediates = s_neigh & o_neigh
+    intermediates = s_neigh & t_neigh
 
     # If sign, filter sign
     if sign is not None:
