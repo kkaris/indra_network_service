@@ -26,7 +26,8 @@ from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions, PathResultData, Path
 
 __all__ = ['ResultManager', 'DijkstraResultManager',
-           'ShortestSimplePathsResultManager', 'BreadthFirstSearchResultManager',
+           'ShortestSimplePathsResultManager',
+           'BreadthFirstSearchResultManager',
            'SharedInteractorsResultManager', 'OntologyResultManager']
 
 
