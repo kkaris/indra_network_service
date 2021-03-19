@@ -1,6 +1,17 @@
 """
 This file contains data models for queries, results and arguments to algorithm
 functions.
+
+todo:
+ - Use constr(to_lower=True) in appropriate places to enforce lowercase:
+    + node_blacklist
+    + allowed_ns
+    + stmt_filter (excluded statement types)
+ - Figure out how to use conlist and other con* enforcers for e.g.:
+    + Enfore hashes to be int and/or str
+ - In FilterOptions, set overall weighted based on values of weighted
+   context weighted. See here for more info:
+   https://stackoverflow.com/q/54023782/10478812
 """
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict
 
