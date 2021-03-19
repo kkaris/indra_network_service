@@ -94,7 +94,7 @@ class NetworkSearchQuery(BaseModel):
     const_tk: int = 10
     user_timeout: Union[float, bool] = 30
     two_way: Optional[bool] = None
-    shared_regulators: Optional[bool] = None
+    shared_regulators: bool = False
     terminal_ns: List[str] = []
     format: Optional[str] = None
 
