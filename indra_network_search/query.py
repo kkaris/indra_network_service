@@ -14,10 +14,10 @@ from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
 from .data_models import *
 from .pathfinding import *
 
-
 __all__ = ['ShortestSimplePathsQuery', 'BreadthFirstSearchQuery',
            'DijkstraQuery', 'SharedTargetsQuery', 'SharedRegulatorsQuery',
-           'OntologyQuery', 'Query', 'PathQuery', 'alg_func_mapping']
+           'OntologyQuery', 'Query', 'PathQuery', 'alg_func_mapping',
+           'alg_name_query_mapping']
 
 
 class MissingParametersError(Exception):
@@ -50,10 +50,6 @@ class Query:
         self.query: NetworkSearchQuery = query
         self.query_hash: str = query.get_hash()
 
-    def alg_options(self) -> Dict[str, Any]:
-        """Returns the options for the algorithm used"""
-        raise NotImplementedError
-
     def api_options(self) -> Dict[str, Any]:
         """These options are used when IndraNetworkSearchAPI handles the query
 
@@ -67,9 +63,17 @@ class Query:
                           shared_regulators=self.query.shared_regulators,
                           format=self.query.format).dict()
 
+    def alg_options(self) -> Dict[str, Any]:
+        """Returns the options for the algorithm used"""
+        raise NotImplementedError
+
     def run_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Any]:
         """Combines all options to one dict that can be sent to algorithm"""
+        raise NotImplementedError
+
+    def result_options(self) -> Dict:
+        """Provide args to corresponding result class in result_handler"""
         raise NotImplementedError
 
 
@@ -92,6 +96,11 @@ class PathQuery(Query):
         """Combines all options to one dict that can be sent to algorithm"""
         return self.options(**self.alg_options(),
                             **self.mesh_options(graph=graph)).dict()
+
+    def result_options(self) -> Dict:
+        """Provide args to corresponding result class in result_handler"""
+        return {'filter_options': self.query.get_filter_options(),
+                'source': self.query.source, 'target': self.query.target}
 
     # This method is specific for PathQuery classes
     def _get_mesh_options(self, get_func: bool = True) \
@@ -248,7 +257,8 @@ class DijkstraQuery(PathQuery):
 
 class SharedInteractorsQuery(Query):
     """Parent class for shared target and shared regulator search"""
-    alg_name: str = NotImplemented
+    alg_name: str = shared_interactors.__name__
+    alg_alt_name: str = NotImplemented
     options: SharedInteractorsOptions = SharedInteractorsOptions
     reverse: bool = NotImplemented
 
@@ -257,6 +267,11 @@ class SharedInteractorsQuery(Query):
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shared_interactors from query"""
+        # shared_regulators <=> reverse
+        if self.query.shared_regulators != self.reverse:
+            raise InvalidParametersError('Request for shared regulators in '
+                                         'query does not match class '
+                                         'attribute reverse')
         return {'source': self.query.source,
                 'target': self.query.target,
                 'allowed_ns': self.query.allowed_ns,
@@ -264,23 +279,32 @@ class SharedInteractorsQuery(Query):
                 'source_filter': None,  # Not implemented in UI
                 'max_results': self.query.k_shortest,
                 'regulators': self.reverse,
-                'sign': SIGNS_TO_INT_SIGN.get(self.query.sign)}
+                'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
+                'hash_blacklist': self.query.edge_hash_blacklist,
+                'node_blacklist': self.query.node_blacklist,
+                'belief_cutoff': self.query.belief_cutoff,
+                'curated_db_only': self.query.curated_db_only}
 
     def run_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Any]:
         """Check query options and return them"""
         return self.options(**self.alg_options()).dict()
 
+    def result_options(self) -> Dict:
+        """Provide args to SharedInteractorsResultManager in result_handler"""
+        return {'filter_options': self.query.get_filter_options(),
+                'is_targets_query': not self.reverse}
+
 
 class SharedRegulatorsQuery(SharedInteractorsQuery):
     """Check queries that will use shared_interactors(regulators=True)"""
-    alg_name = 'shared_regulators'
+    alg_alt_name = 'shared_regulators'
     reverse = True
 
 
 class SharedTargetsQuery(SharedInteractorsQuery):
     """Check queries that will use shared_interactors(regulators=False)"""
-    alg_name = 'shared_targets'
+    alg_alt_name = 'shared_targets'
     reverse = False
 
 
@@ -308,7 +332,8 @@ class OntologyQuery(Query):
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shared_parents from query"""
         return {'immediate_only': False,
-                'is_a_part_of': None}
+                'is_a_part_of': None,
+                'max_paths': self.query.k_shortest}
 
     def run_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Any]:
@@ -316,6 +341,11 @@ class OntologyQuery(Query):
         ontology_options: Dict[str, str] = self._get_ontology_options(graph)
         return self.options(**ontology_options,
                             **self.alg_options()).dict()
+
+    def result_options(self) -> Dict:
+        """Provide args to OntologyResultManager in result_handler"""
+        return {'filter_options': self.query.get_filter_options(),
+                'source': self.query.source, 'target': self.query.target}
 
 
 def _get_ref_counts_func(hash_mesh_dict: Dict):
@@ -333,3 +363,12 @@ def _get_ref_counts_func(hash_mesh_dict: Dict):
         total: int = sum(d['total'] for d in dicts) or 1
         return ref_counts, total
     return _func
+
+
+alg_name_query_mapping = {
+    bfs_search.__name__: BreadthFirstSearchQuery,
+    shortest_simple_paths.__name__: ShortestSimplePathsQuery,
+    open_dijkstra_search.__name__: DijkstraQuery,
+    shared_parents.__name__: OntologyQuery,
+    'shared_regulators': SharedRegulatorsQuery,
+    'shared_targets': SharedTargetsQuery}

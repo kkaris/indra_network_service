@@ -3,15 +3,16 @@ Pathfinding algorithms local to this repo
 """
 import logging
 from itertools import islice, product
+from typing import Generator, List, Union, Optional, Set, Iterator, Tuple, \
+    Any
+
 from networkx import DiGraph, MultiDiGraph
-from typing import Generator, List, Union, Optional, Set, Iterator, Tuple
 
 from depmap_analysis.network_functions.famplex_functions import \
-    common_parent, get_identifiers_url
+    common_parent, get_identifiers_url, ns_id_to_name
 from depmap_analysis.scripts.depmap_script_expl_funcs import \
     _get_signed_shared_targets, _get_signed_shared_regulators, _src_filter, \
     _node_ns_filter
-
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +20,10 @@ __all__ = ['shared_interactors', 'shared_parents']
 
 
 def shared_parents(source_ns: str, source_id: str, target_ns: str,
-                   target_id: str, immediate_only=False, is_a_part_of=None) \
-        -> List[Tuple[str, str, str]]:
+                   target_id: str, immediate_only: bool = False,
+                   is_a_part_of: Optional[Set[str]] = None,
+                   max_paths: int = 50) \
+        -> Iterator[Tuple[str, Any, Any, str]]:
     """Get shared parents of (source ns, source id) and (target ns, target id)
 
     Parameters
@@ -36,29 +39,39 @@ def shared_parents(source_ns: str, source_id: str, target_ns: str,
     immediate_only : bool
         Determines if all or just the immediate parents should be returned.
         Default: False, i.e. all parents.
-    is_a_part_of
+    is_a_part_of : Set[str]
         If provided, the parents must be in this set of ids. The set is
         assumed to be valid ontology labels (see ontology.label()).
+    max_paths : int
+        Maximum number of results to return. Default: 50.
 
     Returns
     -------
-    List[Tuple[str, str, str]]
+    List[Tuple[str, str, str, str]]
     """
     sp_set = common_parent(id1=source_id, id2=target_id, ns1=source_ns,
                            ns2=target_ns, immediate_only=immediate_only,
                            is_a_part_of=is_a_part_of)
-    return sorted([(n, i, get_identifiers_url(n, i)) for n, i in sp_set],
-                  key=lambda t: (t[0], t[1]))
+    return islice(sorted([
+        (ns_id_to_name(n, i) or '',
+         n, i, get_identifiers_url(n, i))
+        for n, i in sp_set
+        # sort on     name,  ns,  id
+    ], key=lambda t: (t[0], t[1], t[2])), max_paths)
 
 
-def shared_interactors(graph: Union[DiGraph, MultiDiGraph],
+def shared_interactors(graph: DiGraph,
                        source: str, target: str,
                        allowed_ns: Optional[List[str]] = None,
                        stmt_types: Optional[List[str]] = None,
                        source_filter: Optional[List[str]] = None,
                        max_results: int = 50,
                        regulators: bool = False,
-                       sign: Optional[int] = None) \
+                       sign: Optional[int] = None,
+                       hash_blacklist: Optional[List[str]] = None,
+                       node_blacklist: Optional[List[str]] = None,
+                       belief_cutoff: float = 0.0,
+                       curated_db_only: bool = False) \
         -> Iterator[Tuple[List[str], List[str]]]:
     """Get shared regulators or targets and filter them based on sign
 
@@ -67,17 +80,38 @@ def shared_interactors(graph: Union[DiGraph, MultiDiGraph],
 
     Parameters
     ----------
-    graph
-    source
-    target
-    allowed_ns
-    stmt_types
-    source_filter
-    max_results
-    regulators
-        If True, the do shared regulator search (upstream), otherwise do
-        shared target search (downstream). Default False.
-    sign
+    graph : DiGraph
+        The graph to perform the search in
+    source : str
+        Node to look for common up- or downstream neighbors from with target
+    target : str
+        Node to look for common up- or downstream neighbors from with source
+    allowed_ns : Optional[List[str]]
+        If provided, filter common nodes to these namespaces
+    stmt_types : Optional[List[str]]
+        If provided, filter the statements in the supporting edges to these
+        statement types
+    source_filter : Optional[List[str]]
+        If provided, filter the statements in the supporting edges to those
+        with these sources
+    max_results : int
+        The maximum number of results to return
+    regulators : bool
+        If True, do shared regulator search (upstream), otherwise do shared
+        target search (downstream). Default False.
+    sign : Optional[int]
+        If provided, match edges to sign:
+            - positive: edges must have same sign
+            - negative: edges must have opposite sign
+    hash_blacklist : Optional[List[int]]
+        A list of hashes to exclude from the edges
+    node_blacklist : Optional[List[str]]
+        A list of node names to exclude
+    belief_cutoff : float
+        Exclude statements that are below the cutoff. Default: 0.0 (no cutoff)
+    curated_db_only : bool
+        If True, exclude statements in edge support that only have readers
+        in their sources. Default: False.
 
     Returns
     -------
@@ -94,26 +128,49 @@ def shared_interactors(graph: Union[DiGraph, MultiDiGraph],
 
     neigh = graph.pred if regulators else graph.succ
     s_neigh: Set[str] = set(neigh[source])
-    o_neigh: Set[str] = set(neigh[target])
+    t_neigh: Set[str] = set(neigh[target])
+
+    # Filter nodes
+    if node_blacklist:
+        s_neigh = {n for n in s_neigh if n not in node_blacklist}
+        t_neigh = {n for n in t_neigh if n not in node_blacklist}
 
     # Filter ns
     if allowed_ns:
         s_neigh = _node_ns_filter(s_neigh, graph, allowed_ns)
-        o_neigh = _node_ns_filter(o_neigh, graph, allowed_ns)
+        t_neigh = _node_ns_filter(t_neigh, graph, allowed_ns)
 
     # Filter statements type
     if stmt_types:
         st_args = (graph, regulators, stmt_types)
         s_neigh = _stmt_types_filter(source, s_neigh, *st_args)
-        o_neigh = _stmt_types_filter(target, o_neigh, *st_args)
+        t_neigh = _stmt_types_filter(target, t_neigh, *st_args)
+
+    # Filter curated db
+    if curated_db_only:
+        curated_args = (graph, regulators)
+        s_neigh = _filter_curated(source, s_neigh, *curated_args)
+        t_neigh = _filter_curated(target, t_neigh, *curated_args)
+
+    # Filter hashes
+    if hash_blacklist:
+        hash_args = (graph, regulators, hash_blacklist)
+        s_neigh = _hash_filter(source, s_neigh, *hash_args)
+        t_neigh = _hash_filter(target, t_neigh, *hash_args)
+
+    # Filter belief
+    if belief_cutoff > 0:
+        belief_args = (graph, regulators, belief_cutoff)
+        s_neigh = _hash_filter(source, s_neigh, *belief_args)
+        t_neigh = _hash_filter(target, t_neigh, *belief_args)
 
     # Filter source
     if source_filter:
         src_args = (graph, regulators, source_filter)
         s_neigh = _src_filter(source, s_neigh, *src_args)
-        o_neigh = _src_filter(target, o_neigh, *src_args)
+        t_neigh = _src_filter(target, t_neigh, *src_args)
 
-    intermediates = s_neigh & o_neigh
+    intermediates = s_neigh & t_neigh
 
     # If sign, filter sign
     if sign is not None:
@@ -154,4 +211,66 @@ def _stmt_types_filter(start_node: str, neighbor_nodes: Set[str],
         stmt_list = graph.edges[edge]['statements']
         if any(sd['stmt_type'].lower() in stmt_types for sd in stmt_list):
             filtered_neighbors.add(n)
+    return filtered_neighbors
+
+
+def _filter_curated(start_node: str, neighbor_nodes: Set[str],
+                    graph: Union[DiGraph, MultiDiGraph], reverse: bool) -> \
+        Set[str]:
+    node_list = sorted(neighbor_nodes)
+
+    edge_iter = \
+        product(node_list, [start_node]) if reverse else \
+        product([start_node], node_list)
+
+    # Filter out edges without support from databases
+    filtered_neighbors = set()
+    for n, edge in zip(node_list, edge_iter):
+        stmt_list = graph.edges[edge]['statements']
+        if any(sd['curated'] for sd in stmt_list):
+            filtered_neighbors.add(n)
+    return filtered_neighbors
+
+
+def _hash_filter(start_node: str, neighbor_nodes: Set[str],
+                 graph: Union[DiGraph, MultiDiGraph], reverse: bool,
+                 hashes: List[int]) -> Set[str]:
+    node_list = sorted(neighbor_nodes)
+
+    edge_iter = \
+        product(node_list, [start_node]) if reverse else \
+        product([start_node], node_list)
+
+    # Filter out edges without support from databases
+    filtered_neighbors = set()
+    for n, edge in zip(node_list, edge_iter):
+        stmt_list = graph.edges[edge]['statements']
+
+        # Add node if *any* hash is *not* in blacklist
+        for sd in stmt_list:
+            if sd['stmt_hash'] not in hashes:
+                filtered_neighbors.add(n)
+                break
+    return filtered_neighbors
+
+
+def _belief_filter(start_node: str, neighbor_nodes: Set[str],
+                   graph: Union[DiGraph, MultiDiGraph], reverse: bool,
+                   belief_cutoff: float) -> Set[str]:
+    node_list = sorted(neighbor_nodes)
+
+    edge_iter = \
+        product(node_list, [start_node]) if reverse else \
+        product([start_node], node_list)
+
+    # Filter out edges with belief below the cutoff
+    filtered_neighbors = set()
+    for n, edge in zip(node_list, edge_iter):
+        stmt_list = graph.edges[edge]['statements']
+
+        # Add node if *any* belief score is *above* cutoff
+        for sd in stmt_list:
+            if sd['belief'] > belief_cutoff:
+                filtered_neighbors.add(n)
+                break
     return filtered_neighbors

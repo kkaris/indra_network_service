@@ -3,7 +3,7 @@ import json
 import inspect
 import logging
 from os import path
-from typing import Callable, Dict, Any, Set
+from typing import Callable, Dict, Any, Set, List
 from datetime import datetime
 from botocore.exceptions import ClientError
 
@@ -32,7 +32,8 @@ __all__ = ['load_indra_graph', 'list_chunk_gen', 'read_query_json_from_s3',
            'load_pickled_net_from_s3', 'get_earliest_date', 'get_s3_client',
            'CACHE', 'INDRA_DG', 'INDRA_SEG', 'INDRA_SNG', 'INDRA_DG_CACHE',
            'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE',
-           'get_default_args', 'get_mandatory_args']
+           'get_default_args', 'get_mandatory_args', 'is_weighted',
+           'is_context_weighted']
 
 logger = logging.getLogger(__name__)
 
@@ -322,3 +323,51 @@ def get_mandatory_args(func: Callable) -> Set[str]:
         k for k, v in signature.parameters.items()
         if v.default is inspect.Parameter.empty
     }
+
+
+def is_context_weighted(mesh_id_list: List[str],
+                        strict_filtering: bool) -> bool:
+    """Return True if context weighted
+
+    Parameters
+    ----------
+    mesh_id_list : List[str]
+        A list of mesh ids
+    strict_filtering : bool
+        whether to run strict context filtering or not
+
+    Returns
+    -------
+    bool
+        True for the combination of mesh ids being present and unstrict
+        filtering, otherwise False
+    """
+    if mesh_id_list and not strict_filtering:
+        return True
+    return False
+
+
+def is_weighted(weighted: bool, mesh_ids: List[str],
+                strict_mesh_filtering: bool) -> bool:
+    """Return True if the combination is either weighted or context weighted
+
+    Parameters
+    ----------
+    weighted : bool
+        If a query is weighted or not
+    mesh_ids : List[str]
+        A list of mesh ids
+    strict_mesh_filtering : bool
+        whether to run strict context filtering or not
+
+    Returns
+    -------
+    bool
+        True if the combination is either weighted or context weighted
+    """
+    if mesh_ids:
+        ctx_w = is_context_weighted(mesh_id_list=mesh_ids,
+                                    strict_filtering=strict_mesh_filtering)
+        return weighted or ctx_w
+    else:
+        return weighted
