@@ -260,7 +260,7 @@ class IndraNetworkSearchAPI:
         OntologyResultManager
         """
         oq = ontology_query
-        path_gen = shared_parents(**oq.run_options())
         graph = self.get_graph()
+        path_gen = shared_parents(**oq.run_options(graph=graph))
         return OntologyResultManager(path_generator=path_gen,
                                      graph=graph, **oq.result_options())
