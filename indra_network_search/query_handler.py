@@ -50,13 +50,15 @@ class QueryHandler:
                                     BreadthFirstSearchQuery(self.rest_query)}
 
     def _aux_queries(self) -> \
-            Dict[str, Union[SharedRegulatorsQuery, OntologyQuery]]:
+            Dict[str, Union[SharedRegulatorsQuery, SharedTargetsQuery,
+                            OntologyQuery]]:
         """Get shared interactors and ontological query"""
         aux_queries = \
-            {'shared_regulators': SharedRegulatorsQuery(self.rest_query),
+            {'shared_targets': SharedTargetsQuery(self.rest_query),
              shared_parents.__name__: OntologyQuery(self.rest_query)}
         if self.rest_query.shared_regulators:
-            aux_queries['shared_targets'] = SharedTargetsQuery(self.rest_query)
+            aux_queries['shared_regulators'] = \
+                SharedRegulatorsQuery(self.rest_query)
 
         return aux_queries
 
