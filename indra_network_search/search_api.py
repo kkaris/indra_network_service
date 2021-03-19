@@ -36,16 +36,17 @@ class IndraNetworkSearchAPI:
             return self._digraph
 
     def handle_query(self, rest_query: NetworkSearchQuery) -> Results:
-        """
+        """Handles general queries that maps to multiple sub-queries
 
         Parameters
         ----------
-        rest_query
+        rest_query : indra_network_search.data_models.NetworkSearchQuery
+            The incoming query. This query typically originates from a web UI.
 
         Returns
         -------
-        Results
-
+        indra_network_search.data_models.Results
+            A Results model containing all the results of all eligible queries
         """
         query_handler = QueryHandler(rest_query=rest_query)
         eligible_queries = query_handler.get_queries()
