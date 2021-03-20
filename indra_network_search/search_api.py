@@ -56,7 +56,8 @@ class IndraNetworkSearchAPI:
 
         # Get result manager for path query
         result_managers = {}
-        path_result_manager = self.path_query(eligible_queries['path_query'])
+        path_result_manager = self.path_query(eligible_queries['path_query'],
+                                              is_signed=query_handler.signed)
 
         for alg_name, query in eligible_queries.items():
             if alg_name == 'path_query':
@@ -95,6 +96,10 @@ class IndraNetworkSearchAPI:
         ----------
         node_name : str
             Name of node to look up
+
+        Returns
+        -------
+        Node
         """
         g = self.get_graph()
         db_ns = g.nodes.get(node_name, {}).get('ns')
@@ -105,30 +110,34 @@ class IndraNetworkSearchAPI:
         return Node(name=node_name, namespace=db_ns,
                     identifier=db_id, lookup=lookup)
 
-    def path_query(self, path_query: Union[Query, PathQuery]) -> ResultManager:
+    def path_query(self, path_query: Union[Query, PathQuery],
+                   is_signed: bool) -> ResultManager:
         """Wrapper for the mutually exclusive path queries
 
         Parameters
         ----------
         path_query : Union[Query, PathQuery]
             An instance of a Query or PathQuery
+        is_signed : bool
+            Signifies if the path query is signed or not
 
         Returns
         -------
         ResultManager
         """
         if isinstance(path_query, ShortestSimplePathsQuery):
-            return self.shortest_simple_paths(path_query)
+            return self.shortest_simple_paths(path_query, is_signed=is_signed)
         elif isinstance(path_query, DijkstraQuery):
-            return self.dijkstra(path_query)
+            return self.dijkstra(path_query, is_signed=is_signed)
         elif isinstance(path_query, BreadthFirstSearchQuery):
-            return self.breadth_first_search(path_query)
+            return self.breadth_first_search(path_query, is_signed=is_signed)
         else:
             raise ValueError(f'Unknown PathQuery of type '
                              f'{path_query.__class__}')
 
     def shortest_simple_paths(
-            self, shortest_simple_paths_query: ShortestSimplePathsQuery
+            self, shortest_simple_paths_query: ShortestSimplePathsQuery,
+            is_signed: bool
     ) -> ShortestSimplePathsResultManager:
         """Get results from running shortest_simple_paths
 
@@ -136,6 +145,8 @@ class IndraNetworkSearchAPI:
         ----------
         shortest_simple_paths_query : ShortestSimplePathsQuery
             The input query holding the options to the algorithm
+        is_signed : is_signed
+            Whether the query is signed or not
 
         Returns
         -------
@@ -144,7 +155,8 @@ class IndraNetworkSearchAPI:
             results from running shortest_simple_paths_query
         """
         sspq = shortest_simple_paths_query
-        graph = self.get_graph()
+
+        graph = self.get_graph(signed=is_signed)
         path_gen = shortest_simple_paths(G=graph,
                                          **sspq.run_options(graph=graph))
 
@@ -153,7 +165,8 @@ class IndraNetworkSearchAPI:
                                                 **sspq.result_options())
 
     def breadth_first_search(
-            self, breadth_first_search_query: BreadthFirstSearchQuery
+            self, breadth_first_search_query: BreadthFirstSearchQuery,
+            is_signed: bool
     ) -> BreadthFirstSearchResultManager:
         """Get results from running bfs_search
 
@@ -161,6 +174,8 @@ class IndraNetworkSearchAPI:
         ----------
         breadth_first_search_query : BreadthFirstSearchQuery
             The input query holding the options to the algorithm
+        is_signed : bool
+            Whether the query is signed or not
 
         Returns
         -------
@@ -169,13 +184,14 @@ class IndraNetworkSearchAPI:
             results from running bfs_search
         """
         bfsq = breadth_first_search_query
-        graph = self.get_graph()
+        graph = self.get_graph(signed=is_signed)
         path_gen = bfs_search(g=graph, **bfsq.run_options(graph=graph))
         return BreadthFirstSearchResultManager(path_generator=path_gen,
                                                graph=graph,
                                                **bfsq.result_options())
 
-    def dijkstra(self, dijkstra_query: DijkstraQuery) -> DijkstraResultManager:
+    def dijkstra(self, dijkstra_query: DijkstraQuery,
+                 is_signed: bool) -> DijkstraResultManager:
         """Get results from running open_dijkstra_search
 
         Parameters
@@ -183,6 +199,8 @@ class IndraNetworkSearchAPI:
         dijkstra_query : DijkstraQuery
             The input query holding options for open_dijkstra_search and
             DijkstraResultManager
+        is_signed : bool
+            Whether the query is signed or not
 
         Returns
         -------
@@ -193,13 +211,13 @@ class IndraNetworkSearchAPI:
         """
         dq = dijkstra_query
         path_gen = open_dijkstra_search(g=self.get_graph(), **dq.run_options())
-        graph = self.get_graph()
+        graph = self.get_graph(signed=is_signed)
         return DijkstraResultManager(path_generator=path_gen,
                                      graph=graph,
                                      **dq.result_options())
 
-    def shared_targets(self, shared_targets_query: SharedTargetsQuery) -> \
-            SharedInteractorsResultManager:
+    def shared_targets(self, shared_targets_query: SharedTargetsQuery,
+                       is_signed: bool) -> SharedInteractorsResultManager:
         """Get results from running shared_interactors looking for targets
 
         Parameters
@@ -207,6 +225,8 @@ class IndraNetworkSearchAPI:
         shared_targets_query
             The input query holding options for shared_interactors and
             SharedInteractorsResultManager
+        is_signed : bool
+            Whether the query is signed or not
 
         Returns
         -------
@@ -215,9 +235,8 @@ class IndraNetworkSearchAPI:
             running ...
         """
         stq = shared_targets_query
-        graph = self.get_graph()
-        path_gen = shared_interactors(graph=graph,
-                                      **stq.run_options())
+        graph = self.get_graph(signed=is_signed)
+        path_gen = shared_interactors(graph=graph, **stq.run_options())
         return SharedInteractorsResultManager(path_generator=path_gen,
                                               graph=graph,
                                               **stq.result_options())
