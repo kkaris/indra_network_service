@@ -3,7 +3,7 @@ import json
 import inspect
 import logging
 from os import path
-from typing import Callable, Dict, Any, Set, List
+from typing import Callable, Dict, Any, Set, List, Tuple
 from datetime import datetime
 
 from botocore.exceptions import ClientError
@@ -12,13 +12,12 @@ from fnvhash import fnv1a_32
 
 from indra.util.aws import get_s3_client, get_s3_file_tree
 from indra_db.client.readonly.query import FromMeshIds
-from indra_db.util.dump_sif import load_db_content, make_dataframe, NS_LIST
+from indra_db.util.dump_sif import NS_LIST
 from indra.statements import get_all_descendants, Activation, Inhibition, \
     IncreaseAmount, DecreaseAmount, AddModification, RemoveModification, \
     Complex
-from depmap_analysis.network_functions import net_functions as nf
-from depmap_analysis.util.io_functions import file_opener, dump_it_to_pickle, \
-    DT_YmdHMS, RE_YmdHMS_, RE_YYYYMMDD, get_earliest_date, get_date_from_str, \
+from depmap_analysis.util.io_functions import file_opener, DT_YmdHMS, \
+    RE_YmdHMS_, RE_YYYYMMDD, get_earliest_date, get_date_from_str, \
     strip_out_date
 from depmap_analysis.util.aws import dump_json_to_s3, DUMPS_BUCKET, \
     NETS_PREFIX, load_pickle_from_s3, NET_BUCKET, read_json_from_s3
@@ -181,6 +180,9 @@ def get_latest_graphs() -> Dict[str, str]:
             if graph_type in key:
                 latest_graphs[graph_type] = key
                 break
+    if len(latest_graphs) == 0:
+        logger.warning(f'Found no graphs at s3://{NET_BUCKET}'
+                       f'/{NETS_PREFIX}/*.pkl')
     return latest_graphs
 
 
