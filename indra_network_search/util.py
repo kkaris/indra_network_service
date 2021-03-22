@@ -208,10 +208,13 @@ def load_indra_graph(unsigned_graph: bool = True,
     Returns
     -------
     Tuple[nx.DiGraph, nx.MultiDiGraph, nx.MultiDiGraph, nx.DiGraph]
-        Return the unsigned graph, unsigned multi graph, signed node graph,
-        signed edge graphs as a tuple. If a graph was not chosen to be
-        loaded or wasn't found, None will be returned in the place of the
-        graph in the tuple.
+        Returns, as a tuple:
+            - unsigned graph
+            - unsigned multi graph
+            - signed node graph
+            - signed edge graphs
+        If a graph was not chosen to be loaded or wasn't found, None will be
+        returned in its place in the tuple.
     """
     # Initialize graphs
     indra_dir_graph = None
