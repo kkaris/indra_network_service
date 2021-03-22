@@ -5,18 +5,17 @@ import logging
 from os import path
 from typing import Callable, Dict, Any, Set, List
 from datetime import datetime
-from botocore.exceptions import ClientError
 
+from botocore.exceptions import ClientError
 import networkx as nx
 from fnvhash import fnv1a_32
 
-from indra.util.aws import get_s3_client
+from indra.util.aws import get_s3_client, get_s3_file_tree
 from indra_db.client.readonly.query import FromMeshIds
 from indra_db.util.dump_sif import load_db_content, make_dataframe, NS_LIST
 from indra.statements import get_all_descendants, Activation, Inhibition, \
     IncreaseAmount, DecreaseAmount, AddModification, RemoveModification, \
     Complex
-
 from depmap_analysis.network_functions import net_functions as nf
 from depmap_analysis.util.io_functions import file_opener, dump_it_to_pickle, \
     DT_YmdHMS, RE_YmdHMS_, RE_YYYYMMDD, get_earliest_date, get_date_from_str, \
@@ -157,6 +156,32 @@ def get_queryable_stmt_types():
         _get_sorted_descendants(AddModification) + \
         _get_sorted_descendants(RemoveModification)
     return stmt_types
+
+
+def get_latest_graphs() -> Dict[str, str]:
+    """Return the s3 urls to the latest unsigned and signed graphs available
+
+    Returns
+    -------
+    Dict[str, str]
+    """
+    s3 = get_s3_client(unsigned=False)
+    tree = get_s3_file_tree(s3=s3, bucket=NET_BUCKET,
+                            prefix=NETS_PREFIX,
+                            with_dt=True)
+    keys = [key for key in tree.gets('key') if key[0].endswith('.pkl')]
+
+    # Sort newest first
+    keys.sort(key=lambda t: t[1], reverse=True)
+
+    # Find latest graph of each type
+    latest_graphs = {}
+    for graph_type in [INDRA_DG, INDRA_SNG, INDRA_SEG]:
+        for key, _ in keys:
+            if graph_type in key:
+                latest_graphs[graph_type] = key
+                break
+    return latest_graphs
 
 
 def load_indra_graph(dir_graph_path=None, multi_digraph_path=None,
