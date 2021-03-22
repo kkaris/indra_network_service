@@ -2,12 +2,13 @@
 import json
 import logging
 import argparse
-from os import makedirs, environ, path
+from os import environ, path
 from sys import argv
 from time import time, gmtime, strftime
 from datetime import datetime
 
 import requests
+import networkx as nx
 from flask import Flask, request, abort, Response, render_template, jsonify, \
     url_for, redirect
 
@@ -17,7 +18,7 @@ from indralab_web_templates.path_templates import path_temps
 from indra_network_search.net import IndraNetwork, EMPTY_RESULT, \
     list_all_hashes
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
-from depmap_analysis.util.io_functions import file_opener, dump_it_to_pickle
+from depmap_analysis.util.io_functions import file_opener
 from .util import *
 
 app = Flask(__name__)
@@ -83,8 +84,7 @@ def _is_empty_result(res):
 
 if API_DEBUG:
     logger.info('Debugging API, no network will be loaded...')
-elif any([path.isfile(INDRA_DG_CACHE), path.isfile(INDRA_SNG_CACHE),
-          path.isfile(INDRA_SEG_CACHE)]):
+else:
     for file in [INDRA_DG_CACHE, INDRA_SNG_CACHE, INDRA_SEG_CACHE]:
         if path.isfile(file):
             INDRANET_DATE = datetime.utcfromtimestamp(get_earliest_date(file))
@@ -99,29 +99,6 @@ elif any([path.isfile(INDRA_DG_CACHE), path.isfile(INDRA_SNG_CACHE),
                                      indra_sign_edge_graph=seg)
     else:
         pass
-else:
-    # Try to find file(s) on s3
-    try:
-        logger.info('%s not found locally, trying to get file from s3...' %
-                    INDRA_DG)
-        makedirs(CACHE, exist_ok=True)
-        s3 = get_s3_client(unsigned=True)
-        dg_net = load_pickled_net_from_s3(name=INDRA_DG)
-        logger.info('Caching network to %s' % CACHE)
-        dump_it_to_pickle(INDRA_DG_CACHE, dg_net)
-
-        if FILES['sign_edge_graph_path'] is None:
-            seg_net = load_pickled_net_from_s3(INDRA_SEG)
-            dump_it_to_pickle(INDRA_SEG_CACHE, seg_net)
-        else:
-            seg_net = file_opener(FILES['sign_edge_graph_path'])
-        if argv[0].split('/')[-1].lower() != 'api.py':
-            indra_network = IndraNetwork(indra_dir_graph=dg_net,
-                                         indra_sign_edge_graph=seg_net)
-    except Exception as e:
-        logger.error('Could not find %s or %s locally or on s3' %
-                     (INDRA_DG, INDRA_SEG))
-        raise e
 
 # Set verbosity
 if VERBOSITY > 0 and\
@@ -614,9 +591,14 @@ if __name__ == '__main__':
         sng_file = args.cache[3] if len(args.cache) > 3 and\
             args.cache[3].lower() != 'none' else None
         try:
-            indra_network = \
-                IndraNetwork(*load_indra_graph(dg_file, mdg_file, sng_file,
-                                               seg_file))
+            dg = file_opener(dg_file) if dg_file else nx.DiGraph()
+            mdg = file_opener(mdg_file) if mdg_file else nx.MultiDiGraph()
+            sng = file_opener(sng_file) if sng_file else nx.DiGraph()
+            seg = file_opener(seg_file) if seg_file else nx.MultiDiGraph()
+            indra_network = IndraNetwork(indra_dir_graph=dg,
+                                         indra_multi_dir_graph=mdg,
+                                         indra_sign_node_graph=sng,
+                                         indra_sign_edge_graph=seg)
         except Exception as e:
             logger.warning('Could not load the provided files. Reverting to '
                            'default network...')
@@ -629,10 +611,13 @@ if __name__ == '__main__':
                 IndraNetwork(*load_indra_graph(dg_file))
         except Exception as e:
             logger.warning('Could not load the provided files. Reverting to '
-                           'default network...')
+                           'default network with only unsigned graph...')
     else:
-        indra_network = IndraNetwork(
-            *load_indra_graph(**FILES))
+        dg, _, _, _ = load_indra_graph(unsigned_graph=True,
+                                       sign_edge_graph=False,
+                                       sign_node_graph=False,
+                                       unsigned_multi_graph=False)
+        indra_network = IndraNetwork(indra_dir_graph=dg)
 
     if args.test:
         indra_network.small = True
