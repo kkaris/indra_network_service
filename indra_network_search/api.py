@@ -28,17 +28,6 @@ STMT_HASH_CACHE = {}
 
 logger = logging.getLogger(__name__)
 
-FILES = {
-    'dir_graph_path': INDRA_DG_CACHE if path.isfile(INDRA_DG_CACHE)
-    else None,
-    # 'multi_digraph_path': INDRA_MDG_CACHE if path.isfile(INDRA_MDG_CACHE)
-    # else None,
-    'multi_digraph_path': None,
-    'sign_edge_graph_path': INDRA_SEG_CACHE if path.isfile(INDRA_SEG_CACHE)
-    else None,
-    'sign_node_graph_path': INDRA_SNG_CACHE if path.isfile(INDRA_SNG_CACHE)
-    else None
-}
 INDRA_DB_FROMAGENTS = 'https://db.indra.bio/statements/from_agents'
 STMTS_FROM_HSH_URL = environ.get('INDRA_DB_HASHES_URL')
 VERBOSITY = int(environ.get('VERBOSITY', 0))
