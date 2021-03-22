@@ -178,7 +178,8 @@ def get_latest_graphs() -> Dict[str, str]:
     for graph_type in [INDRA_DG, INDRA_SNG, INDRA_SEG]:
         for key, _ in keys:
             if graph_type in key:
-                latest_graphs[graph_type] = key
+                s3_url = f's3://{NET_BUCKET}/{key}'
+                latest_graphs[graph_type] = s3_url
                 break
     if len(latest_graphs) == 0:
         logger.warning(f'Found no graphs at s3://{NET_BUCKET}'
