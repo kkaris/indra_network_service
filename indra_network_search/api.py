@@ -2,12 +2,12 @@
 import json
 import logging
 import argparse
-import requests
 from os import makedirs, environ, path
 from sys import argv
 from time import time, gmtime, strftime
 from datetime import datetime
 
+import requests
 from flask import Flask, request, abort, Response, render_template, jsonify, \
     url_for, redirect
 
@@ -90,7 +90,13 @@ elif any([path.isfile(INDRA_DG_CACHE), path.isfile(INDRA_SNG_CACHE),
             INDRANET_DATE = datetime.utcfromtimestamp(get_earliest_date(file))
             break
     if argv[0].split('/')[-1].lower() != 'api.py':
-        indra_network = IndraNetwork(*load_indra_graph(**FILES))
+        dg, _, sng, seg = load_indra_graph(unsigned_graph=True,
+                                           sign_edge_graph=True,
+                                           sign_node_graph=True,
+                                           unsigned_multi_graph=False)
+        indra_network = IndraNetwork(indra_dir_graph=dg,
+                                     indra_sign_node_graph=sng,
+                                     indra_sign_edge_graph=seg)
     else:
         pass
 else:
