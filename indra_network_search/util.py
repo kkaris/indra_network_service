@@ -3,7 +3,7 @@ import json
 import inspect
 import logging
 from os import path
-from typing import Callable, Dict, Any, Set, List, Tuple
+from typing import Callable, Dict, Any, Set, List, Tuple, Optional
 from datetime import datetime
 
 from botocore.exceptions import ClientError
@@ -186,52 +186,65 @@ def get_latest_graphs() -> Dict[str, str]:
     return latest_graphs
 
 
-def load_indra_graph(dir_graph_path=None, multi_digraph_path=None,
-                     sign_node_graph_path=None, sign_edge_graph_path=None,
-                     update=False, belief_dict=None, strat_ev_dict=None,
-                     include_entity_hierarchies=True, verbosity=0):
-    """Return a nx.DiGraph and nx.MultiDiGraph representation an INDRA DB dump
+def load_indra_graph(unsigned_graph: bool = True,
+                     unsigned_multi_graph: bool = False,
+                     sign_node_graph: bool = True,
+                     sign_edge_graph: bool = False) \
+        -> Tuple[Optional[nx.DiGraph], Optional[nx.MultiDiGraph],
+                 Optional[nx.MultiDiGraph], Optional[nx.DiGraph]]:
+    """Return a tuple of graphs to be used in the network search API
 
-    If update is True, make a fresh snapshot from the INDRA DB.
-    WARNING: this typically requires a lot of RAM and might slow down your
-    system significantly.
+    Parameters
+    ----------
+    unsigned_graph : bool
+        Load the latest unsigned graph. Default: True.
+    unsigned_multi_graph : bool
+        Load the latest unsigned multi graph. Default: False.
+    sign_node_graph : bool
+        Load the latest signed node graph. Default: True.
+    sign_edge_graph : bool
+        Load the latest signed edge graph. Default: False.
+
+    Returns
+    -------
+    Tuple[nx.DiGraph, nx.MultiDiGraph, nx.MultiDiGraph, nx.DiGraph]
+        Return the unsigned graph, unsigned multi graph, signed node graph,
+        signed edge graphs as a tuple. If a graph was not chosen to be
+        loaded or wasn't found, None will be returned in the place of the
+        graph in the tuple.
     """
-    global INDRA_DG_CACHE, INDRA_MDG_CACHE, INDRA_SNG_CACHE, INDRA_SEG_CACHE
-    indra_dir_graph = nx.DiGraph()
-    indra_multi_digraph = nx.MultiDiGraph()
-    indra_signed_edge_graph = nx.MultiDiGraph()
-    indra_signed_node_graph = nx.DiGraph()
+    # Initialize graphs
+    indra_dir_graph = None
+    indra_multi_di_graph = None
+    indra_signed_edge_graph = None
+    indra_signed_node_graph = None
+    latest_graphs = get_latest_graphs()
 
-    if update:  # Todo: Download from db dumps instead
-        df = make_dataframe(True, load_db_content(True, NS_LIST))
-        options = {'df': df,
-                   'belief_dict': belief_dict,
-                   'strat_ev_dict': strat_ev_dict,
-                   'include_entity_hierarchies': include_entity_hierarchies,
-                   'verbosity': verbosity}
-        indra_dir_graph = nf.sif_dump_df_to_digraph(**options)
-        dump_it_to_pickle(dir_graph_path, indra_dir_graph)
-        INDRA_DG_CACHE = path.join(CACHE, dir_graph_path)
-        if multi_digraph_path:
-            indra_multi_digraph = nf.sif_dump_df_to_digraph(
-                graph_type='multidigraph', **options)
-            dump_it_to_pickle(multi_digraph_path, indra_multi_digraph)
-            INDRA_MDG_CACHE = path.join(CACHE, multi_digraph_path)
-        if sign_node_graph_path or sign_edge_graph_path:
-            indra_signed_edge_graph, indra_signed_node_graph = \
-                nf.sif_dump_df_to_digraph(graph_type='signed', **options)
-    else:
-        logger.info('Loading indra network representations from pickles')
-        if dir_graph_path:
-            indra_dir_graph = file_opener(dir_graph_path)
-        if multi_digraph_path:
-            indra_multi_digraph = file_opener(multi_digraph_path)
-        if sign_edge_graph_path:
-            indra_signed_edge_graph = file_opener(sign_edge_graph_path)
-        if sign_node_graph_path:
-            indra_signed_node_graph = file_opener(sign_node_graph_path)
-        logger.info('Finished loading indra networks.')
-    return indra_dir_graph, indra_multi_digraph, indra_signed_edge_graph,\
+    if unsigned_graph:
+        if latest_graphs.get(INDRA_DG):
+            indra_dir_graph = file_opener(latest_graphs[INDRA_DG])
+        else:
+            logger.warning(f'{INDRA_DG} was not found')
+
+    if unsigned_multi_graph:
+        if latest_graphs.get(INDRA_MDG):
+            indra_multi_di_graph = file_opener(latest_graphs[INDRA_MDG])
+        else:
+            logger.warning(f'{INDRA_MDG} was not found')
+
+    if sign_node_graph:
+        if latest_graphs.get(INDRA_SNG):
+            indra_signed_node_graph = file_opener(latest_graphs[INDRA_SNG])
+        else:
+            logger.warning(f'{INDRA_SNG} was not found')
+
+    if sign_edge_graph:
+        if latest_graphs.get(INDRA_SEG):
+            indra_signed_edge_graph = file_opener(latest_graphs[INDRA_SEG])
+        else:
+            logger.warning(f'{INDRA_SEG} was not found')
+
+    return indra_dir_graph, indra_multi_di_graph, indra_signed_edge_graph, \
         indra_signed_node_graph
 
 
