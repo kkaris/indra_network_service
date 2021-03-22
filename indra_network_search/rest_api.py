@@ -6,7 +6,7 @@ import logging
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from depmap_analysis.util.io_functions import file_opener
+from .util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery
 from .search_api import IndraNetworkSearchAPI
 
@@ -53,15 +53,11 @@ def query(search_query: NetworkSearchQuery):
     return results
 
 
-# Todo: move to file loader that finds latest iteration of files
-dir_graph_file = \
-    's3://depmap-analysis/graphs/2021-01-26/indranet_dir_graph.pkl'
-sign_node_graph_file = \
-    's3://depmap-analysis/graphs/2021-01-26/indranet_sign_node_graph.pkl'
+dir_graph, _, sign_node_graph, _ = \
+    load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
+                     sign_node_graph=True, sign_edge_graph=False)
 
-network_search_api = IndraNetworkSearchAPI(
-    unsigned_graph=file_opener(dir_graph_file),
-    signed_node_graph=file_opener(sign_node_graph_file)
-)
+network_search_api = IndraNetworkSearchAPI(unsigned_graph=dir_graph,
+                                           signed_node_graph=sign_node_graph)
 
 HEALTH.status = 'available'
