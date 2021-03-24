@@ -49,6 +49,7 @@ class FilterOptions(BaseModel):
     belief_cutoff: float = 0.0
     curated_db_only: bool = False
     max_paths: int = 50
+    cull_best_node: Optional[int] = None
     weighted: bool = False
     context_weighted: bool = False
     overall_weighted: bool = False
@@ -89,7 +90,7 @@ class NetworkSearchQuery(BaseModel):
     fplx_expand: bool = False
     k_shortest: Optional[int] = None
     max_per_node: int = 5
-    cull_best_node: List[int] = []
+    cull_best_node: Optional[int] = None
     mesh_ids: List[str] = []
     strict_mesh_id_filtering: bool = False
     const_c: int = 1
@@ -109,10 +110,17 @@ class NetworkSearchQuery(BaseModel):
 
     @validator('max_per_node')
     def is_pos_int(cls, mpn: Union[int, bool]):
-        """Validate path_length >= 1 if given"""
+        """Validate max_per_node >= 1 if given"""
         if isinstance(mpn, int) and mpn < 1:
             raise ValueError('max_per_node must be integer > 0')
         return mpn
+
+    @validator('cull_best_node')
+    def is_int_gt2(cls, cbn: Optional[int]):
+        """Validate cull_best_node >= 2"""
+        if isinstance(cbn, int) and cbn < 2:
+            raise ValueError('cull_best_node must be integer > 1 if provided')
+        return cbn
 
     class Config:
         allow_mutation = False  # Error for any attempt to change attributes
@@ -138,6 +146,7 @@ class NetworkSearchQuery(BaseModel):
                              belief_cutoff=self.belief_cutoff,
                              curated_db_only=self.curated_db_only,
                              max_paths=self.k_shortest,
+                             cull_best_node=self.cull_best_node,
                              overall_weighted=is_weighted(
                                  weighted=self.weighted,
                                  mesh_ids=self.mesh_ids,
