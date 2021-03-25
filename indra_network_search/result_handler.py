@@ -555,7 +555,7 @@ def _get_cull_values(culled_nodes: Set[str],
                      graph: DiGraph,
                      weight: Optional[str] = None) \
         -> Tuple[Set[str], Set[str]]:
-    if added_paths % cull_best_node == 1 and \
+    if added_paths > cull_best_node and added_paths % cull_best_node == 1 and \
             prev_path is not None and len(prev_path) >= 3:
         degrees = graph.degree(prev_path[1:-1], weight)
         highest_degree_node = max(degrees, key=lambda x: x[1])[0]
