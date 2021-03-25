@@ -13,7 +13,7 @@ Todo:
 import logging
 from datetime import datetime
 from typing import Generator, Union, List, Optional, Iterator, Iterable, \
-    Dict, Any, Tuple
+    Dict, Any, Set, Tuple
 
 from networkx import DiGraph
 
@@ -200,11 +200,34 @@ class PathResultManager(ResultManager):
 
     def _build_paths(self):
         paths_built = 0
-        for path in self.path_gen:
+        prev_path: Optional[List[str]] = None
+        culled_nodes: Set[str] = set()
+
+        while True:
             if paths_built >= self.filter_options.max_paths:
                 logger.info(f'Found all {self.filter_options.max_paths} '
                             f'shortest paths')
                 break
+
+            try:
+                if self.filter_options.cull_best_node is not None and \
+                        prev_path is not None:
+                    send_values = _get_cull_values(
+                        culled_nodes=culled_nodes,
+                        cull_best_node=self.filter_options.cull_best_node,
+                        prev_path=prev_path,
+                        added_paths=paths_built,
+                        graph=self._graph,
+
+                    )
+                    path = self.path_gen.send(send_values)
+                else:
+                    path = next(self.path_gen)
+            except StopIteration:
+                logger.info('Reached StopIteration in PathResultsManager, '
+                            'breaking.')
+                break
+
             if self.filter_options.path_length and \
                     not self.filter_options.overall_weighted:
                 if len(path) < self.filter_options.path_length:
@@ -233,9 +256,10 @@ class PathResultManager(ResultManager):
 
                 # Build PathResultData
                 edge_data_list.append(edge_data)
+                # Add subject node of edge
                 node_path.append(edge_data.edge[0])
 
-            # If inner loop was broken
+            # If inner loop was broken or never run
             if filtered_out or edge_data is None:
                 continue
 
@@ -250,6 +274,7 @@ class PathResultManager(ResultManager):
             except KeyError:
                 self.paths[len(path)] = [path_data]
             paths_built += 1
+            prev_path = path
 
     def get_results(self) -> PathResultData:
         """Returns the result for the associated algorithm"""
@@ -515,6 +540,22 @@ class OntologyResultManager(ResultManager):
         self._get_parents()
         return OntologyResults(source=self.source, target=self.target,
                                parents=self._parents)
+
+
+def _get_cull_values(culled_nodes: Set[str],
+                     cull_best_node: int,
+                     prev_path: List[str],
+                     added_paths: int,
+                     graph: DiGraph,
+                     weight: Optional[str] = None) \
+        -> Tuple[Set[str], Set[str]]:
+    if added_paths % cull_best_node == 1 and \
+            prev_path is not None and len(prev_path) >= 3:
+        degrees = graph.degree(prev_path[1:-1], weight)
+        highest_degree_node = max(degrees, key=lambda x: x[1])[0]
+        culled_nodes.add(highest_degree_node)
+
+    return culled_nodes, set()
 
 
 class SubgraphResultManager(ResultManager):
