@@ -1,15 +1,18 @@
 from typing import Iterator, Tuple
 from networkx import DiGraph
 
+from indra.explanation.pathfinding import shortest_simple_paths
 from indra_network_search.query import OntologyQuery, SharedRegulatorsQuery, \
-    SharedTargetsQuery, SubgraphQuery
+    SharedTargetsQuery, ShortestSimplePathsQuery, SubgraphQuery
 from indra_network_search.result_handler import OntologyResultManager, \
-    SharedInteractorsResultManager, SubgraphResultManager, DB_URL_HASH, \
-    DB_URL_EDGE
+    SharedInteractorsResultManager, ShortestSimplePathsResultManager, \
+    SubgraphResultManager,  DB_URL_HASH, DB_URL_EDGE
 from indra_network_search.data_models import NetworkSearchQuery, Node, \
     SubgraphRestQuery, SubgraphResults
 from indra_network_search.pathfinding import shared_parents, \
     shared_interactors, get_subgraph_edges
+from . import edge_data, nodes
+
 
 mock_edge_dict = {'statements': [{'stmt_hash': 31955807459270625,
                                   'stmt_type': 'Inhibition',
@@ -149,6 +152,46 @@ def test_shared_regulators_result_handling():
     assert sr_res.target_data[0].edge[0].name == 'nsr'
     assert sr_res.source_data[0].edge[0].name == \
            sr_res.target_data[0].edge[0].name
+
+
+def test_shortest_simple_paths():
+    g = DiGraph()
+    for edge in edge_data:
+        # Add node data
+        if edge[0] not in g.nodes:
+            g.add_node(edge[0], **nodes[edge[0]])
+        if edge[1] not in g.nodes:
+            g.add_node(edge[1], **nodes[edge[1]])
+
+        # Add edge data
+        g.add_edge(*edge, **edge_data[edge])
+
+    query = NetworkSearchQuery(source='BRCA1', target='BRCA2')
+    shortest_query = ShortestSimplePathsQuery(query)
+    shortest_options = shortest_query.run_options(graph=g)
+    path_gen = shortest_simple_paths(G=g, **shortest_options)
+    shortest_mngr = ShortestSimplePathsResultManager(
+        path_generator=path_gen, graph=g,
+        filter_options=query.get_filter_options(), source='BRCA1',
+        target='BRCA2')
+    res = shortest_mngr.get_results()
+    assert not res.is_empty(), 'Results seem empty'
+    assert len(res.paths[4]) == 4, f'{len(res.paths[4])} paths found'
+    # assert len(res.paths[4]) == 5, f'{len(res.paths[4])} paths found'
+
+    # Test with culling every 3
+    query_cull = NetworkSearchQuery(source='BRCA1', target='BRCA2',
+                                    cull_best_node=2)
+    shortest_query_cull = ShortestSimplePathsQuery(query_cull)
+    shortest_options_cull = shortest_query_cull.run_options(graph=g)
+    path_gen_cull = shortest_simple_paths(G=g, **shortest_options_cull)
+    shortest_mngr_cull = ShortestSimplePathsResultManager(
+        path_generator=path_gen_cull, graph=g,
+        filter_options=query_cull.get_filter_options(), source='BRCA1',
+        target='BRCA2')
+    res_cull = shortest_mngr_cull.get_results()
+    assert not res_cull.is_empty(), 'Results seem empty'
+    assert len(res_cull.paths[4]) == 3, f'{len(res_cull.paths[4])} paths found'
 
 
 def test_subgraph():
