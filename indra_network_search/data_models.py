@@ -88,7 +88,7 @@ class NetworkSearchQuery(BaseModel):
     belief_cutoff: Union[float, bool] = 0.0
     curated_db_only: bool = False
     fplx_expand: bool = False
-    k_shortest: Optional[int] = None
+    k_shortest: int = 50
     max_per_node: int = 5
     cull_best_node: Optional[int] = None
     mesh_ids: List[str] = []
