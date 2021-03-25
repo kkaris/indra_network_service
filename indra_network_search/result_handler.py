@@ -202,6 +202,12 @@ class PathResultManager(ResultManager):
         paths_built = 0
         prev_path: Optional[List[str]] = None
         culled_nodes: Set[str] = set()
+        if self.filter_options.context_weighted:
+            weight = 'context_weight'
+        elif self.filter_options.weighted:
+            weight = 'weight'
+        else:
+            weight = None
 
         while True:
             if paths_built >= self.filter_options.max_paths:
@@ -218,7 +224,7 @@ class PathResultManager(ResultManager):
                         prev_path=prev_path,
                         added_paths=paths_built,
                         graph=self._graph,
-
+                        weight=weight
                     )
                     path = self.path_gen.send(send_values)
                 else:
