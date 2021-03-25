@@ -35,12 +35,12 @@ edge_data = {
             'residue': None, 'weight': 2, 'curated': False, 'position': None,
             'english': 'BRCA1 binds MBD2.'}]
         },
-        ('BRCA1', 'PATZ1'): {'belief': 1, 'weight': 2, 'statements': [{
-            'stmt_hash': 5603789525715924, 'stmt_type': 'Complex',
-            'evidence_count': 1, 'belief': 1, 'source_counts': {'sparser': 1},
-            'residue': None, 'weight': 2, 'curated': False, 'position': None,
-            'english': 'BRCA1 binds PATZ1.'}]
-        },
+        # ('BRCA1', 'PATZ1'): {'belief': 1, 'weight': 2, 'statements': [{
+        #     'stmt_hash': 5603789525715924, 'stmt_type': 'Complex',
+        #     'evidence_count': 1, 'belief': 1, 'source_counts': {'sparser': 1},
+        #     'residue': None, 'weight': 2, 'curated': False, 'position': None,
+        #     'english': 'BRCA1 binds PATZ1.'}]
+        # },
         ('AR', 'CHEK1'): {'belief': 0.99, 'weight': 4.1e-05, 'statements': [
             {'stmt_hash': 915990, 'stmt_type': 'Phosphorylation',
              'evidence_count': 1, 'belief': 0.99, 'source_counts': {'pc': 1},
@@ -65,7 +65,7 @@ edge_data = {
              'residue': None, 'weight': 2, 'curated': False, 'position': None,
              'english': 'MBD2 binds CHEK1.'}]
         },
-        ('PATZ1', 'HDAC3'): {'belief': 1, 'weight': 2, 'statements': [
+        ('PATZ1', 'CHEK1'): {'belief': 1, 'weight': 2, 'statements': [
             {'stmt_hash': 560370, 'stmt_type': 'Complex',
              'evidence_count': 1, 'belief': 1, 'source_counts': {'sparser': 1},
              'residue': None, 'weight': 2, 'curated': False, 'position': None,
@@ -76,11 +76,5 @@ edge_data = {
              'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
              'position': '3387', 'english': 'CHEK1 phosphorylates BRCA2.'}]
-        },
-        ('HDAC3', 'BRCA2'): {'belief': 0.98, 'weight': 4.1e-05, 'statements': [
-            {'stmt_hash': 915994, 'stmt_type': 'Phosphorylation',
-             'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
-             'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
-             'position': '3387', 'english': 'HDAC3 phosphorylates BRCA2.'}]
         },
 }
