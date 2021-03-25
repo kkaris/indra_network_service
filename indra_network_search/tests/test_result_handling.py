@@ -6,8 +6,7 @@ from indra_network_search.query import OntologyQuery, SharedRegulatorsQuery, \
     SharedTargetsQuery, ShortestSimplePathsQuery, SubgraphQuery
 from indra_network_search.result_handler import OntologyResultManager, \
     SharedInteractorsResultManager, ShortestSimplePathsResultManager, \
-    SubgraphResultManager, SubgraphResultManager,  DB_URL_HASH, \
-    DB_URL_EDGE
+    SubgraphResultManager,  DB_URL_HASH, DB_URL_EDGE
 from indra_network_search.data_models import NetworkSearchQuery, Node, \
     SubgraphRestQuery, SubgraphResults
 from indra_network_search.pathfinding import shared_parents, \
