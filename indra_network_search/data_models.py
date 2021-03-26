@@ -16,7 +16,7 @@ todo:
 """
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict
 
-from pydantic import BaseModel, validator, constr
+from pydantic import BaseModel, validator, Extra, constr
 
 from .util import get_query_hash, is_weighted, is_context_weighted
 
@@ -124,6 +124,7 @@ class NetworkSearchQuery(BaseModel):
 
     class Config:
         allow_mutation = False  # Error for any attempt to change attributes
+        extra = Extra.forbid  # Error if non-specified attributes are given
 
     def get_hash(self):
         """Get the corresponding query hash of the query"""
