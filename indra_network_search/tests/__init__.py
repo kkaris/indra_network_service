@@ -35,12 +35,12 @@ edge_data = {
             'residue': None, 'weight': 2, 'curated': False, 'position': None,
             'english': 'BRCA1 binds MBD2.'}]
         },
-        # ('BRCA1', 'PATZ1'): {'belief': 1, 'weight': 2, 'statements': [{
-        #     'stmt_hash': 5603789525715924, 'stmt_type': 'Complex',
-        #     'evidence_count': 1, 'belief': 1, 'source_counts': {'sparser': 1},
-        #     'residue': None, 'weight': 2, 'curated': False, 'position': None,
-        #     'english': 'BRCA1 binds PATZ1.'}]
-        # },
+        ('BRCA1', 'PATZ1'): {'belief': 1, 'weight': 2, 'statements': [{
+            'stmt_hash': 5603789525715924, 'stmt_type': 'Complex',
+            'evidence_count': 1, 'belief': 1, 'source_counts': {'sparser': 1},
+            'residue': None, 'weight': 2, 'curated': False, 'position': None,
+            'english': 'BRCA1 binds PATZ1.'}]
+        },
         ('AR', 'CHEK1'): {'belief': 0.99, 'weight': 4.1e-05, 'statements': [
             {'stmt_hash': 915990, 'stmt_type': 'Phosphorylation',
              'evidence_count': 1, 'belief': 0.99, 'source_counts': {'pc': 1},
