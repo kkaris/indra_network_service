@@ -370,6 +370,7 @@ class Results(BaseModel):
     query_hash: str
     hashes: List[str] = []  # Cast as string for JavaScript
     path_results: Optional[PathResultData] = None
+    reverse_path_results: Optional[PathResultData] = None
     ontology_results: Optional[OntologyResults] = None
     shared_target_results: Optional[SharedInteractorsResults] = None
     shared_regulators_results: Optional[SharedInteractorsResults] = None
