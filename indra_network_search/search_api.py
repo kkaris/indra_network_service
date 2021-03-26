@@ -58,6 +58,12 @@ class IndraNetworkSearchAPI:
         result_managers = {}
         path_result_manager = self.path_query(eligible_queries['path_query'],
                                               is_signed=query_handler.signed)
+        if 'reverse_path_query' in eligible_queries:
+            reverse_path_result = \
+                self.path_query(eligible_queries['reverse_path_query'],
+                                is_signed=query_handler.signed)
+        else:
+            reverse_path_result = None
 
         for alg_name, query in eligible_queries.items():
             if alg_name == 'path_query':
@@ -85,6 +91,8 @@ class IndraNetworkSearchAPI:
                 results.ontology_results = res_man.get_results()
 
         results.path_results = path_result_manager.get_results()
+        if reverse_path_result:
+            results.reverse_path_results = reverse_path_result.get_results()
 
         return results
 
