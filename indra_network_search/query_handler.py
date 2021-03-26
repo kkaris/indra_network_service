@@ -31,7 +31,7 @@ class QueryHandler:
         self.strict_mesh: bool = rest_query.strict_mesh_id_filtering
         self._query_dict: Dict[str, Query] = {}
 
-    def _map_query(self):
+    def _get_path_query(self):
         """This method maps the rest_query to API methods"""
         # If not open, run shortest_simple_paths and other queries
         if not self.open:
@@ -70,7 +70,7 @@ class QueryHandler:
         List[Tuple[str, Query]]
         """
         if not self._query_dict:
-            self._map_query()
+            self._get_path_query()
         return self._query_dict
 
 
