@@ -226,6 +226,8 @@ class PathResultManager(ResultManager):
                         graph=self._graph,
                         weight=weight
                     )
+                    # Send value affects current yield value, not next one:
+                    # See https://stackoverflow.com/a/12638313/10478812
                     path = self.path_gen.send(send_values)
                 else:
                     path = next(self.path_gen)
