@@ -6,9 +6,10 @@ Todo
 FixMe
     Add mock db call for
     indra_db.client.readonly.mesh_ref_counts::get_mesh_ref_counts
-    using
-Note: The tests here currently rely on being able to call indra_db, which is
-blocked from non-hms and non-AWS IP addresses, unless explicitly added .
+    using moto? mock?
+Note: The tests here currently rely on being able to call indra_db (via
+PathQuery._get_mesh_options in indra_network_search.query), which is blocked
+from non-hms and non-AWS IP addresses, unless explicitly added.
 """
 from inspect import signature
 import networkx as nx
