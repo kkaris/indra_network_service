@@ -176,12 +176,11 @@ def test_shortest_simple_paths():
         target='BRCA2')
     res = shortest_mngr.get_results()
     assert not res.is_empty(), 'Results seem empty'
-    assert len(res.paths[4]) == 4, f'{len(res.paths[4])} paths found'
-    # assert len(res.paths[4]) == 5, f'{len(res.paths[4])} paths found'
+    assert len(res.paths[4]) == 5, f'{len(res.paths[4])} paths found'
 
     # Test with culling every 3
     query_cull = NetworkSearchQuery(source='BRCA1', target='BRCA2',
-                                    cull_best_node=2)
+                                    cull_best_node=4)
     shortest_query_cull = ShortestSimplePathsQuery(query_cull)
     shortest_options_cull = shortest_query_cull.run_options(graph=g)
     path_gen_cull = shortest_simple_paths(G=g, **shortest_options_cull)
@@ -191,7 +190,7 @@ def test_shortest_simple_paths():
         target='BRCA2')
     res_cull = shortest_mngr_cull.get_results()
     assert not res_cull.is_empty(), 'Results seem empty'
-    assert len(res_cull.paths[4]) == 3, f'{len(res_cull.paths[4])} paths found'
+    assert len(res_cull.paths[4]) == 4, f'{len(res_cull.paths[4])} paths found'
 
 
 def test_subgraph():
