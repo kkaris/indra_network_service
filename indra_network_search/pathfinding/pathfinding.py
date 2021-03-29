@@ -4,7 +4,7 @@ Pathfinding algorithms local to this repo
 import logging
 from itertools import islice, product
 from typing import Generator, List, Union, Optional, Set, Iterator, Tuple, \
-    Any
+    Any, Dict
 
 from networkx import DiGraph, MultiDiGraph
 
@@ -13,10 +13,11 @@ from depmap_analysis.network_functions.famplex_functions import \
 from depmap_analysis.scripts.depmap_script_expl_funcs import \
     _get_signed_shared_targets, _get_signed_shared_regulators, _src_filter, \
     _node_ns_filter
+from ..data_models import Node
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['shared_interactors', 'shared_parents']
+__all__ = ['shared_interactors', 'shared_parents', 'get_subgraph_edges']
 
 
 def shared_parents(source_ns: str, source_id: str, target_ns: str,
@@ -274,3 +275,44 @@ def _belief_filter(start_node: str, neighbor_nodes: Set[str],
                 filtered_neighbors.add(n)
                 break
     return filtered_neighbors
+
+
+def get_subgraph_edges(graph: DiGraph,
+                       nodes: List[Node]) \
+        -> Dict[str, Dict[str, List[Tuple[str, str]]]]:
+    """
+
+    Parameters
+    ----------
+    graph : DiGraph
+        Graph to look for in and out edges in
+    nodes : List[Node]
+        List of Node instances to look for neighbors in
+
+    Returns
+    -------
+    Dict[str, Dict[str, List[Tuple[str, str]]]
+        A dict keyed by each of the input node names that were present in
+        the graph. For each node, two lists are provided for in-edges
+        and out-edges respectively
+    """
+    edge_dict = {}
+    # Loop nodes
+    for node in nodes:
+        # Per node, get in- and out-edges
+        if node.name not in graph.nodes:
+            mapped_name: str = graph.graph['node_by_ns_id'].get((
+                node.namespace, node.identifier))
+            if mapped_name is not None and mapped_name in graph.nodes:
+                node_name = mapped_name
+            else:
+                logger.warning(f'Node {node.name} was not found in the graph')
+                continue
+        else:
+            node_name = node.name
+
+        in_edges = [e for e in graph.in_edges(node_name)]
+        out_edges = [e for e in graph.out_edges(node_name)]
+        edge_dict[node_name] = {'in_edges': in_edges, 'out_edges': out_edges}
+
+    return edge_dict
