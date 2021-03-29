@@ -340,3 +340,8 @@ class Results(BaseModel):
     ontology_results: Optional[OntologyResults] = None
     shared_target_results: Optional[SharedInteractorsResults] = None
     shared_regulators_results: Optional[SharedInteractorsResults] = None
+
+
+class SubGraphQuery(BaseModel):
+    """Subgraph query"""
+    nodes: List[Node]
