@@ -257,8 +257,8 @@ class DijkstraQuery(PathQuery):
 
 class SharedInteractorsQuery(Query):
     """Parent class for shared target and shared regulator search"""
-    alg_alt_name: str = shared_interactors.__name__
     alg_name: str = NotImplemented
+    alg_alt_name: str = shared_interactors.__name__
     options: SharedInteractorsOptions = SharedInteractorsOptions
     reverse: bool = NotImplemented
 
