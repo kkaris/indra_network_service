@@ -47,7 +47,8 @@ edge_data = {
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
              'position': '3387', 'english': 'CHEK1 phosphorylates BRCA2.'}]
         },
-        ('testosterone', 'CHEK1'): {'belief': 0.99, 'weight': 4.1e-05, 'statements': [
+        ('testosterone', 'CHEK1'): {'belief': 0.99, 'weight': 4.1e-05,
+                                    'statements': [
             {'stmt_hash': 915991, 'stmt_type': 'Phosphorylation',
              'evidence_count': 1, 'belief': 0.99, 'source_counts': {'pc': 1},
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
@@ -76,5 +77,11 @@ edge_data = {
              'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
              'position': '3387', 'english': 'CHEK1 phosphorylates BRCA2.'}]
+        },
+        ('BRCA2', 'BRCA1'): {'belief': 0.98, 'weight': 4.1e-05, 'statements': [
+            {'stmt_hash': 915993, 'stmt_type': 'Deactivation',
+             'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
+             'residue': None, 'weight': 0.23572233352106983, 'curated': True,
+             'position': None, 'english': 'CHEK1 deactivates BRCA2.'}]
         },
 }
