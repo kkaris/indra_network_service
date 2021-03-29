@@ -299,6 +299,8 @@ class SharedRegulatorsQuery(SharedInteractorsQuery):
     def __init__(self, query: NetworkSearchQuery):
         # bool(shared_regulators) == bool(reverse)
         if query.shared_regulators != self.reverse:
+            # shared regulators must not be requested if
+            # query.shared_regulators == False
             raise InvalidParametersError('Request for shared regulators in '
                                          'query does not match class '
                                          'attribute reverse')
