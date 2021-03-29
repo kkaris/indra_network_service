@@ -678,7 +678,7 @@ class SubgraphResultManager(ResultManager):
 
 
 # Map algorithm names to result classes
-alg_handler_mapping = {
+alg_manager_mapping = {
     shortest_simple_paths.__name__: ShortestSimplePathsResultManager,
     open_dijkstra_search.__name__: DijkstraResultManager,
     bfs_search.__name__: BreadthFirstSearchResultManager,
