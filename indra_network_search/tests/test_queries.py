@@ -85,6 +85,15 @@ def test_shortest_simple_paths_query():
     options = sspq_cs.run_options()
     _match_args(set(options.keys()), alg_func_mapping[sspq_cs.alg_name])
 
+    # Test the reverse search
+    rev_query = query.reverse_search()
+    assert rev_query.source == query.target
+    assert rev_query.target == query.source
+
+    sspq_rev = ShortestSimplePathsQuery(rev_query)
+    options_rev = sspq_rev.run_options()
+    _match_args(set(options_rev.keys()), alg_func_mapping[sspq_rev.alg_name])
+
 
 def test_breadth_first_search_query():
     # Test regular BFS
