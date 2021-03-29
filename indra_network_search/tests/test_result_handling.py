@@ -178,6 +178,20 @@ def test_shortest_simple_paths():
     assert not res.is_empty(), 'Results seem empty'
     assert len(res.paths[4]) == 5, f'{len(res.paths[4])} paths found'
 
+    # Test reversing search (if this part of the test fails, make sure to
+    # check the query tests in tests.test_queries)
+    reverse_query = query.reverse_search()
+    shortest_query_rev = ShortestSimplePathsQuery(reverse_query)
+    shortest_options_rev = shortest_query_rev.run_options(graph=g)
+    path_gen_rev = shortest_simple_paths(G=g, **shortest_options_rev)
+    shortest_mngr_rev = ShortestSimplePathsResultManager(
+        path_generator=path_gen_rev, graph=g,
+        filter_options=reverse_query.get_filter_options(),
+        source=reverse_query.source, target=reverse_query.target)
+    res_rev = shortest_mngr_rev.get_results()
+    assert not res_rev.is_empty(), 'Results seem empty'
+    assert len(res_rev.paths[2]) == 1, f'{len(res.paths[2])} paths found'
+
     # Test with culling every 3
     query_cull = NetworkSearchQuery(source='BRCA1', target='BRCA2',
                                     cull_best_node=4)
