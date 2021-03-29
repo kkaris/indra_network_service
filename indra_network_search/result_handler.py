@@ -41,8 +41,8 @@ class ResultManager:
     #  query vs query_handler
     alg_name: str = NotImplemented
 
-    def __init__(self, path_generator: Generator, graph: DiGraph,
-                 filter_options: FilterOptions):
+    def __init__(self, path_generator: Union[Generator, Iterator, Iterable],
+                 graph: DiGraph, filter_options: FilterOptions):
         self.path_gen: Union[Generator, Iterator, Iterable] = path_generator
         self.start_time: Optional[datetime] = None  # Start when looping paths
         self.timed_out = False
