@@ -53,8 +53,9 @@ def test_shortest_simple_paths_query():
                           ('B', {'ns': 'HGNC', 'id': '1'})])
     graph.add_edge('A', 'B')
     graph.graph['edge_by_hash'] = {'123456': ('A', 'B')}
+
     # Test unweighted + auxiliary queries
-    query = NetworkSearchQuery(source='A', target='B')
+    query = NetworkSearchQuery(source='A', target='B', shared_regulators=True)
     for QueryClass in [ShortestSimplePathsQuery, SharedRegulatorsQuery,
                        SharedTargetsQuery, OntologyQuery]:
         q_unw = QueryClass(query)
