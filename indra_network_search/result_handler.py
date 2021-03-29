@@ -43,7 +43,7 @@ class ResultManager:
 
     def __init__(self, path_generator: Generator, graph: DiGraph,
                  filter_options: FilterOptions):
-        self.path_gen: Generator = path_generator
+        self.path_gen: Union[Generator, Iterator, Iterable] = path_generator
         self.start_time: Optional[datetime] = None  # Start when looping paths
         self.timed_out = False
         # Remove used filters per algorithm
