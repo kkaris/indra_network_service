@@ -13,7 +13,7 @@ Todo:
 import logging
 from datetime import datetime
 from typing import Generator, Union, List, Optional, Iterator, Iterable, \
-    Dict, Any
+    Dict, Any, Tuple
 
 from networkx import DiGraph
 
@@ -23,12 +23,14 @@ from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from .pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
-    EdgeData, StmtData, Node, FilterOptions, PathResultData, Path
+    EdgeData, StmtData, Node, FilterOptions, PathResultData, Path, \
+    EdgeDataByHash, SubgraphResults
 
 __all__ = ['ResultManager', 'DijkstraResultManager',
            'ShortestSimplePathsResultManager',
            'BreadthFirstSearchResultManager',
-           'SharedInteractorsResultManager', 'OntologyResultManager']
+           'SharedInteractorsResultManager', 'OntologyResultManager',
+           'SubgraphResultManager']
 
 
 logger = logging.getLogger(__name__)
@@ -492,6 +494,81 @@ class OntologyResultManager(ResultManager):
         self._get_parents()
         return OntologyResults(source=self.source, target=self.target,
                                parents=self._parents)
+
+
+class SubgraphResultManager(ResultManager):
+    """Handles results from get_subgraph_edges"""
+    alg_name = get_subgraph_edges.__name__
+
+    def __init__(self, path_generator: Iterable, graph: DiGraph,
+                 filter_options: FilterOptions):
+        super().__init__(path_generator=path_generator,
+                         graph=graph, filter_options=filter_options)
+        self.edge_dict: Dict[Tuple[str, str], EdgeDataByHash] = {}
+        self.available_nodes: List[Node] = []
+
+    def _pass_node(self, node: Node) -> bool:
+        # No filters implemented yet
+        return True
+
+    def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float,
+                                                    Dict[str, int]]]) -> bool:
+        # No filters implemented yet
+        return True
+
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        # No filters implemented yet
+        return FilterOptions()
+
+    def _get_edge_data_by_hash(self, a: Union[str, Node], b: Union[str, Node])\
+        -> Union[EdgeDataByHash, None]:
+        a_node = a if isinstance(a, Node) else self._get_node(a)
+        b_node = b if isinstance(b, Node) else self._get_node(b)
+        edge = (a_node, b_node)
+        ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
+        stmt_dict: Dict[int, StmtData] = {}  # Collect stmt_data by hash
+        for sd in ed['statements']:
+            stmt_data = self._get_stmt_data(stmt_dict=sd)
+            if stmt_data and stmt_data.stmt_hash not in stmt_dict:
+                stmt_dict[stmt_data.stmt_hash] = stmt_data
+
+        # If all support was filtered out
+        if not stmt_dict:
+            return None
+
+        edge_belief = ed['belief']
+        edge_weight = ed['weight']
+
+        # FixMe: assume signed paths are (node, sign) tuples, and translate
+        #  sign from there
+        # sign = ed.get('sign')
+
+        return EdgeDataByHash(edge=edge, stmts=stmt_dict,
+                              belief=edge_belief, weight=edge_weight)
+
+    def _fill_data(self):
+        """Build EdgeDataByHash for all edges, without duplicates"""
+        for node_name in self.path_gen:
+            node = self._get_node(node_name=node_name, apply_filter=False)
+            if node is None:
+                continue
+            self.available_nodes.append(node)
+            for edge in self.path_gen[node_name]['in_edges']:
+                if edge not in self.edge_dict:
+                    edge_data: EdgeDataByHash = \
+                        self._get_edge_data_by_hash(*edge)
+                    if edge_data:
+                        self.edge_dict[edge] = edge_data
+
+    def get_results(self) -> SubgraphResults:
+        """Get results for get_subgraph_edges"""
+        if not self.edge_dict and not self.available_nodes:
+            self._fill_data()
+        edges: List[EdgeDataByHash] = list(self.edge_dict.values())
+
+        return SubgraphResults(available_nodes=self.available_nodes,
+                               edges=edges)
 
 
 # Map algorithm names to result classes
