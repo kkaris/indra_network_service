@@ -96,10 +96,10 @@ class NetworkSearchQuery(BaseModel):
     const_c: int = 1
     const_tk: int = 10
     user_timeout: Union[float, bool] = 30
-    two_way: Optional[bool] = None
+    two_way: bool = False
     shared_regulators: bool = False
     terminal_ns: List[str] = []
-    format: Optional[str] = None
+    format: str = 'json'  # This attribute is probably obsolete now
 
     @validator('path_length')
     def is_positive_int(cls, pl: int):
