@@ -313,6 +313,8 @@ def get_subgraph_edges(graph: DiGraph,
 
         in_edges = [e for e in graph.in_edges(node_name)]
         out_edges = [e for e in graph.out_edges(node_name)]
-        edge_dict[node_name] = {'in_edges': in_edges, 'out_edges': out_edges}
+        if in_edges or out_edges:
+            edge_dict[node_name] = {'in_edges': in_edges,
+                                    'out_edges': out_edges}
 
     return edge_dict
