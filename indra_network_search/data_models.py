@@ -283,6 +283,16 @@ class EdgeData(BaseModel):
         return len(self.stmts) == 0
 
 
+class EdgeDataByHash(BaseModel):
+    """Data for one single edge, with data keyed by hash"""
+    edge: Tuple[Node, Node]
+    stmts: Dict[int, StmtData]  # Hash remain as int for JSON
+    belief: float
+    weight: float
+    # sign: Optional[int]  # Used for signed paths
+    # context_weight: Union[str, float] = 'N/A'  # Set for context search
+
+
 class Path(BaseModel):
     """Results for a single path"""
     # The entries are assumed to be co-ordered
