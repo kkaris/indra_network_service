@@ -356,8 +356,8 @@ class SubgraphQuery:
     alg_name: str = get_subgraph_edges.__name__
     options: SubgraphOptions = SubgraphOptions
 
-    def __init__(self, query: SubGraphRestQuery):
-        self.query: SubGraphRestQuery = query
+    def __init__(self, query: SubgraphRestQuery):
+        self.query: SubgraphRestQuery = query
 
     def alg_options(self) -> Dict[str, List[Node]]:
         """Match arguments of get_subgraph_edges"""
