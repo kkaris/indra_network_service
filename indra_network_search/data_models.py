@@ -272,7 +272,7 @@ class StmtData(BaseModel):
 
 class EdgeData(BaseModel):
     """Data for one single edge"""
-    edge: Tuple[Node, Node]  # Edge supported by stmts
+    edge: List[Node]  # Edge supported by stmts
     stmts: Dict[str, List[StmtData]]  # key by stmt_type
     belief: float  # Aggregated belief
     weight: float  # Weight corresponding to aggregated weight
@@ -286,7 +286,7 @@ class EdgeData(BaseModel):
 
 class EdgeDataByHash(BaseModel):
     """Data for one single edge, with data keyed by hash"""
-    edge: Tuple[Node, Node]
+    edge: List[Node]
     stmts: Dict[int, StmtData]  # Hash remain as int for JSON
     belief: float
     weight: float
