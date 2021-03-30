@@ -19,11 +19,12 @@ from pydantic import BaseModel, validator
 
 from .util import get_query_hash, is_weighted, is_context_weighted
 
-__all__ = ['NetworkSearchQuery', 'ApiOptions', 'ShortestSimplePathOptions',
-           'BreadthFirstSearchOptions', 'DijkstraOptions',
-           'SharedInteractorsOptions', 'OntologyOptions', 'Node',
-           'StmtData', 'EdgeData', 'Path', 'PathResultData', 'OntologyResults',
-           'SharedInteractorsResults', 'Results', 'FilterOptions']
+__all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
+           'ShortestSimplePathOptions', 'BreadthFirstSearchOptions',
+           'DijkstraOptions', 'SharedInteractorsOptions', 'OntologyOptions',
+           'Node', 'StmtData', 'EdgeData', 'EdgeDataByHash', 'Path',
+           'PathResultData', 'OntologyResults', 'SharedInteractorsResults',
+           'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults']
 
 
 # Models for API options and filtering options
@@ -342,8 +343,14 @@ class SharedInteractorsResults(BaseModel):
         return len(self.source_data) == 0 and len(self.target_data) == 0
 
 
+class SubgraphResults(BaseModel):
+    """Results for get_subgraph_edges"""
+    available_nodes: List[Node]
+    edges: List[EdgeDataByHash]
+
+
 class Results(BaseModel):
-    """The model wrapping all results"""
+    """The model wrapping all results from the NetworkSearchQuery"""
     query_hash: str
     hashes: List[str] = []  # Cast as string for JavaScript
     path_results: Optional[PathResultData] = None
@@ -352,6 +359,19 @@ class Results(BaseModel):
     shared_regulators_results: Optional[SharedInteractorsResults] = None
 
 
-class SubGraphQuery(BaseModel):
+class SubgraphRestQuery(BaseModel):
     """Subgraph query"""
+    nodes: List[Node]
+
+    @validator('nodes')
+    def ge_one(cls, node_list: List[Node]):
+        """Validate there is at least one node in the list"""
+        if len(node_list) < 1:
+            raise ValueError('Must have at least one node in attribute '
+                             '"nodes"')
+        return node_list
+
+
+class SubgraphOptions(BaseModel):
+    """Argument for indra_network_search.pathfinding.get_subgraph_edges"""
     nodes: List[Node]
