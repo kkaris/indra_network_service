@@ -54,7 +54,7 @@ def query(search_query: NetworkSearchQuery):
     return results
 
 
-@app.post('/sub_graph', response_model=SubgraphResults)
+@app.post('/subgraph', response_model=SubgraphResults)
 def sub_graph(search_query: SubgraphRestQuery):
     """Interface with IndraNetworkSearchAPI.handle_subgraph_query
 
