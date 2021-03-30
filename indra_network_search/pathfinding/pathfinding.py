@@ -13,7 +13,6 @@ from depmap_analysis.network_functions.famplex_functions import \
 from depmap_analysis.scripts.depmap_script_expl_funcs import \
     _get_signed_shared_targets, _get_signed_shared_regulators, _src_filter, \
     _node_ns_filter
-from ..data_models import Node
 
 logger = logging.getLogger(__name__)
 
@@ -278,7 +277,7 @@ def _belief_filter(start_node: str, neighbor_nodes: Set[str],
 
 
 def get_subgraph_edges(graph: DiGraph,
-                       nodes: List[Node]) \
+                       nodes: List[Dict[str, str]]) \
         -> Dict[str, Dict[str, List[Tuple[str, str]]]]:
     """
 
@@ -300,16 +299,16 @@ def get_subgraph_edges(graph: DiGraph,
     # Loop nodes
     for node in nodes:
         # Per node, get in- and out-edges
-        if node.name not in graph.nodes:
+        if node['name'] not in graph.nodes:
             mapped_name: str = graph.graph['node_by_ns_id'].get((
-                node.namespace, node.identifier))
+                node['namespace'], node['identifier']))
             if mapped_name is not None and mapped_name in graph.nodes:
                 node_name = mapped_name
             else:
-                logger.warning(f'Node {node.name} was not found in the graph')
+                logger.warning(f'Node {node["name"]} was not found in the graph')
                 continue
         else:
-            node_name = node.name
+            node_name = node["name"]
 
         in_edges = [e for e in graph.in_edges(node_name)]
         out_edges = [e for e in graph.out_edges(node_name)]
