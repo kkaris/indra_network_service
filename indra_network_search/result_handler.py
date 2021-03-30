@@ -21,6 +21,7 @@ from depmap_analysis.network_functions.famplex_functions import \
     get_identifiers_url
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
+from pydantic import ValidationError
 from .pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions, PathResultData, Path, \
@@ -92,7 +93,16 @@ class ResultManager:
                 not self._pass_stmt(stmt_dict):
             return None
 
-        return StmtData(**stmt_dict)
+        try:
+            return StmtData(**stmt_dict)
+        except ValidationError as err:
+            logger.warning(
+                f'Validation of statement data failed for '
+                f'"{stmt_dict.get("english", "(unknown statement)")}" with '
+                f'hash {stmt_dict.get("stmt_hash", "(unknown hash)")}:'
+                f' {str(err)}'
+            )
+            return None
 
     def _get_edge_data(self, a: Union[str, Node], b: Union[str, Node]) -> \
             Union[EdgeData, None]:
