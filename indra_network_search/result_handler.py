@@ -522,7 +522,7 @@ class SubgraphResultManager(ResultManager):
         return FilterOptions()
 
     def _get_edge_data_by_hash(self, a: Union[str, Node], b: Union[str, Node])\
-        -> Union[EdgeDataByHash, None]:
+            -> Union[EdgeDataByHash, None]:
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
         edge = (a_node, b_node)
