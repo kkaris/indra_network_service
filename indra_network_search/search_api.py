@@ -283,3 +283,25 @@ class IndraNetworkSearchAPI:
         path_gen = shared_parents(**oq.run_options(graph=graph))
         return OntologyResultManager(path_generator=path_gen,
                                      graph=graph, **oq.result_options())
+
+    def subgraph_query(self, query: SubgraphQuery) -> SubgraphResultManager:
+        """Get results from running get_subgraph_edges
+
+        Parameters
+        ----------
+        query: SubgraphQuery
+            The input query holding the options for get_subgraph_edges and
+            SubgraphResultManager
+
+        Returns
+        -------
+        SubgraphResultManager
+            An instance of the SubgraphResultManager, holding results from
+            running get_subgraph_edges
+
+        """
+        edge_dict = get_subgraph_edges(graph=self.get_graph(),
+                                       **query.run_options())
+        return SubgraphResultManager(path_generator=edge_dict,
+                                     graph=self.get_graph(),
+                                     **query.result_options())
