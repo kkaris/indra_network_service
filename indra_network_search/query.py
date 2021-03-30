@@ -17,7 +17,7 @@ from .pathfinding import *
 __all__ = ['ShortestSimplePathsQuery', 'BreadthFirstSearchQuery',
            'DijkstraQuery', 'SharedTargetsQuery', 'SharedRegulatorsQuery',
            'OntologyQuery', 'Query', 'PathQuery', 'alg_func_mapping',
-           'alg_name_query_mapping']
+           'alg_name_query_mapping', 'SubgraphQuery']
 
 
 class MissingParametersError(Exception):
@@ -346,6 +346,35 @@ class OntologyQuery(Query):
         """Provide args to OntologyResultManager in result_handler"""
         return {'filter_options': self.query.get_filter_options(),
                 'source': self.query.source, 'target': self.query.target}
+
+
+class SubgraphQuery:
+    """Check queries that gets the subgraph"""
+    # todo: subclass from Query and abstract Query more. Make a new class
+    #  NetworkSearchQuery as a subclass to Query, that is parent class for
+    #  all queries derived from NetworkSearchQuery
+    alg_name: str = get_subgraph_edges.__name__
+    options: SubgraphOptions = SubgraphOptions
+
+    def __init__(self, query: SubGraphRestQuery):
+        self.query: SubGraphRestQuery = query
+
+    def alg_options(self) -> Dict[str, List[Node]]:
+        """Match arguments of get_subgraph_edges"""
+        return {'nodes': self.query.nodes}
+
+    def run_options(self) -> Dict[str, Any]:
+        """Return options needed for get_subgraph_edges"""
+        return self.options(**self.alg_options()).dict()
+
+    def result_options(self) -> Dict[str, Any]:
+        """Return options needed for SubgraphResultManager
+
+        Returns
+        -------
+        Dict[str, Any]
+        """
+        return {'filter_options': FilterOptions()}
 
 
 def _get_ref_counts_func(hash_mesh_dict: Dict):
