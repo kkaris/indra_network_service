@@ -364,11 +364,15 @@ class SubgraphRestQuery(BaseModel):
     nodes: List[Node]
 
     @validator('nodes')
-    def ge_one(cls, node_list: List[Node]):
+    def node_check(cls, node_list: List[Node]):
         """Validate there is at least one node in the list"""
         if len(node_list) < 1:
             raise ValueError('Must have at least one node in attribute '
                              '"nodes"')
+        max_nodes = 500
+        if len(node_list) > max_nodes:
+            raise ValueError(f'Maximum allowed nodes is {max_nodes}, '
+                             f'{len(node_list)} was provided.')
         return node_list
 
 
