@@ -374,7 +374,8 @@ class SubgraphQuery:
         -------
         Dict[str, Any]
         """
-        return {'filter_options': FilterOptions()}
+        return {'filter_options': FilterOptions(),
+                'original_nodes': self.query.nodes}
 
 
 def _get_ref_counts_func(hash_mesh_dict: Dict):
