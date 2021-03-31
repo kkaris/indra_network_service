@@ -535,10 +535,21 @@ class SubgraphResultManager(ResultManager):
 
     def _get_edge_data_by_hash(self, a: Union[str, Node], b: Union[str, Node])\
             -> Union[EdgeDataByHash, None]:
+        # Get node, return if unidentifiable
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
         if a_node is None or b_node is None:
             return None
+
+        # Add lookup if not present
+        if not a_node.lookup:
+            a_node.lookup = get_identifiers_url(a_node.namespace,
+                                                a_node.identifier)
+        if not b_node.lookup:
+            b_node.lookup = get_identifiers_url(b_node.namespace,
+                                                b_node.identifier)
+
+        # Get stmt data for edge
         edge = [a_node, b_node]
         ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
         stmt_dict: Dict[int, StmtData] = {}  # Collect stmt_data by hash
@@ -551,6 +562,7 @@ class SubgraphResultManager(ResultManager):
         if not stmt_dict:
             return None
 
+        # Get edge aggregated belief, weight
         edge_belief = ed['belief']
         edge_weight = ed['weight']
 
