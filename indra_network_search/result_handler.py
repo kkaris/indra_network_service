@@ -525,7 +525,11 @@ class SubgraphResultManager(ResultManager):
 
     def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float,
                                                     Dict[str, int]]]) -> bool:
-        # No filters implemented yet
+        # Remove stmt type 'fplx'; hard-code it here, as in this use case it
+        # should always be removed
+        if stmt_dict['stmt_type'].lower() == 'fplx':
+            return False
+
         return True
 
     @staticmethod
