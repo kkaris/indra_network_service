@@ -525,17 +525,18 @@ class SubgraphResultManager(ResultManager):
 
     def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float,
                                                     Dict[str, int]]]) -> bool:
-        # Remove stmt type 'fplx'; hard-code it here, as in this use case it
-        # should always be removed
-        if stmt_dict['stmt_type'].lower() == 'fplx':
+        # Check:
+        # - stmt_type
+        if self.filter_options.exclude_stmts and \
+                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
             return False
 
         return True
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        # No filters implemented yet
-        return FilterOptions()
+        # Hard code removal of stmt type 'fplx'
+        return FilterOptions(exclude_stmts=['fplx'])
 
     def _get_edge_data_by_hash(self, a: Union[str, Node], b: Union[str, Node])\
             -> Union[EdgeDataByHash, None]:
