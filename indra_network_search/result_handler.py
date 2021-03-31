@@ -511,10 +511,12 @@ class SubgraphResultManager(ResultManager):
     alg_name = get_subgraph_edges.__name__
 
     def __init__(self, path_generator: Iterable, graph: DiGraph,
-                 filter_options: FilterOptions):
+                 filter_options: FilterOptions, original_nodes: List[Node]):
         super().__init__(path_generator=path_generator,
                          graph=graph, filter_options=filter_options)
         self.edge_dict: Dict[Tuple[str, str], EdgeDataByHash] = {}
+        self._orignal_nodes: Dict[str, Node] = {n.name: n for n
+                                                in original_nodes}
         self.available_nodes: List[Node] = []
 
     def _pass_node(self, node: Node) -> bool:
@@ -562,14 +564,34 @@ class SubgraphResultManager(ResultManager):
     def _fill_data(self):
         """Build EdgeDataByHash for all edges, without duplicates"""
         for node_name in self.path_gen:
-            node = self._get_node(node_name=node_name, apply_filter=False)
+            node = self._orignal_nodes.get(node_name)
             if node is None:
                 continue
             self.available_nodes.append(node)
-            for edge in self.path_gen[node_name]['in_edges']:
+
+            # Get in-edges for current node
+            for a, b in self.path_gen[node_name]['in_edges']:
+                edge = (a, b)
                 if edge not in self.edge_dict:
+                    half_edge = (self._orignal_nodes[a]
+                                 if a in self._orignal_nodes else a,
+                                 self._orignal_nodes[b]
+                                 if b in self._orignal_nodes else b)
                     edge_data: EdgeDataByHash = \
-                        self._get_edge_data_by_hash(*edge)
+                        self._get_edge_data_by_hash(*half_edge)
+                    if edge_data:
+                        self.edge_dict[edge] = edge_data
+
+            # Get out-edges for current node
+            for a, b in self.path_gen[node_name]['out_edges']:
+                edge = (a, b)
+                if edge not in self.edge_dict:
+                    half_edge = (self._orignal_nodes[a]
+                                 if a in self._orignal_nodes else a,
+                                 self._orignal_nodes[b]
+                                 if b in self._orignal_nodes else b)
+                    edge_data: EdgeDataByHash = \
+                        self._get_edge_data_by_hash(*half_edge)
                     if edge_data:
                         self.edge_dict[edge] = edge_data
 
