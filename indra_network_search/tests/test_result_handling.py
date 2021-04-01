@@ -1,11 +1,27 @@
 from networkx import DiGraph
 
 from indra_network_search.query import OntologyQuery, SharedRegulatorsQuery, \
-    SharedTargetsQuery
+    SharedTargetsQuery, SubgraphQuery
 from indra_network_search.result_handler import OntologyResultManager, \
-    SharedInteractorsResultManager
-from indra_network_search.data_models import NetworkSearchQuery
-from indra_network_search.pathfinding import shared_parents, shared_interactors
+    SharedInteractorsResultManager, SubgraphResultManager
+from indra_network_search.data_models import NetworkSearchQuery, Node, \
+    SubgraphRestQuery, SubgraphResults
+from indra_network_search.pathfinding import shared_parents, \
+    shared_interactors, get_subgraph_edges
+
+mock_edge_dict = {'statements': [{'stmt_hash': 31955807459270625,
+                                  'stmt_type': 'Inhibition',
+                                  'evidence_count': 1,
+                                  'belief': 0.65,
+                                  'source_counts': {'reach': 1},
+                                  'english': 'AR inhibits testosterone.',
+                                  'weight': 0.4307829160924542,
+                                  'position': None,
+                                  'curated': False,
+                                  'residue': None,
+                                  'initial_sign': 1}],
+                  'belief': 0.9999998555477862469,
+                  'weight': 1.4445222418630995515e-07}
 
 
 def test_ontology_query():
@@ -68,24 +84,16 @@ def _setup_query_graph() -> DiGraph:
     nst = 'nst'
     ns1, ns2, ns_sr, ns_st = ('HGNC',)*4
     id1, id2, id_sr, id_st = '1100', '1101', '1102', '1103'
-    sd12 = {'statements': [{'stmt_hash': 31955807459270625,
-                            'stmt_type': 'Inhibition',
-                            'evidence_count': 1,
-                            'belief': 0.65,
-                            'source_counts': {'reach': 1},
-                            'english': 'AR inhibits testosterone.',
-                            'weight': 0.4307829160924542,
-                            'position': None,
-                            'curated': False,
-                            'residue': None,
-                            'initial_sign': 1}],
-            'belief': 0.9999998555477862469,
-            'weight': 1.4445222418630995515e-07}
 
     g.add_node(n1, ns=ns1, id=id1)
     g.add_node(n2, ns=ns2, id=id2)
     g.add_node(nst, ns=ns_st, id=id_st)
     g.add_node(nsr, ns=ns_sr, id=id_sr)
+    g.graph['node_by_ns_id'] = {(ns, _id): n for n, ns, _id in
+                                zip([n1, n2, nsr, nst],
+                                    [ns1, ns2, ns_sr, ns_st],
+                                    [id1, id2, id_sr, id_st])}
+    sd12 = mock_edge_dict
 
     g.add_edge(n1, n2, **sd12)
     g.add_edge(nsr, n1, **sd12)
@@ -139,3 +147,40 @@ def test_shared_regulators_result_handling():
     assert sr_res.target_data[0].edge[0].name == 'nsr'
     assert sr_res.source_data[0].edge[0].name == \
            sr_res.target_data[0].edge[0].name
+
+
+def test_subgraph():
+    g = _setup_query_graph()
+    subgrap_rest_query = SubgraphRestQuery(nodes=[Node(name='n1',
+                                                       namespace='HGNC',
+                                                       identifier='1100')])
+    subgraph_query = SubgraphQuery(query=subgrap_rest_query)
+    options = subgraph_query.run_options()
+    neigh_dict = get_subgraph_edges(graph=g, **options)
+
+    # Should have three results total:
+    # Out-edges: B1 -> B2; B1 -> ST;
+    # In-edges: SR -> B1;
+    assert len(neigh_dict['n1']['in_edges']) == 1
+    assert set(neigh_dict['n1']['in_edges']) == {('nsr', 'n1')}
+    assert len(neigh_dict['n1']['out_edges']) == 2
+    assert set(neigh_dict['n1']['out_edges']) == {('n1', 'n2'), ('n1', 'nst')}
+
+    # Get result manager
+    res_mngr = SubgraphResultManager(path_generator=neigh_dict, graph=g,
+                                     **subgraph_query.result_options())
+    results: SubgraphResults = res_mngr.get_results()
+
+    # Should have three results total:
+    # Out-edges: B1 -> B2; B1 -> ST;
+    # In-edges: SR -> B1;
+    assert len(results.edges) == 3
+
+    edges = {tuple([n.name for n in e.edge]) for e in results.edges}
+    assert edges == {('n1', 'n2'), ('nsr', 'n1'), ('n1', 'nst')}
+    assert results.edges[0].weight == mock_edge_dict['weight']
+    assert results.edges[0].belief == mock_edge_dict['belief']
+    assert list(results.edges[0].stmts.values())[0].dict().keys() == \
+           mock_edge_dict['statements'][0].keys()
+    assert all(mock_edge_dict['statements'][0][k] == v for k, v in
+               list(results.edges[0].stmts.values())[0].dict().items())

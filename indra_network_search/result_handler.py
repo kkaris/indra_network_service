@@ -511,10 +511,12 @@ class SubgraphResultManager(ResultManager):
     alg_name = get_subgraph_edges.__name__
 
     def __init__(self, path_generator: Iterable, graph: DiGraph,
-                 filter_options: FilterOptions):
+                 filter_options: FilterOptions, original_nodes: List[Node]):
         super().__init__(path_generator=path_generator,
                          graph=graph, filter_options=filter_options)
         self.edge_dict: Dict[Tuple[str, str], EdgeDataByHash] = {}
+        self._orignal_nodes: Dict[str, Node] = {n.name: n for n
+                                                in original_nodes}
         self.available_nodes: List[Node] = []
 
     def _pass_node(self, node: Node) -> bool:
@@ -523,19 +525,37 @@ class SubgraphResultManager(ResultManager):
 
     def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float,
                                                     Dict[str, int]]]) -> bool:
-        # No filters implemented yet
+        # Check:
+        # - stmt_type
+        if self.filter_options.exclude_stmts and \
+                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+            return False
+
         return True
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
-        # No filters implemented yet
-        return FilterOptions()
+        # Hard code removal of stmt type 'fplx'
+        return FilterOptions(exclude_stmts=['fplx'])
 
     def _get_edge_data_by_hash(self, a: Union[str, Node], b: Union[str, Node])\
             -> Union[EdgeDataByHash, None]:
+        # Get node, return if unidentifiable
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
-        edge = (a_node, b_node)
+        if a_node is None or b_node is None:
+            return None
+
+        # Add lookup if not present
+        if not a_node.lookup:
+            a_node.lookup = get_identifiers_url(a_node.namespace,
+                                                a_node.identifier)
+        if not b_node.lookup:
+            b_node.lookup = get_identifiers_url(b_node.namespace,
+                                                b_node.identifier)
+
+        # Get stmt data for edge
+        edge = [a_node, b_node]
         ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
         stmt_dict: Dict[int, StmtData] = {}  # Collect stmt_data by hash
         for sd in ed['statements']:
@@ -547,6 +567,7 @@ class SubgraphResultManager(ResultManager):
         if not stmt_dict:
             return None
 
+        # Get edge aggregated belief, weight
         edge_belief = ed['belief']
         edge_weight = ed['weight']
 
@@ -560,14 +581,34 @@ class SubgraphResultManager(ResultManager):
     def _fill_data(self):
         """Build EdgeDataByHash for all edges, without duplicates"""
         for node_name in self.path_gen:
-            node = self._get_node(node_name=node_name, apply_filter=False)
+            node = self._orignal_nodes.get(node_name)
             if node is None:
                 continue
             self.available_nodes.append(node)
-            for edge in self.path_gen[node_name]['in_edges']:
+
+            # Get in-edges for current node
+            for a, b in self.path_gen[node_name]['in_edges']:
+                edge = (a, b)
                 if edge not in self.edge_dict:
+                    half_edge = (self._orignal_nodes[a]
+                                 if a in self._orignal_nodes else a,
+                                 self._orignal_nodes[b]
+                                 if b in self._orignal_nodes else b)
                     edge_data: EdgeDataByHash = \
-                        self._get_edge_data_by_hash(*edge)
+                        self._get_edge_data_by_hash(*half_edge)
+                    if edge_data:
+                        self.edge_dict[edge] = edge_data
+
+            # Get out-edges for current node
+            for a, b in self.path_gen[node_name]['out_edges']:
+                edge = (a, b)
+                if edge not in self.edge_dict:
+                    half_edge = (self._orignal_nodes[a]
+                                 if a in self._orignal_nodes else a,
+                                 self._orignal_nodes[b]
+                                 if b in self._orignal_nodes else b)
+                    edge_data: EdgeDataByHash = \
+                        self._get_edge_data_by_hash(*half_edge)
                     if edge_data:
                         self.edge_dict[edge] = edge_data
 

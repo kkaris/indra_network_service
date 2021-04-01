@@ -305,7 +305,8 @@ def get_subgraph_edges(graph: DiGraph,
             if mapped_name is not None and mapped_name in graph.nodes:
                 node_name = mapped_name
             else:
-                logger.warning(f'Node {node["name"]} was not found in the graph')
+                logger.warning(f'Node "{node["name"]}" was not found in the '
+                               f'graph')
                 continue
         else:
             node_name = node["name"]
