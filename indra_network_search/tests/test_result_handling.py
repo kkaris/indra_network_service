@@ -147,3 +147,40 @@ def test_shared_regulators_result_handling():
     assert sr_res.target_data[0].edge[0].name == 'nsr'
     assert sr_res.source_data[0].edge[0].name == \
            sr_res.target_data[0].edge[0].name
+
+
+def test_subgraph():
+    g = _setup_query_graph()
+    subgrap_rest_query = SubgraphRestQuery(nodes=[Node(name='n1',
+                                                       namespace='HGNC',
+                                                       identifier='1100')])
+    subgraph_query = SubgraphQuery(query=subgrap_rest_query)
+    options = subgraph_query.run_options()
+    neigh_dict = get_subgraph_edges(graph=g, **options)
+
+    # Should have three results total:
+    # Out-edges: B1 -> B2; B1 -> ST;
+    # In-edges: SR -> B1;
+    assert len(neigh_dict['n1']['in_edges']) == 1
+    assert set(neigh_dict['n1']['in_edges']) == {('nsr', 'n1')}
+    assert len(neigh_dict['n1']['out_edges']) == 2
+    assert set(neigh_dict['n1']['out_edges']) == {('n1', 'n2'), ('n1', 'nst')}
+
+    # Get result manager
+    res_mngr = SubgraphResultManager(path_generator=neigh_dict, graph=g,
+                                     **subgraph_query.result_options())
+    results: SubgraphResults = res_mngr.get_results()
+
+    # Should have three results total:
+    # Out-edges: B1 -> B2; B1 -> ST;
+    # In-edges: SR -> B1;
+    assert len(results.edges) == 3
+
+    edges = {tuple([n.name for n in e.edge]) for e in results.edges}
+    assert edges == {('n1', 'n2'), ('nsr', 'n1'), ('n1', 'nst')}
+    assert results.edges[0].weight == mock_edge_dict['weight']
+    assert results.edges[0].belief == mock_edge_dict['belief']
+    assert list(results.edges[0].stmts.values())[0].dict().keys() == \
+           mock_edge_dict['statements'][0].keys()
+    assert all(mock_edge_dict['statements'][0][k] == v for k, v in
+               list(results.edges[0].stmts.values())[0].dict().items())
