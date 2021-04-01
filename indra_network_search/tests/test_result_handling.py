@@ -1,11 +1,27 @@
 from networkx import DiGraph
 
 from indra_network_search.query import OntologyQuery, SharedRegulatorsQuery, \
-    SharedTargetsQuery
+    SharedTargetsQuery, SubgraphQuery
 from indra_network_search.result_handler import OntologyResultManager, \
-    SharedInteractorsResultManager
-from indra_network_search.data_models import NetworkSearchQuery
-from indra_network_search.pathfinding import shared_parents, shared_interactors
+    SharedInteractorsResultManager, SubgraphResultManager
+from indra_network_search.data_models import NetworkSearchQuery, Node, \
+    SubgraphRestQuery, SubgraphResults
+from indra_network_search.pathfinding import shared_parents, \
+    shared_interactors, get_subgraph_edges
+
+mock_edge_dict = {'statements': [{'stmt_hash': 31955807459270625,
+                                  'stmt_type': 'Inhibition',
+                                  'evidence_count': 1,
+                                  'belief': 0.65,
+                                  'source_counts': {'reach': 1},
+                                  'english': 'AR inhibits testosterone.',
+                                  'weight': 0.4307829160924542,
+                                  'position': None,
+                                  'curated': False,
+                                  'residue': None,
+                                  'initial_sign': 1}],
+                  'belief': 0.9999998555477862469,
+                  'weight': 1.4445222418630995515e-07}
 
 
 def test_ontology_query():
@@ -68,24 +84,16 @@ def _setup_query_graph() -> DiGraph:
     nst = 'nst'
     ns1, ns2, ns_sr, ns_st = ('HGNC',)*4
     id1, id2, id_sr, id_st = '1100', '1101', '1102', '1103'
-    sd12 = {'statements': [{'stmt_hash': 31955807459270625,
-                            'stmt_type': 'Inhibition',
-                            'evidence_count': 1,
-                            'belief': 0.65,
-                            'source_counts': {'reach': 1},
-                            'english': 'AR inhibits testosterone.',
-                            'weight': 0.4307829160924542,
-                            'position': None,
-                            'curated': False,
-                            'residue': None,
-                            'initial_sign': 1}],
-            'belief': 0.9999998555477862469,
-            'weight': 1.4445222418630995515e-07}
 
     g.add_node(n1, ns=ns1, id=id1)
     g.add_node(n2, ns=ns2, id=id2)
     g.add_node(nst, ns=ns_st, id=id_st)
     g.add_node(nsr, ns=ns_sr, id=id_sr)
+    g.graph['node_by_ns_id'] = {(ns, _id): n for n, ns, _id in
+                                zip([n1, n2, nsr, nst],
+                                    [ns1, ns2, ns_sr, ns_st],
+                                    [id1, id2, id_sr, id_st])}
+    sd12 = mock_edge_dict
 
     g.add_edge(n1, n2, **sd12)
     g.add_edge(nsr, n1, **sd12)
