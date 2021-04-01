@@ -36,17 +36,21 @@ class IndraNetworkSearchAPI:
             return self._digraph
 
     def handle_query(self, rest_query: NetworkSearchQuery) -> Results:
-        """Handles general queries that maps to multiple sub-queries
+        """Handle a NetworkSearchQuery and return the corresponding results
 
         Parameters
         ----------
-        rest_query : indra_network_search.data_models.NetworkSearchQuery
-            The incoming query. This query typically originates from a web UI.
+        rest_query: NetworkSearchQuery
+            A query from the rest api with all relevant information to
+            execute path queries and other related queries. See available
+            queries in indra_network_search.query
 
         Returns
         -------
-        indra_network_search.data_models.Results
-            A Results model containing all the results of all eligible queries
+        Results
+            A model containing all results from the query. For more
+            information about the data structure, see
+            indra_network_search.data_models
         """
         query_handler = QueryHandler(rest_query=rest_query)
         eligible_queries = query_handler.get_queries()
@@ -58,6 +62,12 @@ class IndraNetworkSearchAPI:
         result_managers = {}
         path_result_manager = self.path_query(eligible_queries['path_query'],
                                               is_signed=query_handler.signed)
+        if 'reverse_path_query' in eligible_queries:
+            reverse_path_result = \
+                self.path_query(eligible_queries['reverse_path_query'],
+                                is_signed=query_handler.signed)
+        else:
+            reverse_path_result = None
 
         for alg_name, query in eligible_queries.items():
             if alg_name == 'path_query':
@@ -85,6 +95,8 @@ class IndraNetworkSearchAPI:
                 results.ontology_results = res_man.get_results()
 
         results.path_results = path_result_manager.get_results()
+        if reverse_path_result:
+            results.reverse_path_results = reverse_path_result.get_results()
 
         return results
 

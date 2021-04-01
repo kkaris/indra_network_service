@@ -6,9 +6,10 @@ Todo
 FixMe
     Add mock db call for
     indra_db.client.readonly.mesh_ref_counts::get_mesh_ref_counts
-    using
-Note: The tests here currently rely on being able to call indra_db, which is
-blocked from non-hms and non-AWS IP addresses, unless explicitly added .
+    using moto? mock?
+Note: The tests here currently rely on being able to call indra_db (via
+PathQuery._get_mesh_options in indra_network_search.query), which is blocked
+from non-hms and non-AWS IP addresses, unless explicitly added.
 """
 from inspect import signature
 import networkx as nx
@@ -52,8 +53,9 @@ def test_shortest_simple_paths_query():
                           ('B', {'ns': 'HGNC', 'id': '1'})])
     graph.add_edge('A', 'B')
     graph.graph['edge_by_hash'] = {'123456': ('A', 'B')}
+
     # Test unweighted + auxiliary queries
-    query = NetworkSearchQuery(source='A', target='B')
+    query = NetworkSearchQuery(source='A', target='B', shared_regulators=True)
     for QueryClass in [ShortestSimplePathsQuery, SharedRegulatorsQuery,
                        SharedTargetsQuery, OntologyQuery]:
         q_unw = QueryClass(query)
@@ -82,6 +84,15 @@ def test_shortest_simple_paths_query():
     sspq_cs = ShortestSimplePathsQuery(query)
     options = sspq_cs.run_options()
     _match_args(set(options.keys()), alg_func_mapping[sspq_cs.alg_name])
+
+    # Test the reverse search
+    rev_query = query.reverse_search()
+    assert rev_query.source == query.target
+    assert rev_query.target == query.source
+
+    sspq_rev = ShortestSimplePathsQuery(rev_query)
+    options_rev = sspq_rev.run_options()
+    _match_args(set(options_rev.keys()), alg_func_mapping[sspq_rev.alg_name])
 
 
 def test_breadth_first_search_query():

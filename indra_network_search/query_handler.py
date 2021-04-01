@@ -31,23 +31,35 @@ class QueryHandler:
         self.strict_mesh: bool = rest_query.strict_mesh_id_filtering
         self._query_dict: Dict[str, Query] = {}
 
-    def _map_query(self):
-        """This method maps the rest_query to API methods"""
-        # If not open, run shortest_simple_paths and other queries
+    def _get_queries(self) -> Dict[str, Query]:
+        """This method maps the rest_query to different eligible queries"""
+        query_dict: Dict[str, Query] = {}
+        # If not open: Add shortest_simple_paths and add other queries
         if not self.open:
-            self._query_dict = {'path_query':
-                                ShortestSimplePathsQuery(self.rest_query)}
-            self._query_dict.update(self._aux_queries())
+            query_dict['path_query'] = \
+                ShortestSimplePathsQuery(self.rest_query)
+            query_dict.update(self._aux_queries())
+            if self.rest_query.two_way:
+                query_dict['reverse_path_query'] = \
+                    ShortestSimplePathsQuery(self.rest_query.reverse_search())
         # If open: check if weighted options
         else:
             if _is_weighted(weight=self.weighted,
                             mesh_ids=self.mesh,
                             strict_mesh_id_filtering=self.strict_mesh):
-                self._query_dict = {'path_query':
-                                    DijkstraQuery(self.rest_query)}
+                query_dict['path_query'] = DijkstraQuery(self.rest_query)
+                if self.rest_query.two_way:
+                    query_dict['reverse_path_query'] = \
+                        DijkstraQuery(self.rest_query.reverse_search())
+
             else:
-                self._query_dict = {'path_query':
-                                    BreadthFirstSearchQuery(self.rest_query)}
+                query_dict['path_query'] = \
+                    BreadthFirstSearchQuery(self.rest_query)
+            if self.rest_query.two_way:
+                query_dict['reverse_path_query'] = \
+                    BreadthFirstSearchQuery(self.rest_query.reverse_search())
+
+        return query_dict
 
     def _aux_queries(self) -> \
             Dict[str, Union[SharedRegulatorsQuery, SharedTargetsQuery,
@@ -63,14 +75,14 @@ class QueryHandler:
         return aux_queries
 
     def get_queries(self) -> Dict[str, Query]:
-        """Returns a list of (query name, Query) tuples
+        """Returns a dict of {query name: Query} for all eligible queries
 
         Returns
         -------
         List[Tuple[str, Query]]
         """
         if not self._query_dict:
-            self._map_query()
+            self._query_dict = self._get_queries()
         return self._query_dict
 
 

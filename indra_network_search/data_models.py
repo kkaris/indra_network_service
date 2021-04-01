@@ -16,7 +16,7 @@ todo:
 """
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict
 
-from pydantic import BaseModel, validator, constr
+from pydantic import BaseModel, validator, Extra, constr
 
 from .util import get_query_hash, is_weighted, is_context_weighted
 
@@ -96,10 +96,10 @@ class NetworkSearchQuery(BaseModel):
     const_c: int = 1
     const_tk: int = 10
     user_timeout: Union[float, bool] = 30
-    two_way: Optional[bool] = None
+    two_way: bool = False
     shared_regulators: bool = False
     terminal_ns: List[str] = []
-    format: Optional[str] = None
+    format: str = 'json'  # This attribute is probably obsolete now
 
     @validator('path_length')
     def is_positive_int(cls, pl: int):
@@ -124,6 +124,7 @@ class NetworkSearchQuery(BaseModel):
 
     class Config:
         allow_mutation = False  # Error for any attempt to change attributes
+        extra = Extra.forbid  # Error if non-specified attributes are given
 
     def get_hash(self):
         """Get the corresponding query hash of the query"""
@@ -369,6 +370,7 @@ class Results(BaseModel):
     query_hash: str
     hashes: List[str] = []  # Cast as string for JavaScript
     path_results: Optional[PathResultData] = None
+    reverse_path_results: Optional[PathResultData] = None
     ontology_results: Optional[OntologyResults] = None
     shared_target_results: Optional[SharedInteractorsResults] = None
     shared_regulators_results: Optional[SharedInteractorsResults] = None
