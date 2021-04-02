@@ -684,5 +684,6 @@ alg_manager_mapping = {
     bfs_search.__name__: BreadthFirstSearchResultManager,
     'shared_targets': SharedInteractorsResultManager,
     'shared_regulators': SharedInteractorsResultManager,
-    shared_parents.__name__: OntologyResultManager
+    shared_parents.__name__: OntologyResultManager,
+    get_subgraph_edges.__name__: SubgraphResultManager
 }
