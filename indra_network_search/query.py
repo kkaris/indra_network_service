@@ -34,7 +34,8 @@ alg_func_mapping = {bfs_search.__name__: bfs_search,
                     shared_parents.__name__: shared_parents,
                     shared_interactors.__name__: shared_interactors,
                     'shared_regulators': shared_interactors,
-                    'shared_targets': shared_interactors}
+                    'shared_targets': shared_interactors,
+                    get_subgraph_edges.__name__: get_subgraph_edges}
 
 
 class Query:
@@ -452,4 +453,5 @@ alg_name_query_mapping = {
     open_dijkstra_search.__name__: DijkstraQuery,
     shared_parents.__name__: OntologyQuery,
     'shared_regulators': SharedRegulatorsQuery,
-    'shared_targets': SharedTargetsQuery}
+    'shared_targets': SharedTargetsQuery,
+    get_subgraph_edges.__name__: SubgraphQuery}
