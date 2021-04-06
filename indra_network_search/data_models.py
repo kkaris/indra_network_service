@@ -346,6 +346,8 @@ class SharedInteractorsResults(BaseModel):
 
 class SubgraphResults(BaseModel):
     """Results for get_subgraph_edges"""
+    input_nodes: List[Node]
+    not_in_graph: List[Node]
     available_nodes: List[Node]
     edges: List[EdgeDataByHash]
 
