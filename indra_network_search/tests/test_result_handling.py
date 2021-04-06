@@ -194,3 +194,44 @@ def test_subgraph():
     assert results.available_nodes[0].identifier == input_node.identifier
 
     # Test with node that needs mapping
+    input_node = Node(name='wrong name', namespace='HGNC', identifier='1100')
+    subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
+    subgraph_query = SubgraphQuery(query=subgrap_rest_query)
+    options = subgraph_query.run_options(graph=g)
+    neigh_dict = get_subgraph_edges(graph=g, **options)
+
+    # Should have three results total:
+    # Out-edges: B1 -> B2; B1 -> ST;
+    # In-edges: SR -> B1;
+    assert len(neigh_dict['n1']['in_edges']) == 1
+    assert set(neigh_dict['n1']['in_edges']) == {('nsr', 'n1')}
+    assert len(neigh_dict['n1']['out_edges']) == 2
+    assert set(neigh_dict['n1']['out_edges']) == {('n1', 'n2'), ('n1', 'nst')}
+
+    # Get result manager
+    res_mngr = SubgraphResultManager(path_generator=neigh_dict, graph=g,
+                                     **subgraph_query.result_options())
+    results: SubgraphResults = res_mngr.get_results()
+
+    # Should have three results total:
+    # Out-edges: B1 -> B2; B1 -> ST;
+    # In-edges: SR -> B1;
+    assert len(results.edges) == 3
+
+    edges = {tuple([n.name for n in e.edge]) for e in results.edges}
+    assert edges == {('n1', 'n2'), ('nsr', 'n1'), ('n1', 'nst')}
+    assert results.edges[0].weight == mock_edge_dict['weight']
+    assert results.edges[0].belief == mock_edge_dict['belief']
+    assert list(results.edges[0].stmts.values())[0].dict().keys() == \
+           mock_edge_dict['statements'][0].keys()
+    assert all(mock_edge_dict['statements'][0][k] == v for k, v in
+               list(results.edges[0].stmts.values())[0].dict().items())
+
+    # Check that input nodes were mapped properly
+    assert results.input_nodes[0].name == input_node.name
+    assert results.input_nodes[0].namespace == input_node.namespace
+    assert results.input_nodes[0].identifier == input_node.identifier
+    assert len(results.not_in_graph) == 0
+    assert results.available_nodes[0].name == 'n1'
+    assert results.available_nodes[0].namespace == input_node.namespace
+    assert results.available_nodes[0].identifier == input_node.identifier
