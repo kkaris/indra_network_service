@@ -582,6 +582,8 @@ class SubgraphResultManager(ResultManager):
 
     def _fill_data(self):
         """Build EdgeDataByHash for all edges, without duplicates"""
+        logger.info(f'Generating output data for subgraph with '
+                    f'{len(self._available_nodes)} eligible nodes')
         for node_name in self.path_gen:
             node = self._available_nodes.get(node_name)
             if node is None:
