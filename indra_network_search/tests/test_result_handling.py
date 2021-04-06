@@ -155,7 +155,7 @@ def test_subgraph():
                                                        namespace='HGNC',
                                                        identifier='1100')])
     subgraph_query = SubgraphQuery(query=subgrap_rest_query)
-    options = subgraph_query.run_options()
+    options = subgraph_query.run_options(graph=g)
     neigh_dict = get_subgraph_edges(graph=g, **options)
 
     # Should have three results total:
