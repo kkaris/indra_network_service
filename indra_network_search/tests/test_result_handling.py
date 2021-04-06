@@ -151,9 +151,8 @@ def test_shared_regulators_result_handling():
 
 def test_subgraph():
     g = _setup_query_graph()
-    subgrap_rest_query = SubgraphRestQuery(nodes=[Node(name='n1',
-                                                       namespace='HGNC',
-                                                       identifier='1100')])
+    input_node = Node(name='n1', namespace='HGNC', identifier='1100')
+    subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
     subgraph_query = SubgraphQuery(query=subgrap_rest_query)
     options = subgraph_query.run_options(graph=g)
     neigh_dict = get_subgraph_edges(graph=g, **options)
@@ -184,3 +183,14 @@ def test_subgraph():
            mock_edge_dict['statements'][0].keys()
     assert all(mock_edge_dict['statements'][0][k] == v for k, v in
                list(results.edges[0].stmts.values())[0].dict().items())
+
+    # Check that input nodes were mapped properly
+    assert results.input_nodes[0].name == input_node.name
+    assert results.input_nodes[0].namespace == input_node.namespace
+    assert results.input_nodes[0].identifier == input_node.identifier
+    assert len(results.not_in_graph) == 0
+    assert results.available_nodes[0].name == input_node.name
+    assert results.available_nodes[0].namespace == input_node.namespace
+    assert results.available_nodes[0].identifier == input_node.identifier
+
+    # Test with node that needs mapping
