@@ -278,3 +278,26 @@ def test_subgraph():
     assert results.available_nodes[0].name == input_node.name
     assert results.available_nodes[0].namespace == 'HGNC'
     assert results.available_nodes[0].identifier == '1100'
+
+    # Check empty query
+    input_node = Node(name='not in graph', namespace='bad ns ',
+                      identifier='bad id')
+    subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
+    subgraph_query = SubgraphQuery(query=subgrap_rest_query)
+    options = subgraph_query.run_options(graph=g)
+    neigh_dict = get_subgraph_edges(graph=g, **options)
+
+    assert len(neigh_dict) == 0
+
+    # Get result manager
+    res_mngr = SubgraphResultManager(path_generator=neigh_dict, graph=g,
+                                     **subgraph_query.result_options())
+    results: SubgraphResults = res_mngr.get_results()
+    assert len(results.edges) == 0
+    assert len(results.not_in_graph) == 1
+    assert results.input_nodes[0].name == input_node.name
+    assert results.input_nodes[0].namespace == input_node.namespace
+    assert results.input_nodes[0].identifier == input_node.identifier
+    assert results.not_in_graph[0].name == input_node.name
+    assert results.not_in_graph[0].namespace == input_node.namespace
+    assert results.not_in_graph[0].identifier == input_node.identifier
