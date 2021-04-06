@@ -72,9 +72,9 @@ class ResultManager:
                   apply_filter: bool = True) -> Union[Node, None]:
         db_ns = self._graph.nodes.get(node_name, {}).get('ns')
         db_id = self._graph.nodes.get(node_name, {}).get('id')
-        lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
         if db_id is None or db_ns is None:
             return None
+        lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
         node = Node(name=node_name, namespace=db_ns,
                     identifier=db_id, lookup=lookup)
         if not apply_filter:
