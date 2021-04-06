@@ -377,21 +377,26 @@ class SubgraphQuery:
                 # Check if ns/id are proper
                 if node.namespace != graph.nodes[node.name]['ns'] or \
                         node.identifier != graph.nodes[node.name]['id']:
-                    node.namespace = graph.nodes[node.name]['ns']
-                    node.identifier = graph.nodes[node.name]['id']
+                    proper_node = Node(name=node.name,
+                                       namespace=graph.nodes[node.name]['ns'],
+                                       identifier=graph.nodes[node.name]['id'])
+                else:
+                    proper_node = node
 
                 # Append to existing nodes
-                self._nodes_in_graph.append(node)
+                self._nodes_in_graph.append(proper_node)
             else:
                 # Try mapping
                 mapped_name = graph.graph['node_by_ns_id'].get(
                     (node.namespace, node.identifier)
                 )
                 if mapped_name is not None and mapped_name in graph.nodes:
-                    node.name = mapped_name
+                    proper_node = Node(name=mapped_name,
+                                       namespace=node.namespace,
+                                       identifier=node.identifier)
 
                     # Append to existing nodes
-                    self._nodes_in_graph.append(node)
+                    self._nodes_in_graph.append(proper_node)
                 else:
                     # Append to nodes not in graph
                     self._not_in_graph.append(node)
