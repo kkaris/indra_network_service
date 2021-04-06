@@ -7,6 +7,7 @@ todo:
     + node_blacklist
     + allowed_ns
     + stmt_filter (excluded statement types)
+ - Use constr(min_length=N) to enforce that str fields are not empty
  - Figure out how to use conlist and other con* enforcers for e.g.:
     + Enfore hashes to be int and/or str
  - In FilterOptions, set overall weighted based on values of weighted
@@ -15,7 +16,7 @@ todo:
 """
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, constr
 
 from .util import get_query_hash, is_weighted, is_context_weighted
 
@@ -236,10 +237,10 @@ class OntologyOptions(BaseModel):
 # Models and sub-models for the Results
 class Node(BaseModel):
     """Data for a node"""
-    name: str
-    namespace: str
-    identifier: str
-    lookup: Optional[str] = ''
+    name: constr(min_length=1)
+    namespace: constr(min_length=1)
+    identifier: constr(min_length=1)
+    lookup: Optional[constr(min_length=1)]
 
 
 class SignedNode(BaseModel):
