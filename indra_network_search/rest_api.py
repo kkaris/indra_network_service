@@ -4,6 +4,7 @@ The IndraNetworkSearch REST API
 import logging
 
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 from .util import load_indra_graph
@@ -22,6 +23,15 @@ class Health(BaseModel):
 
 
 HEALTH = Health(status='booting')
+
+
+@app.get('/')
+async def root_redirect():
+    """Redirect to docs
+
+    This is a temporary solution until the Vue frontend is in place
+    """
+    return RedirectResponse('/redoc')
 
 
 @app.get('/health', response_model=Health)

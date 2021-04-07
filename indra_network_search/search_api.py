@@ -319,8 +319,8 @@ class IndraNetworkSearchAPI:
             running get_subgraph_edges
 
         """
+        graph = self.get_graph(signed=False)
         edge_dict = get_subgraph_edges(graph=self.get_graph(),
-                                       **query.run_options())
-        return SubgraphResultManager(path_generator=edge_dict,
-                                     graph=self.get_graph(),
+                                       **query.run_options(graph=graph))
+        return SubgraphResultManager(path_generator=edge_dict, graph=graph,
                                      **query.result_options())

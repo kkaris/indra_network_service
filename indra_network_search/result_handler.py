@@ -72,9 +72,9 @@ class ResultManager:
                   apply_filter: bool = True) -> Union[Node, None]:
         db_ns = self._graph.nodes.get(node_name, {}).get('ns')
         db_id = self._graph.nodes.get(node_name, {}).get('id')
-        lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
         if db_id is None or db_ns is None:
             return None
+        lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
         node = Node(name=node_name, namespace=db_ns,
                     identifier=db_id, lookup=lookup)
         if not apply_filter:
@@ -511,13 +511,15 @@ class SubgraphResultManager(ResultManager):
     alg_name = get_subgraph_edges.__name__
 
     def __init__(self, path_generator: Iterable, graph: DiGraph,
-                 filter_options: FilterOptions, original_nodes: List[Node]):
+                 filter_options: FilterOptions, original_nodes: List[Node],
+                 nodes_in_graph: List[Node], not_in_graph: List[Node]):
         super().__init__(path_generator=path_generator,
                          graph=graph, filter_options=filter_options)
         self.edge_dict: Dict[Tuple[str, str], EdgeDataByHash] = {}
-        self._orignal_nodes: Dict[str, Node] = {n.name: n for n
-                                                in original_nodes}
-        self.available_nodes: List[Node] = []
+        self._orignal_nodes: List[Node] = original_nodes
+        self._available_nodes: Dict[str, Node] = {n.name: n for n
+                                                  in nodes_in_graph}
+        self._not_in_graph: List[Node] = not_in_graph
 
     def _pass_node(self, node: Node) -> bool:
         # No filters implemented yet
@@ -580,20 +582,23 @@ class SubgraphResultManager(ResultManager):
 
     def _fill_data(self):
         """Build EdgeDataByHash for all edges, without duplicates"""
+        logger.info(f'Generating output data for subgraph with '
+                    f'{len(self._available_nodes)} eligible nodes')
         for node_name in self.path_gen:
-            node = self._orignal_nodes.get(node_name)
+            node = self._available_nodes.get(node_name)
             if node is None:
+                logger.warning(f'Node {node_name} not found in available '
+                               f'nodes')
                 continue
-            self.available_nodes.append(node)
 
             # Get in-edges for current node
             for a, b in self.path_gen[node_name]['in_edges']:
                 edge = (a, b)
                 if edge not in self.edge_dict:
-                    half_edge = (self._orignal_nodes[a]
-                                 if a in self._orignal_nodes else a,
-                                 self._orignal_nodes[b]
-                                 if b in self._orignal_nodes else b)
+                    half_edge = (self._available_nodes[a]
+                                 if a in self._available_nodes else a,
+                                 self._available_nodes[b]
+                                 if b in self._available_nodes else b)
                     edge_data: EdgeDataByHash = \
                         self._get_edge_data_by_hash(*half_edge)
                     if edge_data:
@@ -603,10 +608,10 @@ class SubgraphResultManager(ResultManager):
             for a, b in self.path_gen[node_name]['out_edges']:
                 edge = (a, b)
                 if edge not in self.edge_dict:
-                    half_edge = (self._orignal_nodes[a]
-                                 if a in self._orignal_nodes else a,
-                                 self._orignal_nodes[b]
-                                 if b in self._orignal_nodes else b)
+                    half_edge = (self._available_nodes[a]
+                                 if a in self._available_nodes else a,
+                                 self._available_nodes[b]
+                                 if b in self._available_nodes else b)
                     edge_data: EdgeDataByHash = \
                         self._get_edge_data_by_hash(*half_edge)
                     if edge_data:
@@ -614,12 +619,15 @@ class SubgraphResultManager(ResultManager):
 
     def get_results(self) -> SubgraphResults:
         """Get results for get_subgraph_edges"""
-        if not self.edge_dict and not self.available_nodes:
+        if not self.edge_dict and len(self._available_nodes) > 0:
             self._fill_data()
         edges: List[EdgeDataByHash] = list(self.edge_dict.values())
 
-        return SubgraphResults(available_nodes=self.available_nodes,
-                               edges=edges)
+        return SubgraphResults(
+            available_nodes=list(self._available_nodes.values()),
+            edges=edges, input_nodes=self._orignal_nodes,
+            not_in_graph=self._not_in_graph
+        )
 
 
 # Map algorithm names to result classes

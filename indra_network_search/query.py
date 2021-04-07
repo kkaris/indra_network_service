@@ -358,14 +358,57 @@ class SubgraphQuery:
 
     def __init__(self, query: SubgraphRestQuery):
         self.query: SubgraphRestQuery = query
+        self._nodes_in_graph: List[Node] = []
+        self._not_in_graph: List[Node] = []
 
-    def alg_options(self) -> Dict[str, List[Node]]:
+    def _check_nodes(self, graph: nx.DiGraph):
+        """Filter out nodes based on their availability in graph
+
+        1. Check if ns/id of node is in mapping: Yes: valid node, No: go to 2.
+        2. If a node name is provided in node and it is in the graph, check
+           the graph ns/id of the name and overwrite the ns/id of the node.
+        3. If not, set node as not in graph
+        """
+        ns_id2node = graph.graph['node_by_ns_id']
+        for node in self.query.nodes:
+
+            # See if node is in mapping
+            mapped_name = ns_id2node.get((node.namespace, node.identifier))
+            if mapped_name is not None and mapped_name in graph.nodes:
+                proper_node = Node(name=mapped_name,
+                                   namespace=node.namespace,
+                                   identifier=node.identifier)
+
+                # Append to existing nodes
+                self._nodes_in_graph.append(proper_node)
+
+            # See if node name, if provided, is among nodes
+            elif node.name and node.name in graph.nodes:
+                # Check if ns/id are proper
+                if node.namespace != graph.nodes[node.name]['ns'] or \
+                        node.identifier != graph.nodes[node.name]['id']:
+                    proper_node = Node(name=node.name,
+                                       namespace=graph.nodes[node.name]['ns'],
+                                       identifier=graph.nodes[node.name]['id'])
+                else:
+                    proper_node = node
+
+                # Append to existing nodes
+                self._nodes_in_graph.append(proper_node)
+
+            # Append to nodes not in graph
+            else:
+                self._not_in_graph.append(node)
+
+    def alg_options(self, graph: nx.DiGraph) -> Dict[str, List[Node]]:
         """Match arguments of get_subgraph_edges"""
-        return {'nodes': self.query.nodes}
+        if not self._nodes_in_graph and not self._not_in_graph:
+            self._check_nodes(graph=graph)
+        return {'nodes': self._nodes_in_graph}
 
-    def run_options(self) -> Dict[str, Any]:
+    def run_options(self, graph: nx.DiGraph) -> Dict[str, Any]:
         """Return options needed for get_subgraph_edges"""
-        return self.options(**self.alg_options()).dict()
+        return self.options(**self.alg_options(graph)).dict()
 
     def result_options(self) -> Dict[str, Any]:
         """Return options needed for SubgraphResultManager
@@ -375,7 +418,9 @@ class SubgraphQuery:
         Dict[str, Any]
         """
         return {'filter_options': FilterOptions(),
-                'original_nodes': self.query.nodes}
+                'original_nodes': self.query.nodes,
+                'nodes_in_graph': self._nodes_in_graph,
+                'not_in_graph': self._not_in_graph}
 
 
 def _get_ref_counts_func(hash_mesh_dict: Dict):
