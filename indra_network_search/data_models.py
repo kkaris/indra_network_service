@@ -237,7 +237,7 @@ class OntologyOptions(BaseModel):
 # Models and sub-models for the Results
 class Node(BaseModel):
     """Data for a node"""
-    name: constr(min_length=1)
+    name: Optional[constr(min_length=1)]
     namespace: constr(min_length=1)
     identifier: constr(min_length=1)
     lookup: Optional[constr(min_length=1)]
