@@ -193,8 +193,8 @@ def test_subgraph():
     assert results.available_nodes[0].namespace == input_node.namespace
     assert results.available_nodes[0].identifier == input_node.identifier
 
-    # Test with node that needs mapping
-    input_node = Node(name='wrong name', namespace='HGNC', identifier='1100')
+    # Test with node that has the wrong name
+    input_node = Node(name='n2', namespace='HGNC', identifier='1100')
     subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
     subgraph_query = SubgraphQuery(query=subgrap_rest_query)
     options = subgraph_query.run_options(graph=g)
@@ -236,7 +236,7 @@ def test_subgraph():
     assert results.available_nodes[0].namespace == input_node.namespace
     assert results.available_nodes[0].identifier == input_node.identifier
 
-    # Check correct name, wrong ns/id
+    # Check correct name, missing/bad ns & id
     input_node = Node(name='n1', namespace='bad ns', identifier='bad id')
     subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
     subgraph_query = SubgraphQuery(query=subgrap_rest_query)
@@ -279,7 +279,7 @@ def test_subgraph():
     assert results.available_nodes[0].namespace == 'HGNC'
     assert results.available_nodes[0].identifier == '1100'
 
-    # Check empty query
+    # Check node not in graph
     input_node = Node(name='not in graph', namespace='bad ns ',
                       identifier='bad id')
     subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
