@@ -362,18 +362,28 @@ class SubgraphQuery:
         self._not_in_graph: List[Node] = []
 
     def _check_nodes(self, graph: nx.DiGraph):
-        """Sort nodes based on their availability in graph
+        """Filter out nodes based on their availability in graph
 
-        If a node name is present in graph but with namespace or identifier
-        that is a mismatch, overwrite the namespace and identifier in the
-        node with the node data found in the graph.
-
-        If a node name is _not_ present in the graph, try to rescue it with
-        the namespace/identifier mapping to node names. Overwrite the node
-        name if the mapping exists, otherwise assume the node doesn't exist.
+        1. Check if ns/id of node is in mapping: Yes: valid node, No: go to 2.
+        2. If a node name is provided in node and it is in the graph, check
+           the graph ns/id of the name and overwrite the ns/id of the node.
+        3. If not, set node as not in graph
         """
+        ns_id2node = graph.graph['node_by_ns_id']
         for node in self.query.nodes:
-            if node.name in graph.nodes:
+
+            # See if node is in mapping
+            mapped_name = ns_id2node.get((node.namespace, node.identifier))
+            if mapped_name is not None and mapped_name in graph.nodes:
+                proper_node = Node(name=mapped_name,
+                                   namespace=node.namespace,
+                                   identifier=node.identifier)
+
+                # Append to existing nodes
+                self._nodes_in_graph.append(proper_node)
+
+            # See if node name, if provided, is among nodes
+            elif node.name and node.name in graph.nodes:
                 # Check if ns/id are proper
                 if node.namespace != graph.nodes[node.name]['ns'] or \
                         node.identifier != graph.nodes[node.name]['id']:
@@ -385,21 +395,10 @@ class SubgraphQuery:
 
                 # Append to existing nodes
                 self._nodes_in_graph.append(proper_node)
-            else:
-                # Try mapping
-                mapped_name = graph.graph['node_by_ns_id'].get(
-                    (node.namespace, node.identifier)
-                )
-                if mapped_name is not None and mapped_name in graph.nodes:
-                    proper_node = Node(name=mapped_name,
-                                       namespace=node.namespace,
-                                       identifier=node.identifier)
 
-                    # Append to existing nodes
-                    self._nodes_in_graph.append(proper_node)
-                else:
-                    # Append to nodes not in graph
-                    self._not_in_graph.append(node)
+            # Append to nodes not in graph
+            else:
+                self._not_in_graph.append(node)
 
     def alg_options(self, graph: nx.DiGraph) -> Dict[str, List[Node]]:
         """Match arguments of get_subgraph_edges"""
