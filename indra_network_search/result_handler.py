@@ -146,7 +146,7 @@ class ResultManager:
                                       subj_ns=a_node.namespace,
                                       obj_id=b_node.identifier,
                                       obj_ns=b_node.namespace)
-        return EdgeData(edge=edge, stmts=stmt_dict, belief=edge_belief,
+        return EdgeData(edge=edge, statements=stmt_dict, belief=edge_belief,
                         weight=edge_weight, db_url_edge=url, **ct_dict)
 
     def get_results(self):

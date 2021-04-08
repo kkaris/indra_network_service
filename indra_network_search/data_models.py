@@ -295,8 +295,8 @@ class StmtData(BaseModel):
 
 class EdgeData(BaseModel):
     """Data for one single edge"""
-    edge: List[Node]  # Edge supported by stmts
-    stmts: Dict[str, List[StmtData]]  # key by stmt_type
+    edge: List[Node]  # Edge supported by statements
+    statements: Dict[str, List[StmtData]]  # key by stmt_type
     belief: float  # Aggregated belief
     weight: float  # Weight corresponding to aggregated weight
     sign: Optional[int]  # Used for signed paths
@@ -304,8 +304,8 @@ class EdgeData(BaseModel):
     db_url_edge: str  # Linkout to subj-obj level
 
     def is_empty(self) -> bool:
-        """Return True if len(stmts) == 0"""
-        return len(self.stmts) == 0
+        """Return True if len(statements) == 0"""
+        return len(self.statements) == 0
 
 
 class EdgeDataByHash(BaseModel):
