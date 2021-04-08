@@ -115,7 +115,9 @@ class ResultManager:
             Union[EdgeData, None]:
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
-        edge = (a_node, b_node)
+        if a_node is None or b_node is None:
+            return None
+        edge = [a_node, b_node]
         ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
         stmt_dict: Dict[str, List[StmtData]] = {}
         for sd in ed['statements']:
