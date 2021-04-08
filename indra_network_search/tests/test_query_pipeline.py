@@ -390,6 +390,20 @@ def test_shortest_simple_paths():
                                expected_res=expected_paths)
 
     # edge_hash_blacklist
+    # Remove ('AR', 'CHEK1')
+    hash_bl_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
+                                       edge_hash_blacklist=[915990])
+    hash_bl_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
+                     ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    paths = {4: _get_path_list(str_paths=hash_bl_paths,
+                               graph=unsigned_graph)}
+    expected_paths: PathResultData = \
+        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=hash_bl_query,
+                               expected_res=expected_paths)
+
     # allowed_ns
     # node_blacklist
     # path_length
