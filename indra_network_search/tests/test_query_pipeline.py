@@ -322,12 +322,12 @@ def test_shortest_simple_paths():
     # - edge_hash_blacklist
     # - allowed_ns
     # - node_blacklist
-    # - path_length
+    # - path_length <-- path length
     # - belief_cutoff
     # - curated_db_only
-    # - k_shortest <-- number of paths to return
+    # - k_shortest <-- number of paths
     # - cull_best_node
-    # - user_timeout <-- not yet implemented
+    # - user_timeout <-- not yet implemented!
     BRCA1 = Node(name='BRCA1', namespace='HGNC', identifier='1100')
     BRCA2 = Node(name='BRCA2', namespace='HGNC', identifier='1101')
 
@@ -335,7 +335,10 @@ def test_shortest_simple_paths():
     rest_query = NetworkSearchQuery(source='BRCA1', target='BRCA2')
     str_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                  ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
-    paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph)}
+    str_paths5 = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
+                  ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph),
+             5: _get_path_list(str_paths=str_paths5, graph=unsigned_graph)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -347,9 +350,8 @@ def test_shortest_simple_paths():
     belief_weighted_query = NetworkSearchQuery(source=BRCA1.name,
                                                target=BRCA2.name,
                                                weighted=True)
-    str_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
-                 ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
-    paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph)}
+    paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph),
+             5: _get_path_list(str_paths=str_paths5, graph=unsigned_graph)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -375,12 +377,17 @@ def test_shortest_simple_paths():
     # strict context
     # Todo: Figure out how to get correct edges to mesh ids
 
-    # stmt_filter
+    # stmt_filter - should remove ('AR', 'CHEK1')
     stmt_filter_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
                                            stmt_filter=['Activation'])
     stmt_filter_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                          ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    stmt_filter_paths5 = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
+                          ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+
     paths = {4: _get_path_list(str_paths=stmt_filter_paths,
+                               graph=unsigned_graph),
+             5: _get_path_list(str_paths=stmt_filter_paths5,
                                graph=unsigned_graph)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
@@ -395,7 +402,11 @@ def test_shortest_simple_paths():
                                        edge_hash_blacklist=[915990])
     hash_bl_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                      ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    hash_bl_paths5 = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
+                      ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
     paths = {4: _get_path_list(str_paths=hash_bl_paths,
+                               graph=unsigned_graph),
+             5: _get_path_list(str_paths=hash_bl_paths5,
                                graph=unsigned_graph)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
@@ -405,13 +416,12 @@ def test_shortest_simple_paths():
                                expected_res=expected_paths)
 
     # allowed_ns
-    # Only allow HGNC: will remove testosterone as node
+    # Only allow HGNC: will remove testosterone and NCOA as node
     ns_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
                                   allowed_ns=['HGNC'])
     ns_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                 ['AR', 'NR2C2', 'MBD2', 'PATZ1']]
-    paths = {4: _get_path_list(str_paths=ns_paths,
-                               graph=unsigned_graph)}
+    paths = {4: _get_path_list(str_paths=ns_paths, graph=unsigned_graph)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -425,8 +435,10 @@ def test_shortest_simple_paths():
                                        node_blacklist=['testosterone'])
     node_bl_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                      ['AR', 'NR2C2', 'MBD2', 'PATZ1']]
-    paths = {4: _get_path_list(str_paths=node_bl_paths,
-                               graph=unsigned_graph)}
+    node_bl_paths5 = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
+                      ['AR', 'NR2C2', 'MBD2', 'PATZ1']]
+    paths = {4: _get_path_list(str_paths=node_bl_paths, graph=unsigned_graph),
+             5: _get_path_list(str_paths=node_bl_paths5, graph=unsigned_graph)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -435,6 +447,8 @@ def test_shortest_simple_paths():
                                expected_res=expected_paths)
 
     # path_length
+
+
     # belief_cutoff
     # curated_db_only
     # k_shortest <-- number of paths to return
