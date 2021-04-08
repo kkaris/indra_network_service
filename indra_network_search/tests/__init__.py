@@ -60,7 +60,7 @@ edge_data = {
             'english': 'BRCA1 binds PATZ1.'}]
         },
         ('AR', 'CHEK1'): {'belief': 0.9, 'weight': wm(0.9), 'statements': [
-            {'stmt_hash': 915990, 'stmt_type': 'Phosphorylation',
+            {'stmt_hash': 915990, 'stmt_type': 'Activation',
              'evidence_count': 1, 'belief': 0.99, 'source_counts': {'pc': 1},
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
              'position': '3387', 'english': 'CHEK1 phosphorylates BRCA2.'}]
