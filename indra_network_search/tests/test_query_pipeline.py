@@ -486,6 +486,18 @@ def test_shortest_simple_paths():
                                expected_res=expected_paths)
 
     # k_shortest <-- number of paths to return
+    k_short_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
+                                       k_shortest=4)
+    k_short_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
+                     ['AR', 'testosterone', 'NR2C2', 'MBD2']]
+    paths = {4: _get_path_list(str_paths=k_short_paths, graph=unsigned_graph)}
+    expected_paths: PathResultData = \
+        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=k_short_query,
+                               expected_res=expected_paths)
+
     # cull_best_node
     # user_timeout <-- not yet implemented
 
