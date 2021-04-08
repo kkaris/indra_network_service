@@ -24,7 +24,7 @@ edge_data = {
                           'statements': [{
             'stmt_hash': 5603789525715921, 'stmt_type': 'Complex',
             'evidence_count': 1, 'belief': 1, 'source_counts': {'sparser': 1},
-            'residue': None, 'weight': 2, 'curated': False, 'position': None,
+            'residue': None, 'weight': 2, 'curated': True, 'position': None,
             'english': 'BRCA1 binds AR.'}]
         },
         ('BRCA1', 'testosterone'): {'belief': 0.99999,
@@ -32,7 +32,7 @@ edge_data = {
                                     'statements': [{
             'stmt_hash': 5603789525715922, 'stmt_type': 'Complex',
             'evidence_count': 1, 'belief': 1, 'source_counts': {'sparser': 1},
-            'residue': None, 'weight': 2, 'curated': False, 'position': None,
+            'residue': None, 'weight': 2, 'curated': True, 'position': None,
             'english': 'BRCA1 binds testosterone.'}]
         },
         ('BRCA1', 'NR2C2'): {'belief': 0.9999,
@@ -40,7 +40,7 @@ edge_data = {
                              'statements': [{
             'stmt_hash': 5603789525715923, 'stmt_type': 'Complex',
             'evidence_count': 1, 'belief': 1, 'source_counts': {'sparser': 1},
-            'residue': None, 'weight': 2, 'curated': False, 'position': None,
+            'residue': None, 'weight': 2, 'curated': True, 'position': None,
             'english': 'BRCA1 binds NR2C2.'}]
         },
         ('BRCA1', 'MBD2'): {'belief': 0.999,
@@ -99,13 +99,13 @@ edge_data = {
         ('CHEK1', 'NCOA'): {'belief': 0.7, 'weight': wm(0.6), 'statements': [
             {'stmt_hash': 915994, 'stmt_type': 'Farnesylation',
              'evidence_count': 1, 'belief': 0.7, 'source_counts': {'pc': 1},
-             'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
+             'residue': 'T', 'weight': 0.23572233352106983, 'curated': False,
              'position': '3387', 'english': 'CHEK1 farnesylates NCOA.'}]
         },
         ('NCOA', 'BRCA2'): {'belief': 0.7, 'weight': wm(0.6), 'statements': [
             {'stmt_hash': 915995, 'stmt_type': 'Acetylation',
              'evidence_count': 1, 'belief': 0.7, 'source_counts': {'pc': 1},
-             'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
+             'residue': 'T', 'weight': 0.23572233352106983, 'curated': False,
              'position': '3387', 'english': 'NCOA acetylates BRCA2.'}]
         },
         ('BRCA2', 'BRCA1'): {'belief': 0.98, 'weight': 4.1e-05, 'statements': [
