@@ -107,7 +107,7 @@ def _get_node(name: str, graph: DiGraph) -> Optional[Node]:
 
 def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
                         rest_query: NetworkSearchQuery,
-                        expected_res: PathResultData, weighted: bool) -> bool:
+                        expected_res: PathResultData) -> bool:
     """Test path queries
 
     Parameters
@@ -119,9 +119,6 @@ def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
         The networksearch query to test
     expected_res: PathResultData
         The expected results
-    weighted: bool
-        If paths are weighted. If weighted, the order of the paths is
-        checked as well.
 
     Returns
     -------
@@ -157,7 +154,7 @@ def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
 
         # If the paths are ordered, check the order of the paths and that
         # the nodes in the resulting path are as expected
-        if weighted:
+        if rest_query.is_overall_weighted():
             for rp, ep in zip(res_paths, expected):
                 for rn, en in zip(rp.path, ep.path):
                     assert _node_equals(rn, en), \
@@ -192,7 +189,7 @@ def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
 
         # If the paths are ordered, check the order of the paths and that
         # the nodes in the resulting path are as expected
-        if weighted:
+        if rest_query.is_overall_weighted():
             for rp, ep in zip(res_paths, expected):
                 for rn, en in zip(rp.path, ep.path):
                     assert _node_equals(rn, en), \
