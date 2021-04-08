@@ -336,13 +336,9 @@ def test_shortest_simple_paths():
 
     # Create rest query - normal search
     rest_query = NetworkSearchQuery(source='BRCA1', target='BRCA2')
-
     str_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                  ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
-
-    paths: Dict[int, List[Path]] = \
-        {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph)}
-
+    paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -351,38 +347,18 @@ def test_shortest_simple_paths():
                                expected_res=expected_paths)
 
     # Create rest query - belief weighted
-    belief_weighted_query = NetworkSearchQuery(source='BRCA1',
-                                               target='BRCA2',
+    belief_weighted_query = NetworkSearchQuery(source=BRCA1.name,
+                                               target=BRCA2.name,
                                                weighted=True)
-    expected_paths = {4: [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
-                          ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]}
-    # results = _check_pipeline(
-    #     rest_query=rest_query, alg_name=ShortestSimplePathsQuery.alg_name,
-    #     graph=unsigned_graph
-    # )
-    # assert isinstance(results, PathResultData)
-    # assert not results.is_empty()
-    #
-    # # Get results from search_api
-    # api_res_mngr = \
-    #     search_api.shortest_simple_paths(
-    #         ShortestSimplePathsQuery(query=rest_query), is_signed=False
-    #     )
-    # api_res = api_res_mngr.get_results()
-    # assert isinstance(api_res, PathResultData)
-    # assert not api_res.is_empty()
-    #
-    # # Compare results
-    # assert len(results.paths[4]) == 5, f'{len(results.paths[4])} paths found'
-    # assert len(api_res.paths[4]) == 5, f'{len(api_res.paths[4])} paths found'
-    # assert all(p1 == p2 for p1, p2 in zip(results.paths[4], api_res.paths[4]))
-    # found_paths = [tuple(n.name for n in p.path) for p in results.paths[4]]
-    # api_paths = [tuple(n.name for n in p.path) for p in api_res.paths[4]]
-    # # Check order
-    # expected_order = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
-    #                   ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
-    # assert all(p == ep for p, ep in zip(found_paths, expected_order))
-    # assert all(p == ep for p, ep in zip(api_paths, expected_order))
+    str_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
+                 ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph)}
+    expected_paths: PathResultData = \
+        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=belief_weighted_query,
+                               expected_res=expected_paths)
 
     # reverse
     # context weighted
@@ -397,7 +373,6 @@ def test_shortest_simple_paths():
     # k_shortest <-- number of paths to return
     # cull_best_node
     # user_timeout <-- not yet implemented
-
 
 
 def test_dijkstra():
