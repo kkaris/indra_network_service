@@ -370,7 +370,11 @@ def test_shortest_simple_paths():
                                expected_res=expected_rev_paths)
 
     # context weighted
+    # Todo: Figure out how to get correct edges to mesh ids
+
     # strict context
+    # Todo: Figure out how to get correct edges to mesh ids
+
     # stmt_filter
     stmt_filter_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
                                            stmt_filter=['Activation'])
