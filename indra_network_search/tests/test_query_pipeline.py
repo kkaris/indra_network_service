@@ -18,7 +18,6 @@ blocked from non-hms and non-AWS IP addresses, unless explicitly added.
 from inspect import signature
 from typing import Set, Callable, Dict, Any, Type, Tuple, Union, List, Optional
 from networkx import DiGraph
-import networkx as nx
 from pydantic import BaseModel
 from indra.explanation.pathfinding import bfs_search, shortest_simple_paths,\
     open_dijkstra_search
@@ -29,10 +28,8 @@ from indra_network_search.query import SharedTargetsQuery, Query,\
     DijkstraQuery, OntologyQuery, MissingParametersError, \
     InvalidParametersError, alg_func_mapping, alg_name_query_mapping,\
     SubgraphQuery
-from indra.explanation.pathfinding import shortest_simple_paths
-from indra_network_search.result_handler import OntologyResultManager, \
-    SharedInteractorsResultManager, ShortestSimplePathsResultManager, \
-    ResultManager, alg_manager_mapping
+from indra_network_search.result_handler import ResultManager, \
+    alg_manager_mapping
 from indra_network_search.pathfinding import shared_parents, \
     shared_interactors, get_subgraph_edges
 from indra_network_search.search_api import IndraNetworkSearchAPI
@@ -375,6 +372,19 @@ def test_shortest_simple_paths():
     # context weighted
     # strict context
     # stmt_filter
+    stmt_filter_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
+                                           stmt_filter=['Activation'])
+    stmt_filter_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
+                         ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    paths = {4: _get_path_list(str_paths=stmt_filter_paths,
+                               graph=unsigned_graph)}
+    expected_paths: PathResultData = \
+        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=stmt_filter_query,
+                               expected_res=expected_paths)
+
     # edge_hash_blacklist
     # allowed_ns
     # node_blacklist
