@@ -459,7 +459,19 @@ def test_shortest_simple_paths():
                                rest_query=pl5_query,
                                expected_res=expected_paths)
 
-    # belief_cutoff
+    # belief_cutoff - filter out NCOA edges
+    belief_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
+                                      belief_cutoff=0.71)
+    belief_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
+                    ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    paths = {4: _get_path_list(str_paths=belief_paths, graph=unsigned_graph)}
+    expected_paths: PathResultData = \
+        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=belief_query,
+                               expected_res=expected_paths)
+
     # curated_db_only
     # k_shortest <-- number of paths to return
     # cull_best_node
