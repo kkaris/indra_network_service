@@ -96,15 +96,15 @@ edge_data = {
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
              'position': '3387', 'english': 'CHEK1 phosphorylates BRCA2.'}]
         },
-        ('CHEK1', 'NCOA'): {'belief': 0.6, 'weight': wm(0.6), 'statements': [
+        ('CHEK1', 'NCOA'): {'belief': 0.7, 'weight': wm(0.6), 'statements': [
             {'stmt_hash': 915994, 'stmt_type': 'Farnesylation',
-             'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
+             'evidence_count': 1, 'belief': 0.7, 'source_counts': {'pc': 1},
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
              'position': '3387', 'english': 'CHEK1 farnesylates NCOA.'}]
         },
-        ('NCOA', 'BRCA2'): {'belief': 0.6, 'weight': wm(0.6), 'statements': [
+        ('NCOA', 'BRCA2'): {'belief': 0.7, 'weight': wm(0.6), 'statements': [
             {'stmt_hash': 915995, 'stmt_type': 'Acetylation',
-             'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
+             'evidence_count': 1, 'belief': 0.7, 'source_counts': {'pc': 1},
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
              'position': '3387', 'english': 'NCOA acetylates BRCA2.'}]
         },
