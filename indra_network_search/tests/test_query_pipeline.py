@@ -89,10 +89,14 @@ def _match_args(run_options: Set[str], alg_fun: Callable) -> bool:
 
 
 def _node_equals(node: Node, other_node: Node) -> bool:
-    # Check node name, namespace, identifier and ignore node lookup
-    other_node_dict = other_node.dict(exclude={'lookup'})
+    # Check node name, namespace, identifier.
+    # Ignore 'lookup' if either node does not have it.
+    exclude = {'lookup'} if node.lookup is None \
+                            or other_node.lookup is None else set()
+    other_node_dict = other_node.dict(exclude=exclude)
     return all(v == other_node_dict[k] for k, v in
-               node.dict(exclude={'lookup'}).items())
+               node.dict(exclude=exclude).items())
+
 
 
 def _check_path_queries(
