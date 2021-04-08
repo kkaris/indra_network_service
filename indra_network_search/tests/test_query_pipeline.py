@@ -473,6 +473,18 @@ def test_shortest_simple_paths():
                                expected_res=expected_paths)
 
     # curated_db_only
+    curated_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
+                                       curated_db_only=True)
+    curated_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
+                     ['AR', 'testosterone', 'NR2C2']]
+    paths = {4: _get_path_list(str_paths=curated_paths, graph=unsigned_graph)}
+    expected_paths: PathResultData = \
+        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=curated_query,
+                               expected_res=expected_paths)
+
     # k_shortest <-- number of paths to return
     # cull_best_node
     # user_timeout <-- not yet implemented
