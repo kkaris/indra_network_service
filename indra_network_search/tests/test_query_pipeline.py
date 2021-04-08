@@ -447,7 +447,17 @@ def test_shortest_simple_paths():
                                expected_res=expected_paths)
 
     # path_length
-
+    pl5_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
+                                   path_length=5)
+    pl5_str_paths = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
+                     ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    paths = {5: _get_path_list(str_paths=pl5_str_paths, graph=unsigned_graph)}
+    expected_paths: PathResultData = \
+        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=pl5_query,
+                               expected_res=expected_paths)
 
     # belief_cutoff
     # curated_db_only
