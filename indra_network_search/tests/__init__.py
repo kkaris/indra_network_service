@@ -63,10 +63,10 @@ edge_data = {
             {'stmt_hash': 915990, 'stmt_type': 'Activation',
              'evidence_count': 1, 'belief': 0.99, 'source_counts': {'pc': 1},
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
-             'position': '3387', 'english': 'CHEK1 phosphorylates BRCA2.'}]
+             'position': '3387', 'english': 'CHEK1 activates BRCA2.'}]
         },
-        ('testosterone', 'CHEK1'):
-            {'belief': 0.9, 'weight': wm(0.9), 'statements': [
+        ('testosterone', 'CHEK1'): {'belief': 0.9, 'weight': wm(0.9),
+                                    'statements': [
             {'stmt_hash': 915991, 'stmt_type': 'Phosphorylation',
              'evidence_count': 1, 'belief': 0.99, 'source_counts': {'pc': 1},
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
@@ -96,8 +96,20 @@ edge_data = {
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
              'position': '3387', 'english': 'CHEK1 phosphorylates BRCA2.'}]
         },
+        ('CHEK1', 'NCOA'): {'belief': 0.6, 'weight': wm(0.6), 'statements': [
+            {'stmt_hash': 915994, 'stmt_type': 'Farnesylation',
+             'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
+             'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
+             'position': '3387', 'english': 'CHEK1 farnesylates NCOA.'}]
+        },
+        ('NCOA', 'BRCA2'): {'belief': 0.6, 'weight': wm(0.6), 'statements': [
+            {'stmt_hash': 915995, 'stmt_type': 'Acetylation',
+             'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
+             'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
+             'position': '3387', 'english': 'NCOA acetylates BRCA2.'}]
+        },
         ('BRCA2', 'BRCA1'): {'belief': 0.98, 'weight': 4.1e-05, 'statements': [
-            {'stmt_hash': 915993, 'stmt_type': 'Deactivation',
+            {'stmt_hash': -976543, 'stmt_type': 'Deactivation',
              'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
              'residue': None, 'weight': 0.23572233352106983, 'curated': True,
              'position': None, 'english': 'CHEK1 deactivates BRCA2.'}]
