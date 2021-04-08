@@ -331,15 +331,24 @@ def test_shortest_simple_paths():
     # - k_shortest <-- number of paths to return
     # - cull_best_node
     # - user_timeout <-- not yet implemented
+    BRCA1 = Node(name='BRCA1', namespace='HGNC', identifier='1100')
+    BRCA2 = Node(name='BRCA2', namespace='HGNC', identifier='1101')
 
     # Create rest query - normal search
     rest_query = NetworkSearchQuery(source='BRCA1', target='BRCA2')
-    expected_paths = {4: {('BRCA1', n, 'CHEK1', 'BRCA2') for n in
-                          ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']}}
+
+    str_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
+                 ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+
+    paths: Dict[int, List[Path]] = \
+        {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph)}
+
+    expected_paths: PathResultData = \
+        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=rest_query,
-                               expected_paths=expected_paths)
+                               expected_res=expected_paths)
 
     # Create rest query - belief weighted
     belief_weighted_query = NetworkSearchQuery(source='BRCA1',
