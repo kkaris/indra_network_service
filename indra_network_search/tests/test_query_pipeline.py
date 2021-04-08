@@ -98,6 +98,11 @@ def _node_equals(node: Node, other_node: Node) -> bool:
                node.dict(exclude=exclude).items())
 
 
+def _get_node(name: str, graph: DiGraph) -> Optional[Node]:
+    if name in graph.nodes:
+        return Node(name=name, namespace=graph.nodes[name]['ns'],
+                    identifier=graph.nodes[name]['id'])
+    raise ValueError(f'{name} not in graph')
 
 def _check_path_queries(
         graph: DiGraph, QueryCls: Type[Query], rest_query: NetworkSearchQuery,
