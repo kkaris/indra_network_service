@@ -1,6 +1,8 @@
 from depmap_analysis.network_functions.net_functions import _weight_from_belief
 
 
+__all__ = ['nodes', 'edge_data']
+
 wm = _weight_from_belief
 
 
