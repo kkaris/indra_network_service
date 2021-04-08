@@ -256,6 +256,33 @@ def _get_api_res(query: Query, is_signed: bool) -> ResultManager:
         raise ValueError(f'Unrecognized Query class {type(query)}')
 
 
+def _get_path_list(str_paths: List[Tuple[str, ...]], graph: DiGraph) \
+        -> List[Path]:
+    paths: List[Path] = []
+    for spath in str_paths:
+        path: List[Node] = []
+        for sn in spath:
+            path.append(_get_node(sn, graph))
+        edl: List[EdgeData] = []
+        for a, b in zip(spath[:-1], spath[1:]):
+            ed = edge_data[(a, b)]
+            stmt_dict = {}
+            for sd in ed['statements']:
+                stmt_data = StmtData(**sd)
+                try:
+                    stmt_dict[stmt_data.stmt_type].append(stmt_data)
+                except KeyError:
+                    stmt_dict[stmt_data.stmt_type] = [stmt_data]
+            edge = [_get_node(a, graph), _get_node(b, graph)]
+            edl.append(EdgeData(edge=edge,
+                                statements=stmt_dict,
+                                belief=ed['belief'],
+                                weight=ed['weight']))
+        paths.append(Path(path=path,
+                          edge_data=edl))
+    return paths
+
+
 def _check_pipeline(rest_query: NetworkSearchQuery, alg_name: str,
                     graph: DiGraph) -> BaseModel:
     """Checks pipeline from incoming Query to result model"""
