@@ -126,6 +126,17 @@ class NetworkSearchQuery(BaseModel):
         allow_mutation = False  # Error for any attempt to change attributes
         extra = Extra.forbid  # Error if non-specified attributes are given
 
+    def is_overall_weighted(self) -> bool:
+        """Return True if this query is weighted"""
+        return is_weighted(weighted=self.weighted, mesh_ids=self.mesh_ids,
+                           strict_mesh_filtering=self.strict_mesh_id_filtering)
+
+    def is_context_weighted(self):
+        """Return True if this query is context weighted"""
+        return is_context_weighted(
+            mesh_id_list=self.mesh_ids,
+            strict_filtering=self.strict_mesh_id_filtering)
+
     def get_hash(self):
         """Get the corresponding query hash of the query"""
         return get_query_hash(self.dict(), ignore_keys=['format'])
