@@ -16,7 +16,7 @@ Note: Some of the tests here currently rely on being able to call indra_db
 blocked from non-hms and non-AWS IP addresses, unless explicitly added.
 """
 from inspect import signature
-from typing import Set, Callable, Dict, Any, Type, Tuple, Union, List
+from typing import Set, Callable, Dict, Any, Type, Tuple, Union, List, Optional
 from networkx import DiGraph
 import networkx as nx
 from pydantic import BaseModel
@@ -104,10 +104,10 @@ def _get_node(name: str, graph: DiGraph) -> Optional[Node]:
                     identifier=graph.nodes[name]['id'])
     raise ValueError(f'{name} not in graph')
 
-def _check_path_queries(
-        graph: DiGraph, QueryCls: Type[Query], rest_query: NetworkSearchQuery,
-        expected_paths: Dict[int, Union[Set[Tuple[str, ...]],
-                             List[Tuple[str, ...]]]]) -> bool:
+
+def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
+                        rest_query: NetworkSearchQuery,
+                        expected_res: PathResultData, weighted: bool) -> bool:
     """Test path queries
 
     Parameters
@@ -117,10 +117,11 @@ def _check_path_queries(
         The Query class used
     rest_query: NetworkSearchQuery
         The networksearch query to test
-    expected_paths: Dict[int, Union[Set[Tuple[str, ...]],
-                                    List[Tuple[str, ...]]]]
-        A dict of a set or list of paths keyed by their path lengths. If
-        list, the paths are assumed to have that specific order
+    expected_res: PathResultData
+        The expected results
+    weighted: bool
+        If paths are weighted. If weighted, the order of the paths is
+        checked as well.
 
     Returns
     -------
@@ -136,27 +137,37 @@ def _check_path_queries(
         f'results is not PathResultData model:\n{str(results)}'
 
     # Check if we have any results
-    assert results.is_empty() is not bool(expected_paths), \
+    assert results.is_empty() == expected_res.is_empty(), \
         f'result is "{"empty" if results.is_empty() else "not empty"}"; but ' \
-        f'expected "{"not empty" if expected_paths else "empty"}"'
+        f'expected "{"empty" if expected_res.is_empty() else "not empty"}"'
 
-    for exp_len, expected in expected_paths.items():
-        res_paths = results.paths[exp_len]
+    assert _node_equals(results.source, expected_res.source)
+    assert _node_equals(results.target, expected_res.target)
+
+    for exp_len, expected in expected_res.paths.items():
+        try:
+            res_paths = results.paths[exp_len]
+        except KeyError as ke:
+            raise KeyError(f'Expected paths of length {exp_len} to exist') \
+                from ke
+
         # Check that the number of paths are the same
         assert len(res_paths) == len(expected), \
             f'Expected {len(expected)} paths, got {len(res_paths)} paths'
 
         # If the paths are ordered, check the order of the paths and that
         # the nodes in the resulting path are as expected
-        if isinstance(expected, list):
-            assert all(all(n.name == en for n, en in zip(p1, p2))
-                       for p1, p2 in zip(res_paths, expected)), \
-                f'Paths are out of order or nodes in path are not the same'
-        elif isinstance(expected, set):
+        if weighted:
+            for rp, ep in zip(res_paths, expected):
+                for rn, en in zip(rp.path, ep.path):
+                    assert _node_equals(rn, en), \
+                        f'Paths are out of order or nodes in path are not ' \
+                        f'the same'
+        else:
             # Check that sets of paths are the same
             set_of_paths = {tuple(n.name for n in p.path) for p in res_paths}
-            assert set_of_paths == expected, \
-                f'Paths are permuted'
+            exp_path_sets = {tuple(n.name for n in p.path) for p in expected}
+            assert set_of_paths == exp_path_sets, f'Nodes are out of order'
 
     # Check search api
     query = QueryCls(query=rest_query)
@@ -164,25 +175,34 @@ def _check_path_queries(
     api_res_mngr = _get_api_res(query=query, is_signed=signed)
     api_res = api_res_mngr.get_results()
     assert isinstance(api_res, PathResultData)
-    assert not api_res.is_empty()
+    assert not api_res.is_empty(), \
+        f'result is "{"empty" if api_res.is_empty() else "not empty"}"; but ' \
+        f'expected "{"empty" if expected_res.is_empty() else "not empty"}"'
 
-    for exp_len, expected in expected_paths.items():
-        res_paths = api_res.paths[exp_len]
+    for exp_len, expected in expected_res.paths.items():
+        try:
+            res_paths = api_res.paths[exp_len]
+        except KeyError as ke:
+            raise KeyError(f'Expected paths of length {exp_len} to exist') \
+                from ke
+
         # Check that the number of paths are the same
         assert len(res_paths) == len(expected), \
             f'Expected {len(expected)} paths, got {len(res_paths)} paths'
 
         # If the paths are ordered, check the order of the paths and that
         # the nodes in the resulting path are as expected
-        if isinstance(expected, list):
-            assert all(all(n.name == en for n, en in zip(p1, p2))
-                       for p1, p2 in zip(res_paths, expected)), \
-                f'Paths are out of order or nodes in path are not the same'
-        elif isinstance(expected, set):
+        if weighted:
+            for rp, ep in zip(res_paths, expected):
+                for rn, en in zip(rp.path, ep.path):
+                    assert _node_equals(rn, en), \
+                        f'Paths are out of order or nodes in path are not ' \
+                        f'the same'
+        else:
             # Check that sets of paths are the same
             set_of_paths = {tuple(n.name for n in p.path) for p in res_paths}
-            assert set_of_paths == expected, \
-                f'Paths are permuted'
+            exp_path_sets = {tuple(n.name for n in p.path) for p in expected}
+            assert set_of_paths == exp_path_sets, f'Nodes are out of order'
 
     return True
 
