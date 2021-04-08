@@ -361,6 +361,17 @@ def test_shortest_simple_paths():
                                expected_res=expected_paths)
 
     # reverse
+    reverse_query = rest_query.reverse_search()
+    rev_str_paths = [('BRCA2', 'BRCA1')]
+    rev_paths = {2: _get_path_list(str_paths=rev_str_paths,
+                                   graph=unsigned_graph)}
+    expected_rev_paths: PathResultData = \
+        PathResultData(source=BRCA2, target=BRCA1, paths=rev_paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=reverse_query,
+                               expected_res=expected_rev_paths)
+
     # context weighted
     # strict context
     # stmt_filter
