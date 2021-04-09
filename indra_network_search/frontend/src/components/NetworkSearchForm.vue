@@ -176,7 +176,7 @@
       />
       <h3>Signed Search</h3>
       <div>
-        <BaseSelect
+        <BaseSelectBS
           :options="signOptions"
           v-model.number="sign"
           label="Sign"
@@ -194,13 +194,13 @@
 </template>
 
 <script>
-import BaseSelect from "@/components/BaseSelect";
+import BaseSelectBS from "@/components/BaseSelectBS";
 import BaseCheckboxBS from "@/components/BaseCheckboxBS";
 import BaseInputBS from "@/components/BaseInputBS";
 import AxiosMethods from "@/services/AxiosMethods";
 
 export default {
-  components: { BaseSelect, BaseCheckboxBS, BaseInputBS },
+  components: { BaseSelectBS, BaseCheckboxBS, BaseInputBS },
   data() {
     return {
       source: "",
