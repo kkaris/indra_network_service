@@ -13,6 +13,8 @@ from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
     SubgraphResults
 from .search_api import IndraNetworkSearchAPI
 
+DEBUG = environ.get('API_DEBUG') == "1"
+
 app = FastAPI()
 
 logger = logging.getLogger(__name__)
@@ -85,12 +87,21 @@ def sub_graph(search_query: SubgraphRestQuery):
     return subgraph_results
 
 
-dir_graph, _, sign_node_graph, _ = \
-    load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
-                     sign_node_graph=True, sign_edge_graph=False,
-                     use_cache=USE_CACHE)
+if DEBUG:
+    from indra_network_search.tests.test_query_pipeline import _setup_graph
+    from networkx import DiGraph
+    dir_graph, sign_node_graph = _setup_graph(), DiGraph()
+    network_search_api = IndraNetworkSearchAPI(
+        unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
+    )
+else:
+    dir_graph, _, sign_node_graph, _ = \
+        load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
+                         sign_node_graph=True, sign_edge_graph=False,
+                         use_cache=USE_CACHE)
 
-network_search_api = IndraNetworkSearchAPI(unsigned_graph=dir_graph,
-                                           signed_node_graph=sign_node_graph)
+    network_search_api = IndraNetworkSearchAPI(
+        unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
+    )
 
 HEALTH.status = 'available'
