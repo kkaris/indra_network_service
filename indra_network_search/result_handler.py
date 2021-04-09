@@ -115,7 +115,9 @@ class ResultManager:
             Union[EdgeData, None]:
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
-        edge = (a_node, b_node)
+        if a_node is None or b_node is None:
+            return None
+        edge = [a_node, b_node]
         ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
         stmt_dict: Dict[str, List[StmtData]] = {}
         for sd in ed['statements']:
@@ -146,7 +148,7 @@ class ResultManager:
                                       subj_ns=a_node.namespace,
                                       obj_id=b_node.identifier,
                                       obj_ns=b_node.namespace)
-        return EdgeData(edge=edge, stmts=stmt_dict, belief=edge_belief,
+        return EdgeData(edge=edge, statements=stmt_dict, belief=edge_belief,
                         weight=edge_weight, db_url_edge=url, **ct_dict)
 
     def get_results(self):
@@ -684,5 +686,6 @@ alg_manager_mapping = {
     bfs_search.__name__: BreadthFirstSearchResultManager,
     'shared_targets': SharedInteractorsResultManager,
     'shared_regulators': SharedInteractorsResultManager,
-    shared_parents.__name__: OntologyResultManager
+    shared_parents.__name__: OntologyResultManager,
+    get_subgraph_edges.__name__: SubgraphResultManager
 }

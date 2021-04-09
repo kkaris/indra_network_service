@@ -126,6 +126,17 @@ class NetworkSearchQuery(BaseModel):
         allow_mutation = False  # Error for any attempt to change attributes
         extra = Extra.forbid  # Error if non-specified attributes are given
 
+    def is_overall_weighted(self) -> bool:
+        """Return True if this query is weighted"""
+        return is_weighted(weighted=self.weighted, mesh_ids=self.mesh_ids,
+                           strict_mesh_filtering=self.strict_mesh_id_filtering)
+
+    def is_context_weighted(self):
+        """Return True if this query is context weighted"""
+        return is_context_weighted(
+            mesh_id_list=self.mesh_ids,
+            strict_filtering=self.strict_mesh_id_filtering)
+
     def get_hash(self):
         """Get the corresponding query hash of the query"""
         return get_query_hash(self.dict(), ignore_keys=['format'])
@@ -284,8 +295,8 @@ class StmtData(BaseModel):
 
 class EdgeData(BaseModel):
     """Data for one single edge"""
-    edge: List[Node]  # Edge supported by stmts
-    stmts: Dict[str, List[StmtData]]  # key by stmt_type
+    edge: List[Node]  # Edge supported by statements
+    statements: Dict[str, List[StmtData]]  # key by stmt_type
     belief: float  # Aggregated belief
     weight: float  # Weight corresponding to aggregated weight
     sign: Optional[int]  # Used for signed paths
@@ -293,8 +304,8 @@ class EdgeData(BaseModel):
     db_url_edge: str  # Linkout to subj-obj level
 
     def is_empty(self) -> bool:
-        """Return True if len(stmts) == 0"""
-        return len(self.stmts) == 0
+        """Return True if len(statements) == 0"""
+        return len(self.statements) == 0
 
 
 class EdgeDataByHash(BaseModel):
