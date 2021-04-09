@@ -76,7 +76,7 @@ class IndraNetworkSearchAPI:
             # Other results
             if isinstance(query, SharedTargetsQuery):
                 result_managers[alg_name] = \
-                    self.shared_targets(query)
+                    self.shared_targets(query, is_signed=query_handler.signed)
             elif isinstance(query, SharedRegulatorsQuery):
                 result_managers[alg_name] = \
                     self.shared_regulators(query)
