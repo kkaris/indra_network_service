@@ -1,6 +1,14 @@
 <template>
   <div class="container">
     <!-- <pre>{{ networkSearchQuery }}</pre>-->
+    <!--
+      Todo:
+        - Add border for form (use card?)
+        - Organize options according to type of search
+        - Implement some basic styling that makes the form readable
+        - Make Multi-select prettier (find package)
+        -
+     -->
     <form class="review-form" @submit.prevent="sendForm">
       <h1>The Network Search Form</h1>
       <h2>Basic Search Options</h2>
@@ -23,6 +31,20 @@
         </div>
       </div>
       <h2>Detailed Search Options</h2>
+      <h3>General Filter Options</h3>
+      <!-- Add:
+        - Node NS
+        - Stmt filter
+        - DB only
+        - Reverse search
+        - Shared regulators
+        - Timeout
+        - Hash blacklist
+        - Node blacklist
+        - Path Length
+        - Max Paths
+        - Belief
+       -->
       <h3>Statement Filter Multi Select</h3>
       <div id="v-model-select-stmts">
         <select v-model="stmt_filter" multiple>
