@@ -50,7 +50,7 @@
         <span>Selected: {{ allowed_ns }}</span>
       </div>
       <h3>Weighted search ({{ weighted }})</h3>
-        <BaseCheckbox
+        <BaseCheckboxBS
           v-model="weighted"
           label="Weighted search"
         />
@@ -62,7 +62,7 @@
           type="text"
           :disabled="weighted"
         />
-        <BaseCheckbox
+        <BaseCheckboxBS
           v-model="strict_mesh_id_filtering"
           label="Strict Mesh ID filtering"
           :disabled="weighted"
@@ -158,24 +158,22 @@
         :step="1"
       />
       <h3>Checkboxes</h3>
-      <div>
-        <BaseCheckbox
-          v-model="curated_db_only"
-          label="Only Database Supported Sources"
-        />
-        <BaseCheckbox
-          v-model="fplx_expand"
-          label="Set source/target as equivalent to their parents"
-        />
-        <BaseCheckbox
-          v-model="two_way"
-          label="Include Reverse Search"
-        />
-        <BaseCheckbox
-          v-model="shared_regulators"
-          label="Include Search for shared regulators of source/target"
-        />
-      </div>
+      <BaseCheckboxBS
+        v-model="curated_db_only"
+        label="Only Database Supported Sources"
+      />
+      <BaseCheckboxBS
+        v-model="fplx_expand"
+        label="Set source/target as equivalent to their parents"
+      />
+      <BaseCheckboxBS
+        v-model="two_way"
+        label="Include Reverse Search"
+      />
+      <BaseCheckboxBS
+        v-model="shared_regulators"
+        label="Include Search for shared regulators of source/target"
+      />
       <h3>Signed Search</h3>
       <div>
         <BaseSelect
@@ -197,12 +195,12 @@
 
 <script>
 import BaseSelect from "@/components/BaseSelect";
-import BaseCheckbox from "@/components/BaseCheckbox";
+import BaseCheckboxBS from "@/components/BaseCheckboxBS";
 import BaseInput from "@/components/BaseInput";
 import AxiosMethods from "@/services/AxiosMethods";
 
 export default {
-  components: { BaseSelect, BaseCheckbox, BaseInput },
+  components: { BaseSelect, BaseCheckboxBS, BaseInput },
   data() {
     return {
       source: "",
