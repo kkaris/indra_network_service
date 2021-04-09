@@ -7,14 +7,14 @@
       <div class="container">
         <div class="row">
           <div class="col">
-            <BaseInput
+            <BaseInputBS
               v-model="source"
               label="Source node"
               type="text"
             />
           </div>
           <div class="col">
-            <BaseInput
+            <BaseInputBS
               v-model="target"
               label="Target node"
               type="text"
@@ -56,7 +56,7 @@
         />
       <h3>Context Search Options</h3>
       <div>
-        <BaseInput
+        <BaseInputBS
           v-model="mesh_ids_text"
           label="Mesh IDs (comma separated)"
           type="text"
@@ -68,7 +68,7 @@
           :disabled="weighted"
         />
         <br />
-        <BaseInput
+        <BaseInputBS
           v-model.number="const_c"
           label="Constant C"
           type="number"
@@ -76,7 +76,7 @@
           :max="100"
           :disabled="weighted || strict_mesh_id_filtering"
         />
-        <BaseInput
+        <BaseInputBS
           v-model.number="const_tk"
           label="Constant Tk"
           type="number"
@@ -89,7 +89,7 @@
       <!-- Disable open search options if both source and target are set -->
       <div>
         <!-- Disable max per node if weighted or context search -->
-        <BaseInput
+        <BaseInputBS
           v-model="max_per_node"
           label="Maximum number of children per node in unweighted breadth first search"
           type="number"
@@ -116,17 +116,17 @@
         </div>
       </div>
       <br />
-      <BaseInput
+      <BaseInputBS
         v-model="hash_blacklist_text"
         label="Hash Blacklist"
         type="text"
       />
-      <BaseInput
+      <BaseInputBS
         v-model="node_blacklist_text"
         label="Node Blacklist"
         type="text"
       />
-      <BaseInput
+      <BaseInputBS
         v-model.number="path_length"
         label="Path length"
         type="number"
@@ -134,14 +134,14 @@
         :max="10"
         :disabled="isAnyWeighted"
       />
-      <BaseInput
+      <BaseInputBS
         v-model.number="k_shortest"
         label="Max Paths"
         type="number"
         :min="1"
         :max="50"
       />
-      <BaseInput
+      <BaseInputBS
         v-model.number="belief_cutoff"
         label="Belief Cutoff"
         type="number"
@@ -149,7 +149,7 @@
         :max="1.0"
         :step="0.01"
       />
-      <BaseInput
+      <BaseInputBS
         v-model.number="user_timeout"
         label="Timeout"
         type="number"
@@ -196,11 +196,11 @@
 <script>
 import BaseSelect from "@/components/BaseSelect";
 import BaseCheckboxBS from "@/components/BaseCheckboxBS";
-import BaseInput from "@/components/BaseInput";
+import BaseInputBS from "@/components/BaseInputBS";
 import AxiosMethods from "@/services/AxiosMethods";
 
 export default {
-  components: { BaseSelect, BaseCheckboxBS, BaseInput },
+  components: { BaseSelect, BaseCheckboxBS, BaseInputBS },
   data() {
     return {
       source: "",
