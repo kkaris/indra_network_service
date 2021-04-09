@@ -131,8 +131,10 @@ class ResultManager:
             )
             return None
 
-    def _get_edge_data(self, a: Union[str, Node], b: Union[str, Node]) -> \
-            Union[EdgeData, None]:
+    def _get_edge_data(self,
+                       a: Union[str, Tuple[str, int], Node],
+                       b: Union[str, Tuple[str, int], Node]) \
+            -> Union[EdgeData, None]:
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
         if a_node is None or b_node is None:
@@ -155,21 +157,20 @@ class ResultManager:
         edge_belief = ed['belief']
         edge_weight = ed['weight']
 
-        # FixMe: assume signed paths are (node, sign) tuples, and translate
-        #  sign from there
-        # sign = ed.get('sign')
-        context_weight = ed.get('context_weight')
-        if context_weight:
-            ct_dict = {'context_weight': context_weight}
-        else:
-            ct_dict = {}
+        # Get sign and context weight if present
+        extra_dict = {}
+        if a_node.sign is not None and b_node.sign is not None:
+            sign = 1 if a_node.sign != b_node.sign else 0
+            extra_dict['sign'] = sign
+        if ed.get('context_weight'):
+            extra_dict['context_weight'] = ed['context_weight']
 
         url: str = DB_URL_EDGE.format(subj_id=a_node.identifier,
                                       subj_ns=a_node.namespace,
                                       obj_id=b_node.identifier,
                                       obj_ns=b_node.namespace)
         return EdgeData(edge=edge, statements=stmt_dict, belief=edge_belief,
-                        weight=edge_weight, db_url_edge=url, **ct_dict)
+                        weight=edge_weight, db_url_edge=url, **extra_dict)
 
     def get_results(self):
         """Loops out and builds results from the paths from the generator"""
