@@ -262,19 +262,12 @@ class Node(BaseModel):
     namespace: constr(min_length=1)
     identifier: constr(min_length=1)
     lookup: Optional[constr(min_length=1)]
-
-
-class SignedNode(BaseModel):
-    """Data for a node"""
-    name: Optional[constr(min_length=1)]
-    namespace: constr(min_length=1)
-    identifier: constr(min_length=1)
-    lookup: Optional[constr(min_length=1)]
     sign: Optional[conint(ge=0, le=1)]
 
-    def get_unsigned_node(self) -> Node:
+    def get_unsigned_node(self):
         """Get unsigned version of this node instance"""
-        return Node(**self.dict(exclude={'sign'}, exclude_defaults=True))
+        return self.__class__(**self.dict(exclude={'sign'},
+                                          exclude_defaults=True))
 
 
 class StmtData(BaseModel):
