@@ -74,19 +74,39 @@ class ResultManager:
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         raise NotImplementedError
 
-    def _get_node(self, node_name: str,
+    def _get_node(self, node_name: Union[str, Tuple[str, int]],
                   apply_filter: bool = True) -> Union[Node, None]:
-        db_ns = self._graph.nodes.get(node_name, {}).get('ns')
-        db_id = self._graph.nodes.get(node_name, {}).get('id')
+        # Check if node is signed
+        if isinstance(node_name, tuple):
+            name, sign = node_name
+            node_info = {'name': name, 'sign': sign}
+        else:
+            name, sign = node_name, None
+            node_info = {'name': name}
+
+        # Check if node exists in graph
+        db_ns = self._graph.nodes.get(name, {}).get('ns')
+        db_id = self._graph.nodes.get(name, {}).get('id')
         if db_id is None or db_ns is None:
             return None
-        lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
-        node = Node(name=node_name, namespace=db_ns,
-                    identifier=db_id, lookup=lookup)
+
+        # Add ns/id to data
+        node_info['namespace'] = db_ns
+        node_info['identifier'] = db_id
+
+        # Create Node
+        node = Node(**node_info)
+
+        # Check if we need to filter node
         if not apply_filter:
+            lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
+            node.lookup = lookup
             return node
+        # Apply filters if there are any
         elif self.filter_options.no_node_filters() or \
                 self._pass_node(node=node):
+            lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
+            node.lookup = lookup
             return node
 
         return None
