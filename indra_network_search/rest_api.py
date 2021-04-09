@@ -35,7 +35,7 @@ async def root_redirect():
 
     This is a temporary solution until the Vue frontend is in place
     """
-    return RedirectResponse('/redoc')
+    return RedirectResponse(app.root_path + '/redoc')
 
 
 @app.get('/health', response_model=Health)
