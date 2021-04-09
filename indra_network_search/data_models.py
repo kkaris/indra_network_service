@@ -16,7 +16,7 @@ todo:
 """
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict
 
-from pydantic import BaseModel, validator, Extra, constr
+from pydantic import BaseModel, validator, Extra, constr, conint
 
 from .util import get_query_hash, is_weighted, is_context_weighted
 
@@ -266,11 +266,11 @@ class Node(BaseModel):
 
 class SignedNode(BaseModel):
     """Data for a node"""
-    name: str
-    namespace: str
-    identifier: str
-    sign: int
-    lookup: Optional[str] = ''
+    name: Optional[constr(min_length=1)]
+    namespace: constr(min_length=1)
+    identifier: constr(min_length=1)
+    lookup: Optional[constr(min_length=1)]
+    sign: Optional[conint(ge=0, le=1)]
 
     def get_unsigned_node(self) -> Node:
         """Get unsigned version of this node instance"""
