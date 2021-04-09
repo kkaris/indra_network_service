@@ -75,7 +75,7 @@ class ResultManager:
         raise NotImplementedError
 
     def _get_node(self, node_name: Union[str, Tuple[str, int]],
-                  apply_filter: bool = True) -> Union[Node, None]:
+                  apply_filter: bool = True) -> Optional[Node]:
         # Check if node is signed
         if isinstance(node_name, tuple):
             name, sign = node_name
@@ -188,7 +188,8 @@ class PathResultManager(ResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str]):
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options)
 
@@ -321,7 +322,8 @@ class DijkstraResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str]):
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target)
@@ -381,7 +383,8 @@ class BreadthFirstSearchResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str]):
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target)
@@ -437,7 +440,8 @@ class ShortestSimplePathsResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str]):
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target)
@@ -537,7 +541,8 @@ class OntologyResultManager(ResultManager):
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str]):
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options)
         self.source: Node = source if isinstance(source, Node) else \
