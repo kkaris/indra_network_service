@@ -3,7 +3,8 @@ from networkx import DiGraph
 from indra_network_search.query import OntologyQuery, SharedRegulatorsQuery, \
     SharedTargetsQuery, SubgraphQuery
 from indra_network_search.result_handler import OntologyResultManager, \
-    SharedInteractorsResultManager, SubgraphResultManager
+    SharedInteractorsResultManager, SubgraphResultManager, DB_URL_HASH, \
+    DB_URL_EDGE
 from indra_network_search.data_models import NetworkSearchQuery, Node, \
     SubgraphRestQuery, SubgraphResults
 from indra_network_search.pathfinding import shared_parents, \
@@ -175,14 +176,21 @@ def test_subgraph():
     # In-edges: SR -> B1;
     assert len(results.edges) == 3
 
+    # In edges go first, so (nsr, n1) should be first edge
     edges = {tuple([n.name for n in e.edge]) for e in results.edges}
     assert edges == {('n1', 'n2'), ('nsr', 'n1'), ('n1', 'nst')}
     assert results.edges[0].weight == mock_edge_dict['weight']
     assert results.edges[0].belief == mock_edge_dict['belief']
-    assert list(results.edges[0].stmts.values())[0].dict().keys() == \
-           mock_edge_dict['statements'][0].keys()
+    assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
+        subj_id='1102', subj_ns='HGNC', obj_id='1100', obj_ns='HGNC'
+    ), results.edges[0].db_url_edge
+    assert set(
+        list(results.edges[0].stmts.values())[0].dict().keys()
+    ).difference({'db_url_hash'}) == \
+        set(mock_edge_dict['statements'][0].keys())
     assert all(mock_edge_dict['statements'][0][k] == v for k, v in
-               list(results.edges[0].stmts.values())[0].dict().items())
+               list(results.edges[0].stmts.values())[0].dict().items() if k
+               != 'db_url_hash')
 
     # Check that input nodes were mapped properly
     assert results.input_nodes[0].name == input_node.name
@@ -222,10 +230,16 @@ def test_subgraph():
     assert edges == {('n1', 'n2'), ('nsr', 'n1'), ('n1', 'nst')}
     assert results.edges[0].weight == mock_edge_dict['weight']
     assert results.edges[0].belief == mock_edge_dict['belief']
-    assert list(results.edges[0].stmts.values())[0].dict().keys() == \
-           mock_edge_dict['statements'][0].keys()
+    assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
+        subj_id='1102', subj_ns='HGNC', obj_id='1100', obj_ns='HGNC'
+    ), results.edges[0].db_url_edge
+    assert set(
+        list(results.edges[0].stmts.values())[0].dict().keys()
+    ).difference({'db_url_hash'}) == \
+        set(mock_edge_dict['statements'][0].keys())
     assert all(mock_edge_dict['statements'][0][k] == v for k, v in
-               list(results.edges[0].stmts.values())[0].dict().items())
+               list(results.edges[0].stmts.values())[0].dict().items() if k
+               != 'db_url_hash')
 
     # Check that input nodes were mapped properly
     assert results.input_nodes[0].name == input_node.name
@@ -265,10 +279,16 @@ def test_subgraph():
     assert edges == {('n1', 'n2'), ('nsr', 'n1'), ('n1', 'nst')}
     assert results.edges[0].weight == mock_edge_dict['weight']
     assert results.edges[0].belief == mock_edge_dict['belief']
-    assert list(results.edges[0].stmts.values())[0].dict().keys() == \
-           mock_edge_dict['statements'][0].keys()
+    assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
+        subj_id='1102', subj_ns='HGNC', obj_id='1100', obj_ns='HGNC'
+    ), results.edges[0].db_url_edge
+    assert set(
+        list(results.edges[0].stmts.values())[0].dict().keys()
+    ).difference({'db_url_hash'}) == \
+        set(mock_edge_dict['statements'][0].keys())
     assert all(mock_edge_dict['statements'][0][k] == v for k, v in
-               list(results.edges[0].stmts.values())[0].dict().items())
+               list(results.edges[0].stmts.values())[0].dict().items() if k
+               != 'db_url_hash')
 
     # Check that input nodes were mapped properly
     assert results.input_nodes[0].name == input_node.name
