@@ -114,9 +114,9 @@ edge_data = {
              'position': '3387', 'english': 'NCOA acetylates BRCA2.'}]
         },
         ('BRCA2', 'BRCA1'): {'belief': 0.98, 'weight': 4.1e-05, 'statements': [
-            {'stmt_hash': -976543, 'stmt_type': 'Deactivation',
+            {'stmt_hash': -976543, 'stmt_type': 'Inhibition',
              'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
              'residue': None, 'weight': 0.23572233352106983, 'curated': True,
-             'position': None, 'english': 'CHEK1 deactivates BRCA2.'}]
+             'position': None, 'english': 'CHEK1 inhibits BRCA2.'}]
         },
 }
