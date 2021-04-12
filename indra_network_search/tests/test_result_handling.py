@@ -184,6 +184,10 @@ def test_subgraph():
     assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
         subj_id='1102', subj_ns='HGNC', obj_id='1100', obj_ns='HGNC'
     ), results.edges[0].db_url_edge
+    assert list(results.edges[0].stmts.values())[0].db_url_hash == \
+           DB_URL_HASH.format(stmt_hash=mock_edge_dict['statements'][0][
+               'stmt_hash']), \
+           list(results.edges[0].stmts.values())[0].db_url_hash
     assert set(
         list(results.edges[0].stmts.values())[0].dict().keys()
     ).difference({'db_url_hash'}) == \
@@ -233,6 +237,10 @@ def test_subgraph():
     assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
         subj_id='1102', subj_ns='HGNC', obj_id='1100', obj_ns='HGNC'
     ), results.edges[0].db_url_edge
+    assert list(results.edges[0].stmts.values())[0].db_url_hash == \
+           DB_URL_HASH.format(stmt_hash=mock_edge_dict['statements'][0][
+               'stmt_hash']), \
+           list(results.edges[0].stmts.values())[0].db_url_hash
     assert set(
         list(results.edges[0].stmts.values())[0].dict().keys()
     ).difference({'db_url_hash'}) == \
@@ -279,6 +287,10 @@ def test_subgraph():
     assert edges == {('n1', 'n2'), ('nsr', 'n1'), ('n1', 'nst')}
     assert results.edges[0].weight == mock_edge_dict['weight']
     assert results.edges[0].belief == mock_edge_dict['belief']
+    assert list(results.edges[0].stmts.values())[0].db_url_hash == \
+           DB_URL_HASH.format(stmt_hash=mock_edge_dict['statements'][0][
+               'stmt_hash']), \
+           list(results.edges[0].stmts.values())[0].db_url_hash
     assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
         subj_id='1102', subj_ns='HGNC', obj_id='1100', obj_ns='HGNC'
     ), results.edges[0].db_url_edge
