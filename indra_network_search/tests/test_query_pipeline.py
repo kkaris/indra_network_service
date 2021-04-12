@@ -17,10 +17,13 @@ blocked from non-hms and non-AWS IP addresses, unless explicitly added.
 """
 from inspect import signature
 from typing import Set, Callable, Dict, Any, Type, Tuple, Union, List, Optional
-from networkx import DiGraph
+from networkx import DiGraph, MultiDiGraph
 from pydantic import BaseModel
+from indra.assemblers.indranet.net import default_sign_dict
 from indra.explanation.pathfinding import bfs_search, shortest_simple_paths,\
     open_dijkstra_search
+from indra.explanation.model_checker.model_checker import \
+    signed_edges_to_signed_nodes
 from indra_network_search.util import get_mandatory_args
 from indra_network_search.data_models import *
 from indra_network_search.query import SharedTargetsQuery, Query,\
@@ -48,6 +51,28 @@ def _setup_graph() -> DiGraph:
         # Add edge data
         g.add_edge(*edge, **edge_data[edge])
     return g
+
+
+def _setup_signed_node_graph() -> DiGraph:
+    seg = MultiDiGraph()
+    dg = _setup_graph()
+    for u, v in dg.edges:
+        edge_dict = dg.edges[(u, v)]
+        if edge_dict['statements'][0]['stmt_type'] in default_sign_dict:
+            sign = default_sign_dict[edge_dict['statements'][0]['stmt_type']]
+            # Add nodes if not previously present
+            if u not in seg.nodes:
+                seg.add_node(u, **dg.nodes[u])
+            if v not in seg.nodes:
+                seg.add_node(v, **dg.nodes[v])
+
+            # Add edge
+            seg.add_edge(u, v, sign, sign=sign, **edge_dict)
+
+        # If not signed type
+        else:
+            continue
+    return signed_edges_to_signed_nodes(graph=seg, copy_edge_data=True)
 
 
 def _setup_api() -> IndraNetworkSearchAPI:
