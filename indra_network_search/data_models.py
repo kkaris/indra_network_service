@@ -269,7 +269,7 @@ class StmtData(BaseModel):
     residue: Optional[str] = ''
     position: Optional[str] = ''
     initial_sign: Optional[int] = None
-    db_url_hash: Optional[str]  # Linkout to hash-level
+    db_url_hash: str  # Linkout to hash-level
 
 
 class EdgeData(BaseModel):
@@ -280,7 +280,7 @@ class EdgeData(BaseModel):
     weight: float  # Weight corresponding to aggregated weight
     sign: Optional[int]  # Used for signed paths
     context_weight: Union[str, float] = 'N/A'  # Set for context
-    db_url_edge: Optional[str]  # Linkout to subj-obj level
+    db_url_edge: str  # Linkout to subj-obj level
 
     def is_empty(self) -> bool:
         """Return True if len(stmts) == 0"""
@@ -293,7 +293,7 @@ class EdgeDataByHash(BaseModel):
     stmts: Dict[int, StmtData]  # Hash remain as int for JSON
     belief: float
     weight: float
-    db_url_edge: Optional[str]  # Linkout to subj-obj level
+    db_url_edge: str  # Linkout to subj-obj level
     # sign: Optional[int]  # Used for signed paths
     # context_weight: Union[str, float] = 'N/A'  # Set for context search
 
