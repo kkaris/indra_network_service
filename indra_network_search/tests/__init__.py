@@ -27,7 +27,7 @@ edge_data = {
         ('BRCA1', 'AR'): {'belief': 0.999999,
                           'weight': wm(0.999999),
                           'statements': [{
-            'stmt_hash': 5603789525715921, 'stmt_type': 'Complex',
+            'stmt_hash': 5603789525715921, 'stmt_type': 'Activation',
             'evidence_count': 1, 'belief': 1, 'source_counts': {'sparser': 1},
             'residue': None, 'weight': 2, 'curated': True, 'position': None,
             'english': 'BRCA1 binds AR.'}]
@@ -96,7 +96,7 @@ edge_data = {
              'english': 'PATZ1 binds HDAC3.'}]
         },
         ('CHEK1', 'BRCA2'): {'belief': 0.98, 'weight': 4.1e-05, 'statements': [
-            {'stmt_hash': 915993, 'stmt_type': 'Phosphorylation',
+            {'stmt_hash': 915993, 'stmt_type': 'Activation',
              'evidence_count': 1, 'belief': 0.79, 'source_counts': {'pc': 1},
              'residue': 'T', 'weight': 0.23572233352106983, 'curated': True,
              'position': '3387', 'english': 'CHEK1 phosphorylates BRCA2.'}]
