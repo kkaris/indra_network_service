@@ -497,7 +497,6 @@ def get_open_signed_node(node: str, reverse: bool, sign: Optional[int] = None)\
             return node, INT_PLUS
 
 
-
 def _get_ref_counts_func(hash_mesh_dict: Dict):
     def _func(graph: nx.DiGraph, u: str, v: str):
         # Get hashes for edge
