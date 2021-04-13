@@ -15,6 +15,9 @@ from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
 from .data_models import *
 from .pathfinding import *
 
+INT_PLUS = 0
+INT_MINUS = 1
+
 __all__ = ['ShortestSimplePathsQuery', 'BreadthFirstSearchQuery',
            'DijkstraQuery', 'SharedTargetsQuery', 'SharedRegulatorsQuery',
            'OntologyQuery', 'Query', 'PathQuery', 'alg_func_mapping',
@@ -448,6 +451,46 @@ class SubgraphQuery:
                 'original_nodes': self.query.nodes,
                 'nodes_in_graph': self._nodes_in_graph,
                 'not_in_graph': self._not_in_graph}
+
+
+def get_open_signed_node(node: str, reverse: bool, sign: Optional[int] = None)\
+        -> Union[str, Tuple[str, int]]:
+    """Given sign and direction, return a node
+
+    Assign the correct sign to the source node:
+    If search is downstream, source is the first node and the search must
+    always start with + as node sign. The leaf node sign (i.e. the end of
+    the path) in this case will then be determined by the requested sign.
+
+    If reversed search, the source is the last node and can have
+    + or - as node sign depending on the requested sign.
+
+    Parameters
+    ----------
+    node: str
+        Starting node
+    reverse: bool
+        Direction of search:
+        reverse == False -> downstream search
+        reverse == True -> upstream search
+    sign: Optional[int]
+        The requested sign of the search
+
+    Returns
+    -------
+    Union[str, Tuple[str, int]]
+        A node or signed node
+    """
+    if sign is None:
+        return node
+    else:
+        # Upstream: return asked sign
+        if reverse:
+            return node, sign
+        # Downstream: return positive node
+        else:
+            return node, INT_PLUS
+
 
 
 def _get_ref_counts_func(hash_mesh_dict: Dict):
