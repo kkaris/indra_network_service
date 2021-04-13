@@ -287,7 +287,7 @@ def _get_path_list(str_paths: List[Tuple[str, ...]], graph: DiGraph) \
             ed = edge_data[(a, b)]
             stmt_dict = {}
             for sd in ed['statements']:
-                url = DB_URL_HASH.format(stmt_hash=stmt_dict['stmt_hash'])
+                url = DB_URL_HASH.format(stmt_hash=sd['stmt_hash'])
                 stmt_data = StmtData(db_url_hash=url, **sd)
                 try:
                     stmt_dict[stmt_data.stmt_type].append(stmt_data)
