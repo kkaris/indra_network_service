@@ -213,7 +213,7 @@ class BreadthFirstSearchQuery(PathQuery):
                 'path_limit': None,  # Sets yield limit inside algorithm
                 'max_per_node': self.query.max_per_node or 5,
                 'node_filter': self.query.allowed_ns,
-                'node_blacklist': self.query.node_blacklist,
+                'node_blacklist': self._get_node_blacklist(),
                 'terminal_ns': self.query.terminal_ns,
                 'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
                 'max_memory': int(2**29)}  # Currently not set in UI
