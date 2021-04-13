@@ -253,20 +253,12 @@ class DijkstraQuery(PathQuery):
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of open_dijkstra_search from query"""
-        if self.query.source and not self.query.target:
-            start, reverse = self.query.source, False
-        elif not self.query.source and self.query.target:
-            start, reverse = self.query.target, True
-        else:
-            raise InvalidParametersError(
-                f'Cannot use {self.alg_name} with both source and target '
-                f'set.'
-            )
+        start, reverse = self._get_source_node()
         return {'start': start,
                 'reverse': reverse,
                 'path_limit': None,  # Sets yield limit inside algorithm
                 'node_filter': None,  # Unused in algorithm currently
-                'ignore_nodes': self.query.node_blacklist,
+                'ignore_nodes': self._get_node_blacklist(),
                 'ignore_edges': None,  # Not provided as an option in UI
                 'terminal_ns': self.query.terminal_ns,
                 'weight': 'weight' if self.query.weighted else None}
