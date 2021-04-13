@@ -32,7 +32,7 @@ from indra_network_search.query import SharedTargetsQuery, Query,\
     InvalidParametersError, alg_func_mapping, alg_name_query_mapping,\
     SubgraphQuery
 from indra_network_search.result_handler import ResultManager, \
-    alg_manager_mapping
+    alg_manager_mapping, DB_URL_EDGE, DB_URL_HASH
 from indra_network_search.pathfinding import shared_parents, \
     shared_interactors, get_subgraph_edges
 from indra_network_search.search_api import IndraNetworkSearchAPI
@@ -287,16 +287,22 @@ def _get_path_list(str_paths: List[Tuple[str, ...]], graph: DiGraph) \
             ed = edge_data[(a, b)]
             stmt_dict = {}
             for sd in ed['statements']:
-                stmt_data = StmtData(**sd)
+                url = DB_URL_HASH.format(stmt_hash=stmt_dict['stmt_hash'])
+                stmt_data = StmtData(db_url_hash=url, **sd)
                 try:
                     stmt_dict[stmt_data.stmt_type].append(stmt_data)
                 except KeyError:
                     stmt_dict[stmt_data.stmt_type] = [stmt_data]
             edge = [_get_node(a, graph), _get_node(b, graph)]
+            edge_url = DB_URL_EDGE.format(subj_id=edge[0].identifier,
+                                          subj_ns=edge[0].namespace,
+                                          obj_id=edge[1].identifier,
+                                          obj_ns=edge[1].namespace)
             edl.append(EdgeData(edge=edge,
                                 statements=stmt_dict,
                                 belief=ed['belief'],
-                                weight=ed['weight']))
+                                weight=ed['weight'],
+                                db_url_edge=edge_url))
         paths.append(Path(path=path,
                           edge_data=edl))
     return paths
