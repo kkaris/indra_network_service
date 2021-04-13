@@ -37,6 +37,12 @@ __all__ = ['ResultManager', 'DijkstraResultManager',
 logger = logging.getLogger(__name__)
 
 
+DB_URL_HASH = 'https://db.indra.bio/statements/from_hash/' \
+              '{stmt_hash}?format=html'
+DB_URL_EDGE = 'https://db.indra.bio/statements/from_agents?subject=' \
+              '{subj_id}@{subj_ns}&object={obj_id}@{obj_ns}&format=html'
+
+
 class ResultManager:
     """Applies post-search filtering and assembles edge data for paths"""
     # Todo: this class is just a parent class for results, we might also
@@ -94,7 +100,8 @@ class ResultManager:
             return None
 
         try:
-            return StmtData(**stmt_dict)
+            url = DB_URL_HASH.format(stmt_hash=stmt_dict['stmt_hash'])
+            return StmtData(db_url_hash=url, **stmt_dict)
         except ValidationError as err:
             logger.warning(
                 f'Validation of statement data failed for '
@@ -135,8 +142,12 @@ class ResultManager:
         else:
             ct_dict = {}
 
+        url: str = DB_URL_EDGE.format(subj_id=a_node.identifier,
+                                      subj_ns=a_node.namespace,
+                                      obj_id=b_node.identifier,
+                                      obj_ns=b_node.namespace)
         return EdgeData(edge=edge, stmts=stmt_dict, belief=edge_belief,
-                        weight=edge_weight, **ct_dict)
+                        weight=edge_weight, db_url_edge=url, **ct_dict)
 
     def get_results(self):
         """Loops out and builds results from the paths from the generator"""
@@ -577,8 +588,13 @@ class SubgraphResultManager(ResultManager):
         #  sign from there
         # sign = ed.get('sign')
 
-        return EdgeDataByHash(edge=edge, stmts=stmt_dict,
-                              belief=edge_belief, weight=edge_weight)
+        return EdgeDataByHash(
+            edge=edge, stmts=stmt_dict, belief=edge_belief, weight=edge_weight,
+            db_url_edge=DB_URL_EDGE.format(subj_id=a_node.identifier,
+                                           subj_ns=a_node.namespace,
+                                           obj_id=b_node.identifier,
+                                           obj_ns=b_node.namespace)
+        )
 
     def _fill_data(self):
         """Build EdgeDataByHash for all edges, without duplicates"""
