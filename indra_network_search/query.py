@@ -55,6 +55,12 @@ class Query:
         self.query: NetworkSearchQuery = query
         self.query_hash: str = query.get_hash()
 
+    def _get_node_blacklist(self) -> List[Union[str, Tuple[str, int]]]:
+        if not self.query.node_blacklist or self.query.sign is None:
+            return self.query.node_blacklist
+        else:
+            return list(product(self.query.node_blacklist, [0, 1]))
+
     def api_options(self) -> Dict[str, Any]:
         """These options are used when IndraNetworkSearchAPI handles the query
 
@@ -86,6 +92,34 @@ class PathQuery(Query):
     """Parent Class for ShortestSimplePaths, Dijkstra and BreadthFirstSearch"""
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
+
+    def _get_source_target(self) -> Tuple[Union[str, Tuple[str, int]],
+                                          Union[str, Tuple[str, int]]]:
+        """Use for source-target path searches"""
+        if self.query.sign is not None:
+            if SIGNS_TO_INT_SIGN[self.query.sign] == 0:
+                return (self.query.source, 0), (self.query.target, 0)
+            elif SIGNS_TO_INT_SIGN[self.query.sign] == 1:
+                return (self.query.source, 0), (self.query.target, 1)
+            else:
+                raise ValueError(f'Unknown sign {self.query.sign}')
+        else:
+            return self.query.source, self.query.target
+
+    def _get_source_node(self) -> Tuple[Union[str, Tuple[str, int]], bool]:
+        """Use for open ended path searches"""
+        if self.query.source and not self.query.target:
+            start_node, reverse = self.query.source, False
+        elif not self.query.source and self.query.target:
+            start_node, reverse = self.query.target, True
+        else:
+            raise InvalidParametersError(
+                f'Cannot use {self.alg_name} with both source and target '
+                f'set.'
+            )
+        signed_node = get_open_signed_node(node=start_node, reverse=reverse,
+                                           sign=self.query.sign)
+        return signed_node, reverse
 
     def alg_options(self) -> Dict[str, Any]:
         """Returns the options for the algorithm used, excl mesh options"""
@@ -130,24 +164,6 @@ class ShortestSimplePathsQuery(PathQuery):
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
 
-    def _get_source_target(self) -> Tuple[Union[str, Tuple[str, int]],
-                                          Union[str, Tuple[str, int]]]:
-        if self.query.sign is not None:
-            if SIGNS_TO_INT_SIGN[self.query.sign] == 0:
-                return (self.query.source, 0), (self.query.target, 0)
-            elif SIGNS_TO_INT_SIGN[self.query.sign] == 1:
-                return (self.query.source, 0), (self.query.target, 1)
-            else:
-                raise ValueError(f'Unknown sign {self.query.sign}')
-        else:
-            return self.query.source, self.query.target
-
-    def _get_node_blacklist(self) -> List[Union[str, Tuple[str, int]]]:
-        if not self.query.node_blacklist or self.query.sign is None:
-            return self.query.node_blacklist
-        else:
-            return list(product(self.query.node_blacklist, [0, 1]))
-
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shortest_simple_paths from query"""
         source, target = self._get_source_target()
@@ -188,18 +204,10 @@ class BreadthFirstSearchQuery(PathQuery):
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of bfs_search from query"""
-        if self.query.source and not self.query.target:
-            source_node, reverse = self.query.source, False
-        elif not self.query.source and self.query.target:
-            source_node, reverse = self.query.target, True
-        else:
-            raise InvalidParametersError(
-                f'Cannot use {self.alg_name} with both source and target '
-                f'set.'
-            )
+        start_node, reverse = self._get_source_node()
         depth_limit = self.query.path_length - 1 if self.query.path_length \
             else 2
-        return {'source_node': source_node,
+        return {'source_node': start_node,
                 'reverse': reverse,
                 'depth_limit': depth_limit,
                 'path_limit': None,  # Sets yield limit inside algorithm
