@@ -6,6 +6,7 @@ from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List
 
 import networkx as nx
 from pydantic import BaseModel
+from itertools import product
 
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
@@ -126,11 +127,30 @@ class ShortestSimplePathsQuery(PathQuery):
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
 
+    def _get_source_target(self) -> Tuple[Union[str, Tuple[str, int]],
+                                          Union[str, Tuple[str, int]]]:
+        if self.query.sign is not None:
+            if SIGNS_TO_INT_SIGN[self.query.sign] == 0:
+                return (self.query.source, 0), (self.query.target, 0)
+            elif SIGNS_TO_INT_SIGN[self.query.sign] == 1:
+                return (self.query.source, 0), (self.query.target, 1)
+            else:
+                raise ValueError(f'Unknown sign {self.query.sign}')
+        else:
+            return self.query.source, self.query.target
+
+    def _get_node_blacklist(self) -> List[Union[str, Tuple[str, int]]]:
+        if not self.query.node_blacklist or self.query.sign is None:
+            return self.query.node_blacklist
+        else:
+            return list(product(self.query.node_blacklist, [0, 1]))
+
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shortest_simple_paths from query"""
-        return {'source': self.query.source,
-                'target': self.query.target,
-                'ignore_nodes': self.query.node_blacklist,
+        source, target = self._get_source_target()
+        return {'source': source,
+                'target': target,
+                'ignore_nodes': self._get_node_blacklist(),
                 'weight': 'weight' if self.query.weighted else None}
 
     def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
