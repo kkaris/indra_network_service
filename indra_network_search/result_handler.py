@@ -663,10 +663,6 @@ class SubgraphResultManager(ResultManager):
         edge_belief = ed['belief']
         edge_weight = ed['weight']
 
-        # FixMe: assume signed paths are (node, sign) tuples, and translate
-        #  sign from there
-        # sign = ed.get('sign')
-
         return EdgeDataByHash(
             edge=edge, stmts=stmt_dict, belief=edge_belief, weight=edge_weight,
             db_url_edge=DB_URL_EDGE.format(subj_id=a_node.identifier,
