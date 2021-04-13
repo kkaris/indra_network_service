@@ -408,13 +408,13 @@ def test_shortest_simple_paths():
     # strict context
     # Todo: Figure out how to get correct edges to mesh ids
 
-    # stmt_filter - should remove ('AR', 'CHEK1')
+    # stmt_filter - should remove ('testosterone', 'CHEK1'), ('NR2C2', 'CHEK1')
     stmt_filter_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
-                                           stmt_filter=['Activation'])
+                                           stmt_filter=['Phosphorylation'])
     stmt_filter_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
-                         ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+                         ['AR', 'MBD2', 'PATZ1']]
     stmt_filter_paths5 = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
-                          ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+                          ['AR', 'MBD2', 'PATZ1']]
 
     paths = {4: _get_path_list(str_paths=stmt_filter_paths,
                                graph=unsigned_graph),
