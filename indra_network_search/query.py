@@ -291,8 +291,13 @@ class SharedInteractorsQuery(Query):
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shared_interactors from query"""
-        return {'source': self.query.source,
-                'target': self.query.target,
+        source = get_open_signed_node(node=self.query.source,
+                                      reverse=self.reverse,
+                                      sign=self.query.sign)
+        target = get_open_signed_node(node=self.query.target,
+                                      reverse=self.reverse,
+                                      sign=self.query.sign)
+        return {'source': source, 'target': target,
                 'allowed_ns': self.query.allowed_ns,
                 'stmt_types': self.query.stmt_filter,
                 'source_filter': None,  # Not implemented in UI
@@ -300,7 +305,7 @@ class SharedInteractorsQuery(Query):
                 'regulators': self.reverse,
                 'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
                 'hash_blacklist': self.query.edge_hash_blacklist,
-                'node_blacklist': self.query.node_blacklist,
+                'node_blacklist': self._get_node_blacklist(),
                 'belief_cutoff': self.query.belief_cutoff,
                 'curated_db_only': self.query.curated_db_only}
 
