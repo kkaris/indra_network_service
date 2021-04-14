@@ -61,7 +61,8 @@ def shared_parents(source_ns: str, source_id: str, target_ns: str,
 
 
 def shared_interactors(graph: DiGraph,
-                       source: str, target: str,
+                       source: Union[str, Tuple[str, int]],
+                       target: Union[str, Tuple[str, int]],
                        allowed_ns: Optional[List[str]] = None,
                        stmt_types: Optional[List[str]] = None,
                        source_filter: Optional[List[str]] = None,
@@ -127,8 +128,8 @@ def shared_interactors(graph: DiGraph,
         return min(s_max, t_max)
 
     neigh = graph.pred if regulators else graph.succ
-    s_neigh: Set[str] = set(neigh[source])
-    t_neigh: Set[str] = set(neigh[target])
+    s_neigh: Set[Union[str, Tuple[str, int]]] = set(neigh[source])
+    t_neigh: Set[Union[str, Tuple[str, int]]] = set(neigh[target])
 
     # If signed, filter sign
     # Sign is handled different here than in the depmap explanations - if
