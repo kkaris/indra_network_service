@@ -148,8 +148,16 @@ def shared_interactors(graph: DiGraph,
 
     # Filter ns
     if allowed_ns:
-        s_neigh = _node_ns_filter(s_neigh, graph, allowed_ns)
-        t_neigh = _node_ns_filter(t_neigh, graph, allowed_ns)
+        s_neigh_names = s_neigh if sign is None else {s[0] for s in s_neigh}
+        t_neigh_names = t_neigh if sign is None else {t[0] for t in t_neigh}
+
+        s_neigh_names = _node_ns_filter(s_neigh_names, graph, allowed_ns)
+        t_neigh_names = _node_ns_filter(t_neigh_names, graph, allowed_ns)
+
+        s_neigh = s_neigh_names if sign is None else \
+            {s for s in s_neigh if s[0] in s_neigh_names}
+        t_neigh = t_neigh_names if sign is None else \
+            {t for t in t_neigh if t[0] in t_neigh_names}
 
     # Filter statements type
     if stmt_types:
