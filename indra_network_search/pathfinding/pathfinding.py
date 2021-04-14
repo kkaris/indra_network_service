@@ -191,16 +191,6 @@ def shared_interactors(graph: DiGraph,
 
     intermediates = s_neigh & t_neigh
 
-    # If sign, filter sign
-    if sign is not None:
-        # Have to match sign as well
-        num_sign = 1 if sign == 0 else -1
-        sign_args = (source, target, num_sign, graph, intermediates, False)
-        if regulators:
-            intermediates: Set[str] = _get_signed_shared_regulators(*sign_args)
-        else:
-            intermediates: Set[str] = _get_signed_shared_targets(*sign_args)
-
     interm_sorted = sorted(intermediates,
                            key=_get_min_max_belief,
                            reverse=True)
