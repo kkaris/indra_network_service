@@ -251,17 +251,23 @@ def _sign_filter(source: Tuple[str, int], s_neigh: Set[Tuple[str, int]],
 
     return s_neigh, t_neigh
 
-def _stmt_types_filter(start_node: str, neighbor_nodes: Set[str],
-                       graph: Union[DiGraph, MultiDiGraph], reverse: bool,
-                       stmt_types: List[str]) -> Set[str]:
-    node_list = sorted(neighbor_nodes)
+
+def _stmt_types_filter(start_node: Union[str, Tuple[str, int]],
+                       neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+                       graph: DiGraph, reverse: bool, stmt_types: List[str])\
+        -> Set[Union[str, Tuple[str, int]]]:
+    # Sort to ensure edge_iter is co-ordered
+    if isinstance(start_node, tuple):
+        node_list = sorted(neighbor_nodes, key=lambda t: t[0])
+    else:
+        node_list = sorted(neighbor_nodes)
 
     edge_iter = \
         product(node_list, [start_node]) if reverse else \
         product([start_node], node_list)
 
     # Check which edges have the allowed stmt types
-    filtered_neighbors = set()
+    filtered_neighbors: Set[Union[str, Tuple[str, int]]] = set()
     for n, edge in zip(node_list, edge_iter):
         stmt_list = graph.edges[edge]['statements']
         if any(sd['stmt_type'].lower() in stmt_types for sd in stmt_list):
