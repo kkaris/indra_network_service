@@ -3,10 +3,12 @@
     <!-- <pre>{{ networkSearchQuery }}</pre>-->
     <!--
       Todo:
-        - Add border for form (use card?)
+        - Add border for form (use cards?)
         - Organize options according to type of search
         - Implement some basic styling that makes the form readable
         - Make Multi-select prettier (find package)
+        - Organize context and signed search
+        - Add hover or "?" text for help
         -
      -->
     <form class="review-form" @submit.prevent="sendForm">
