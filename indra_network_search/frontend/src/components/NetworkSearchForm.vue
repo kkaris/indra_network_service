@@ -154,6 +154,7 @@
         <BaseCheckboxBS
           v-model="shared_regulators"
           label="Include Search for shared regulators of source/target"
+          :disabled="!isNotOpenSearch && !cannotSubmit"
         />
       <h3>Context Search Options</h3>
       <div>
