@@ -317,10 +317,16 @@ def _hash_filter(start_node: Union[str, Tuple[str, int]],
     return filtered_neighbors
 
 
-def _belief_filter(start_node: str, neighbor_nodes: Set[str],
-                   graph: Union[DiGraph, MultiDiGraph], reverse: bool,
-                   belief_cutoff: float) -> Set[str]:
-    node_list = sorted(neighbor_nodes)
+def _belief_filter(start_node: Union[str, Tuple[str, int]],
+                   neighbor_nodes: Union[str, Tuple[str, int]],
+                   graph: DiGraph, reverse: bool,
+                   belief_cutoff: float) -> Set[Union[str, Tuple[str, int]]]:
+    # Sort to ensure edge_iter is co-ordered
+    if isinstance(start_node, tuple):
+        # If signed, order on name, not sign
+        node_list = sorted(neighbor_nodes, key=lambda t: t[0])
+    else:
+        node_list = sorted(neighbor_nodes)
 
     edge_iter = \
         product(node_list, [start_node]) if reverse else \
