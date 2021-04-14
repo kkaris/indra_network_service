@@ -161,8 +161,8 @@ def shared_interactors(graph: DiGraph,
     # Filter belief
     if belief_cutoff > 0:
         belief_args = (graph, regulators, belief_cutoff)
-        s_neigh = _hash_filter(source, s_neigh, *belief_args)
-        t_neigh = _hash_filter(target, t_neigh, *belief_args)
+        s_neigh = _belief_filter(source, s_neigh, *belief_args)
+        t_neigh = _belief_filter(target, t_neigh, *belief_args)
 
     # Filter source
     if source_filter:
