@@ -9,6 +9,7 @@
         - Make Multi-select prettier (find package)
         - Organize context and signed search
         - Add hover or "?" text for help
+        - Put checkboxes in row-col setup
         -
      -->
     <form class="review-form" @submit.prevent="sendForm">
