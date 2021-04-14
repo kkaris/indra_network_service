@@ -178,8 +178,8 @@ def shared_interactors(graph: DiGraph,
     # Filter source
     if source_filter:
         src_args = (graph, regulators, source_filter)
-        s_neigh = _src_filter(source, s_neigh, *src_args)
-        t_neigh = _src_filter(target, t_neigh, *src_args)
+        s_neigh = _source_filter(source, s_neigh, *src_args)
+        t_neigh = _source_filter(target, t_neigh, *src_args)
 
     intermediates = s_neigh & t_neigh
 
