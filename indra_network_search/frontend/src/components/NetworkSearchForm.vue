@@ -71,7 +71,70 @@
         <br/>
         <span>Selected: {{ allowed_ns }}</span>
       </div>
-      <h3>Weighted search ({{ weighted }})</h3>
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <BaseInputBS
+              v-model="hash_blacklist_text"
+              label="Hash Blacklist"
+              type="text"
+            />
+          </div>
+          <div class="col">
+            <BaseInputBS
+              v-model="node_blacklist_text"
+              label="Node Blacklist"
+              type="text"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <BaseInputBS
+              v-model.number="path_length"
+              label="Path length"
+              type="number"
+              :min="1"
+              :max="10"
+              :disabled="isAnyWeighted"
+            />
+          </div>
+          <div class="col">
+            <BaseSelectBS
+              :options="signOptions"
+              v-model.number="sign"
+              label="Signed Search"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <BaseInputBS
+              v-model.number="k_shortest"
+              label="Max Paths"
+              type="number"
+              :min="1"
+              :max="50"
+            />
+          </div>
+          <div class="col">
+            <BaseInputBS
+              v-model.number="belief_cutoff"
+              label="Belief Cutoff"
+              type="number"
+              :min="0.0"
+              :max="1.0"
+              :step="0.01"
+            />
+          </div>
+        </div>
+      </div>
+        <!-- Add generic checkboxes here:
+          - Weighted
+          - DB only
+          - Reverse search
+          - Shared regulators (source - target search only)
+         -->
         <BaseCheckboxBS
           v-model="weighted"
           label="Weighted search"
@@ -153,63 +216,26 @@
           <span>Selected: {{ terminal_ns }}</span>
         </div>
       </div>
-      <br />
-      <BaseInputBS
-        v-model="hash_blacklist_text"
-        label="Hash Blacklist"
-        type="text"
-      />
-      <BaseInputBS
-        v-model="node_blacklist_text"
-        label="Node Blacklist"
-        type="text"
-      />
-      <BaseInputBS
-        v-model.number="path_length"
-        label="Path length"
-        type="number"
-        :min="1"
-        :max="10"
-        :disabled="isAnyWeighted"
-      />
-      <BaseInputBS
-        v-model.number="k_shortest"
-        label="Max Paths"
-        type="number"
-        :min="1"
-        :max="50"
-      />
-      <BaseInputBS
-        v-model.number="belief_cutoff"
-        label="Belief Cutoff"
-        type="number"
-        :min="0.0"
-        :max="1.0"
-        :step="0.01"
-      />
-      <BaseInputBS
-        v-model.number="user_timeout"
-        label="Timeout"
-        type="number"
-        :min="2"
-        :max="120"
-        :step="1"
-      />
-      <h3>Signed Search</h3>
-      <div>
-        <BaseSelectBS
-          :options="signOptions"
-          v-model.number="sign"
-          label="Sign"
-        />
+      <div class="row">
+        <div class="col">
+          <button
+            class="button btn btn-secondary btn-lg"
+            :class="{ disabledButton: cannotSubmit }"
+            type="submit"
+            :disabled="cannotSubmit"
+          >Submit</button>
+        </div>
+        <div class="col">
+          <BaseInputBS
+            v-model.number="user_timeout"
+            label="Timeout"
+            type="number"
+            :min="2"
+            :max="120"
+            :step="1"
+          />
+        </div>
       </div>
-
-      <button
-        class="button btn btn-secondary btn-lg"
-        :class="{ disabledButton: cannotSubmit }"
-        type="submit"
-        :disabled="cannotSubmit"
-      >Submit</button>
     </form>
   </div>
 </template>
