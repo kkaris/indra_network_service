@@ -76,6 +76,22 @@
           v-model="weighted"
           label="Weighted search"
         />
+        <BaseCheckboxBS
+          v-model="curated_db_only"
+          label="Only Database Supported Sources"
+        />
+        <BaseCheckboxBS
+          v-model="fplx_expand"
+          label="Set source/target as equivalent to their parents"
+        />
+        <BaseCheckboxBS
+          v-model="two_way"
+          label="Include Reverse Search"
+        />
+        <BaseCheckboxBS
+          v-model="shared_regulators"
+          label="Include Search for shared regulators of source/target"
+        />
       <h3>Context Search Options</h3>
       <div>
         <BaseInputBS
@@ -178,23 +194,6 @@
         :min="2"
         :max="120"
         :step="1"
-      />
-      <h3>Checkboxes</h3>
-      <BaseCheckboxBS
-        v-model="curated_db_only"
-        label="Only Database Supported Sources"
-      />
-      <BaseCheckboxBS
-        v-model="fplx_expand"
-        label="Set source/target as equivalent to their parents"
-      />
-      <BaseCheckboxBS
-        v-model="two_way"
-        label="Include Reverse Search"
-      />
-      <BaseCheckboxBS
-        v-model="shared_regulators"
-        label="Include Search for shared regulators of source/target"
       />
       <h3>Signed Search</h3>
       <div>
