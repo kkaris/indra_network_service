@@ -14,22 +14,20 @@
     <form class="review-form" @submit.prevent="sendForm">
       <h1>The Network Search Form</h1>
       <h2>Basic Search Options</h2>
-      <div class="container">
-        <div class="row">
-          <div class="col">
-            <BaseInputBS
-              v-model="source"
-              label="Source node"
-              type="text"
-            />
-          </div>
-          <div class="col">
-            <BaseInputBS
-              v-model="target"
-              label="Target node"
-              type="text"
-            />
-          </div>
+      <div class="row">
+        <div class="col">
+          <BaseInputBS
+            v-model="source"
+            label="Source node"
+            type="text"
+          />
+        </div>
+        <div class="col">
+          <BaseInputBS
+            v-model="target"
+            label="Target node"
+            type="text"
+          />
         </div>
       </div>
       <h2>Detailed Search Options</h2>
@@ -146,64 +144,77 @@
           :disabled="!isNotOpenSearch && !cannotSubmit"
         />
       <h3>Context Search Options</h3>
-      <div>
-        <BaseInputBS
-          v-model="mesh_ids_text"
-          label="Mesh IDs (comma separated)"
-          type="text"
-          :disabled="weighted"
-        />
-        <BaseCheckboxBS
-          v-model="strict_mesh_id_filtering"
-          label="Strict Mesh ID filtering"
-          :disabled="weighted"
-        />
-        <br />
-        <BaseInputBS
-          v-model.number="const_c"
-          label="Constant C"
-          type="number"
-          :min="1"
-          :max="100"
-          :disabled="weighted || strict_mesh_id_filtering"
-        />
-        <BaseInputBS
-          v-model.number="const_tk"
-          label="Constant Tk"
-          type="number"
-          :min="1"
-          :max="100"
-          :disabled="weighted || strict_mesh_id_filtering"
-        />
+      <div class="row">
+        <div class="col">
+          <BaseInputBS
+            v-model="mesh_ids_text"
+            label="Mesh IDs (comma separated)"
+            type="text"
+            :disabled="weighted"
+          />
+        </div>
+        <div class="col">
+          <BaseInputBS
+            v-model.number="const_c"
+            label="Constant C"
+            type="number"
+            :min="1"
+            :max="100"
+            :disabled="weighted || strict_mesh_id_filtering"
+          />
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <BaseCheckboxBS
+            v-model="strict_mesh_id_filtering"
+            label="Strict Mesh ID filtering"
+            :disabled="weighted"
+          />
+        </div>
+        <div class="col">
+          <BaseInputBS
+            v-model.number="const_tk"
+            label="Constant Tk"
+            type="number"
+            :min="1"
+            :max="100"
+            :disabled="weighted || strict_mesh_id_filtering"
+          />
+        </div>
       </div>
       <h3>Open Search Options</h3>
       <!-- Disable open search options if both source and target are set -->
-      <div>
-        <!-- Disable max per node if weighted or context search -->
-        <BaseInputBS
-          v-model="max_per_node"
-          label="Maximum number of children per node in unweighted breadth first search"
-          type="number"
-          :min="1"
-          :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
-        />
-        <!-- Check: is terminal ns applied for strict Dijkstra and/or context search? -->
-        <div id="v-model-select-terminal-ns">
-          <p>Terminal NS</p>
-          <select
-            v-model="terminal_ns"
-            multiple
-            :disabled="isContextSearch || isNotOpenSearch"
-          >
-            <option
-              v-for="option in nodeNamespaceOptions"
-              :value="option.value"
-              :key="option.value"
-              :selected="terminal_ns"
-            >{{ option.label }}</option>
-          </select>
-          <br />
-          <span>Selected: {{ terminal_ns }}</span>
+      <!-- Disable max per node if weighted or context search -->
+      <div class="row">
+        <div class="col">
+          <!-- Check: is terminal ns applied for strict Dijkstra and/or context search? -->
+          <div id="v-model-select-terminal-ns">
+            <p>Terminal NS</p>
+            <select
+              v-model="terminal_ns"
+              multiple
+              :disabled="isContextSearch || isNotOpenSearch"
+            >
+              <option
+                v-for="option in nodeNamespaceOptions"
+                :value="option.value"
+                :key="option.value"
+                :selected="terminal_ns"
+              >{{ option.label }}</option>
+            </select>
+            <br />
+            <span>Selected: {{ terminal_ns }}</span>
+          </div>
+        </div>
+        <div class="col">
+          <BaseInputBS
+            v-model="max_per_node"
+            label="Maximum number of children per node in unweighted breadth first search"
+            type="number"
+            :min="1"
+            :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
+          />
         </div>
       </div>
       <div class="row">
