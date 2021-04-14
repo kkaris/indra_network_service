@@ -242,6 +242,13 @@ def _sign_filter(source: Tuple[str, int], s_neigh: Set[Tuple[str, int]],
     return s_neigh, t_neigh
 
 
+def _namespace_filter(nodes: Set[Union[str, Tuple[str, int]]], graph: DiGraph,
+                      allowed_ns: List[str]) \
+        -> Set[Union[str, Tuple[str, int]]]:
+    return {x for x in nodes if graph.nodes[x]['ns'].lower()
+            in allowed_ns}
+
+
 def _stmt_types_filter(start_node: Union[str, Tuple[str, int]],
                        neighbor_nodes: Set[Union[str, Tuple[str, int]]],
                        graph: DiGraph, reverse: bool, stmt_types: List[str])\
