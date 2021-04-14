@@ -118,7 +118,7 @@ def shared_interactors(graph: DiGraph,
     -------
     Generator
     """
-    def _get_min_max_belief(node: str):
+    def _get_min_max_belief(node: Union[str, Tuple[str, int]]):
         s_edge = (node, source) if regulators else (source, node)
         t_edge = (node, target) if regulators else (target, node)
         s_max: float = max([sd['belief'] for sd in
@@ -136,7 +136,7 @@ def shared_interactors(graph: DiGraph,
     # the caller provides a positive sign, the common nodes should be the
     # ones that are upregulated by the source & target in the case of
     # shared targets and upregulates source & target in the case of shared
-    # regul.
+    # regulators.
     if sign is not None:
         s_neigh, t_neigh = _sign_filter(source, s_neigh, target, t_neigh,
                                         sign, regulators)
@@ -291,8 +291,8 @@ def _filter_curated(start_node: Union[str, Tuple[str, int]],
 
 def _hash_filter(start_node: Union[str, Tuple[str, int]],
                  neighbor_nodes: Set[Union[str, Tuple[str, int]]],
-                 graph: Union[DiGraph, MultiDiGraph], reverse: bool,
-                 hashes: List[int]) -> Set[Union[str, Tuple[str, int]]]:
+                 graph: DiGraph, reverse: bool, hashes: List[int]) \
+        -> Set[Union[str, Tuple[str, int]]]:
     # Sort to ensure edge_iter is co-ordered
     if isinstance(start_node, tuple):
         # If signed, order on name, not sign
@@ -318,7 +318,7 @@ def _hash_filter(start_node: Union[str, Tuple[str, int]],
 
 
 def _belief_filter(start_node: Union[str, Tuple[str, int]],
-                   neighbor_nodes: Union[str, Tuple[str, int]],
+                   neighbor_nodes: Set[Union[str, Tuple[str, int]]],
                    graph: DiGraph, reverse: bool,
                    belief_cutoff: float) -> Set[Union[str, Tuple[str, int]]]:
     # Sort to ensure edge_iter is co-ordered
