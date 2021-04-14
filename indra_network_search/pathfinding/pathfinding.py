@@ -289,10 +289,16 @@ def _filter_curated(start_node: Union[str, Tuple[str, int]],
     return filtered_neighbors
 
 
-def _hash_filter(start_node: str, neighbor_nodes: Set[str],
+def _hash_filter(start_node: Union[str, Tuple[str, int]],
+                 neighbor_nodes: Set[Union[str, Tuple[str, int]]],
                  graph: Union[DiGraph, MultiDiGraph], reverse: bool,
-                 hashes: List[int]) -> Set[str]:
-    node_list = sorted(neighbor_nodes)
+                 hashes: List[int]) -> Set[Union[str, Tuple[str, int]]]:
+    # Sort to ensure edge_iter is co-ordered
+    if isinstance(start_node, tuple):
+        # If signed, order on name, not sign
+        node_list = sorted(neighbor_nodes, key=lambda t: t[0])
+    else:
+        node_list = sorted(neighbor_nodes)
 
     edge_iter = \
         product(node_list, [start_node]) if reverse else \
