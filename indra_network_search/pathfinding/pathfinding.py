@@ -130,6 +130,16 @@ def shared_interactors(graph: DiGraph,
     s_neigh: Set[str] = set(neigh[source])
     t_neigh: Set[str] = set(neigh[target])
 
+    # If signed, filter sign
+    # Sign is handled different here than in the depmap explanations - if
+    # the caller provides a positive sign, the common nodes should be the
+    # ones that are upregulated by the source & target in the case of
+    # shared targets and upregulates source & target in the case of shared
+    # regul.
+    if sign is not None:
+        s_neigh, t_neigh = _sign_filter(source, s_neigh, target, t_neigh,
+                                        sign, regulators)
+
     # Filter nodes
     if node_blacklist:
         s_neigh = {n for n in s_neigh if n not in node_blacklist}
