@@ -32,44 +32,37 @@
       </div>
       <h2>Detailed Search Options</h2>
       <h3>General Filter Options</h3>
-      <!-- Add:
-        - Node NS
-        - Stmt filter
-        - DB only
-        - Reverse search
-        - Shared regulators
-        - Timeout
-        - Hash blacklist
-        - Node blacklist
-        - Path Length
-        - Max Paths
-        - Belief
-       -->
-      <h3>Statement Filter Multi Select</h3>
-      <div id="v-model-select-stmts">
-        <select v-model="stmt_filter" multiple>
-          <option
-            v-for="option in stmtFilterOptions"
-            :value="option.value"
-            :key="option.value"
-            :selected="stmt_filter"
-          >{{ option.label }}</option>
-        </select>
-        <br />
-        <span>Selected: {{ stmt_filter }}</span>
-      </div>
-      <h3>Node Namespace</h3>
-      <div id="v-model-select-namespace">
-        <select v-model="allowed_ns" multiple>
-          <option
-            v-for="option in nodeNamespaceOptions"
-            :value="option.value"
-            :key="option.value"
-            :selected="allowed_ns"
-          >{{ option.label }}</option>
-        </select>
-        <br/>
-        <span>Selected: {{ allowed_ns }}</span>
+      <div class="row">
+        <div class="col">
+          <b>Statement Filter</b>
+          <div id="v-model-select-stmts">
+            <select v-model="stmt_filter" multiple>
+              <option
+                v-for="option in stmtFilterOptions"
+                :value="option.value"
+                :key="option.value"
+                :selected="stmt_filter"
+              >{{ option.label }}</option>
+            </select>
+            <br />
+            <span>Selected: {{ stmt_filter }}</span>
+          </div>
+        </div>
+        <div class="col">
+          <b>Node Namespace</b>
+          <div id="v-model-select-namespace">
+            <select v-model="allowed_ns" multiple>
+              <option
+                v-for="option in nodeNamespaceOptions"
+                :value="option.value"
+                :key="option.value"
+                :selected="allowed_ns"
+              >{{ option.label }}</option>
+            </select>
+            <br/>
+            <span>Selected: {{ allowed_ns }}</span>
+          </div>
+        </div>
       </div>
       <div class="container">
         <div class="row">
@@ -129,12 +122,6 @@
           </div>
         </div>
       </div>
-        <!-- Add generic checkboxes here:
-          - Weighted
-          - DB only
-          - Reverse search
-          - Shared regulators (source - target search only)
-         -->
         <BaseCheckboxBS
           v-model="weighted"
           label="Weighted search"
@@ -145,7 +132,7 @@
         />
         <BaseCheckboxBS
           v-model="fplx_expand"
-          label="Set source/target as equivalent to their parents"
+          label="Set source/target equivalent to their parents"
         />
         <BaseCheckboxBS
           v-model="two_way"
