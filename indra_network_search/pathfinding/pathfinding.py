@@ -6,13 +6,10 @@ from itertools import islice, product
 from typing import Generator, List, Union, Optional, Set, Iterator, Tuple, \
     Any, Dict
 
-from networkx import DiGraph, MultiDiGraph
+from networkx import DiGraph
 
 from depmap_analysis.network_functions.famplex_functions import \
     common_parent, get_identifiers_url, ns_id_to_name
-from depmap_analysis.scripts.depmap_script_expl_funcs import \
-    _get_signed_shared_targets, _get_signed_shared_regulators, _src_filter, \
-    _node_ns_filter
 
 logger = logging.getLogger(__name__)
 
