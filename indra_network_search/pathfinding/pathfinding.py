@@ -264,6 +264,32 @@ def _stmt_types_filter(start_node: Union[str, Tuple[str, int]],
     return filtered_neighbors
 
 
+def _source_filter(start_node: Union[str, Tuple[str, int]],
+                   neighbor_nodes: Set[Union[str, Tuple[str, int]]],
+                   graph: DiGraph, reverse: bool, sources: List[str]) \
+        -> Set[Union[str, Tuple[str, int]]]:
+    # Sort to ensure edge_iter is co-ordered
+    if isinstance(start_node, tuple):
+        node_list = sorted(neighbor_nodes, key=lambda t: t[0])
+    else:
+        node_list = sorted(neighbor_nodes)
+
+    edge_iter = \
+        product(node_list, [start_node]) if reverse else \
+        product([start_node], node_list)
+
+    # Check which edges have the allowed stmt types
+    filtered_neighbors: Set[Union[str, Tuple[str, int]]] = set()
+    for n, edge in zip(node_list, edge_iter):
+        for sd in graph.edges[edge]['statements']:
+            if isinstance(sd['source_counts'], dict) \
+                    and any([s.lower() in sources for s
+                             in sd['source_counts']]):
+                filtered_neighbors.add(n)
+                break
+    return filtered_neighbors
+
+
 def _filter_curated(start_node: Union[str, Tuple[str, int]],
                     neighbor_nodes: Set[Union[str, Tuple[str, int]]],
                     graph: DiGraph, reverse: bool) \
