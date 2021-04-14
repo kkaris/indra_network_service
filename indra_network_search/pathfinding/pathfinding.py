@@ -196,6 +196,42 @@ def shared_interactors(graph: DiGraph,
     return islice(path_gen, max_results)
 
 
+def _sign_filter(source: Tuple[str, int], s_neigh: Set[Tuple[str, int]],
+                 target: Tuple[str, int], t_neigh: Set[Tuple[str, int]],
+                 sign: Optional[int], regulators: bool, ):
+    # Check that nodes are signed
+    try:
+        assert isinstance(source, tuple)
+        assert isinstance(target, tuple)
+    except AssertionError as err:
+        raise ValueError('Input nodes are not signed') from err
+    # Check that signs are proper
+    if sign not in {0, 1}:
+        raise ValueError(f'Unknown sign {sign}')
+
+    if regulators:
+        # source and target sign match requested sign, neighbors are
+        # always + signed
+        try:
+            assert source[1] == sign
+            assert target[1] == sign
+        except AssertionError as err:
+            raise ValueError('Node sign does not match requested sign') \
+                from err
+
+        # Regulators can only have + sign
+        # Find regulators that upregulate both source & target
+        # Find regulators that downregulate both source & target
+
+        s_neigh: Set[str] = {s for s in s_neigh if s[1] == 0}
+        t_neigh: Set[str] = {t for t in t_neigh if t[1] == 0}
+    else:
+        # Match target sign with requested sign
+        s_neigh: Set[str] = {s for s in s_neigh if s[1] == sign}
+        t_neigh: Set[str] = {t for t in t_neigh if t[1] == sign}
+
+    return s_neigh, t_neigh
+
 def _stmt_types_filter(start_node: str, neighbor_nodes: Set[str],
                        graph: Union[DiGraph, MultiDiGraph], reverse: bool,
                        stmt_types: List[str]) -> Set[str]:
