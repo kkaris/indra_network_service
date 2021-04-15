@@ -101,7 +101,8 @@ def _setup_api(large: bool) -> IndraNetworkSearchAPI:
 
 unsigned_graph = _setup_graph()
 expanded_unsigned_graph = _setup_bigger_graph()
-signed_node_graph = _setup_signed_node_graph()
+signed_node_graph = _setup_signed_node_graph(False)
+exp_signed_node_graph = _setup_signed_node_graph(True)
 search_api = _setup_api(False)
 exp_search_api = _setup_api(True)
 
