@@ -209,7 +209,7 @@ def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
     # Check search api
     query = QueryCls(query=rest_query)
     signed = rest_query.sign is not None
-    api_res_mngr = _get_api_res(query=query, is_signed=signed)
+    api_res_mngr = _get_api_res(query=query, is_signed=signed, large=False)
     api_res = api_res_mngr.get_results()
     assert isinstance(api_res, PathResultData)
     assert not api_res.is_empty(), \
@@ -266,29 +266,30 @@ def _get_path_gen(alg_func: Callable, graph: DiGraph,
         raise ValueError(f'Unrecognized function {alg_func.__name__}')
 
 
-def _get_api_res(query: Query, is_signed: bool) -> ResultManager:
+def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
+    api = exp_search_api if large else search_api
     # Helper to map Query to correct search_api method
     if query.alg_name == bfs_search.__name__:
         assert isinstance(query, BreadthFirstSearchQuery)
-        return search_api.breadth_first_search(query, is_signed)
+        return api.breadth_first_search(query, is_signed)
     elif query.alg_name == shortest_simple_paths.__name__:
         assert isinstance(query, ShortestSimplePathsQuery)
-        return search_api.shortest_simple_paths(query, is_signed)
+        return api.shortest_simple_paths(query, is_signed)
     elif query.alg_name == open_dijkstra_search.__name__:
         assert isinstance(query, DijkstraQuery)
-        return search_api.dijkstra(query, is_signed)
+        return api.dijkstra(query, is_signed)
     elif query.alg_name == shared_parents.__name__:
         assert isinstance(query, OntologyQuery)
-        return search_api.shared_parents(query)
+        return api.shared_parents(query)
     elif query.alg_name == 'shared_targets':
         assert isinstance(query, SharedTargetsQuery)
-        return search_api.shared_targets(query, is_signed)
+        return api.shared_targets(query, is_signed)
     elif query.alg_name == 'shared_regulators':
         assert isinstance(query, SharedRegulatorsQuery)
-        return search_api.shared_regulators(query)
+        return api.shared_regulators(query)
     elif query.alg_name == get_subgraph_edges.__name__:
         assert isinstance(query, SubgraphQuery)
-        return search_api.subgraph_query(query)
+        return api.subgraph_query(query)
     else:
         raise ValueError(f'Unrecognized Query class {type(query)}')
 
