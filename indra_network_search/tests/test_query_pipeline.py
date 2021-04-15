@@ -382,7 +382,7 @@ def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
         return api.shared_targets(query, is_signed)
     elif query.alg_name == 'shared_regulators':
         assert isinstance(query, SharedRegulatorsQuery)
-        return api.shared_regulators(query)
+        return api.shared_regulators(query, is_signed)
     elif query.alg_name == get_subgraph_edges.__name__:
         assert isinstance(query, SubgraphQuery)
         return api.subgraph_query(query)
