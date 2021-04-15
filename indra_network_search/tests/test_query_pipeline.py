@@ -762,14 +762,32 @@ def test_shared_interactors():
                                      expected_res=expected_results)
 
     # Check shared regulators
-    rest_query = NetworkSearchQuery(source=CHEK1.name, target=H2AZ1.name)
+    rest_query = NetworkSearchQuery(source=CHEK1.name, target=H2AZ1.name,
+                                    shared_regulators=True)
+    source_edges = [(n, CHEK1.name) for n in
+                    ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    target_edges = [(n, H2AZ1.name) for n in
+                    ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    srq = SharedRegulatorsQuery(query=rest_query)
+    expected_results = SharedInteractorsResults(
+        source_data=_get_edge_data_list(edge_list=source_edges,
+                                        graph=expanded_unsigned_graph,
+                                        large=True),
+        target_data=_get_edge_data_list(edge_list=target_edges,
+                                        graph=expanded_unsigned_graph,
+                                        large=True),
+        downstream=False)
+    assert _check_shared_interactors(rest_query=rest_query, query=srq,
+                                     graph=expanded_unsigned_graph,
+                                     expected_res=expected_results)
+
+    # - sign
 
     # Check
     # - allowed ns
     # - stmt types
     # - source filter
     # - max results
-    # - sign
     # - hash blacklist
     # - node blacklist
     # - belief cutoff
