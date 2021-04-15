@@ -259,7 +259,7 @@ def _get_path_gen(alg_func: Callable, graph: DiGraph,
     elif alg_func.__name__ == shared_interactors.__name__:
         # Should catch 'shared_interactors', 'shared_regulators' and
         # 'shared_targets'
-        return shared_interactors(**run_options)
+        return shared_interactors(graph=graph, **run_options)
     elif alg_func.__name__ == get_subgraph_edges.__name__:
         return get_subgraph_edges(graph=graph, **run_options)
     else:
