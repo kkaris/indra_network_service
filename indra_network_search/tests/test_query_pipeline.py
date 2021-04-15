@@ -63,7 +63,7 @@ def _setup_bigger_graph() -> DiGraph:
             big_g.add_node(edge[1], **nodes[edge[1]])
 
         # Add edge data
-        big_g.add_edge(*edge, **edge_data[edge])
+        big_g.add_edge(*edge, **more_edge_data[edge])
     return big_g
 
 
