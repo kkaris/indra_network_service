@@ -69,9 +69,9 @@ def _setup_bigger_graph() -> DiGraph:
     return big_g
 
 
-def _setup_signed_node_graph() -> DiGraph:
+def _setup_signed_node_graph(large: bool) -> DiGraph:
     seg = MultiDiGraph()
-    dg = _setup_graph()
+    dg = _setup_bigger_graph() if large else _setup_graph()
     for u, v in dg.edges:
         edge_dict = dg.edges[(u, v)]
         if edge_dict['statements'][0]['stmt_type'] in default_sign_dict:
@@ -88,7 +88,8 @@ def _setup_signed_node_graph() -> DiGraph:
         # If not signed type
         else:
             continue
-    return signed_edges_to_signed_nodes(graph=seg, copy_edge_data=True)
+    return signed_edges_to_signed_nodes(graph=seg, copy_edge_data=True,
+                                        prune_nodes=True)
 
 
 def _setup_api(large: bool) -> IndraNetworkSearchAPI:
