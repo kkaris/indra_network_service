@@ -138,10 +138,67 @@ def _node_equals(node: Node, other_node: Node) -> bool:
                node.dict(exclude=exclude).items())
 
 
-def _get_node(name: str, graph: DiGraph) -> Optional[Node]:
-    if name in graph.nodes:
-        return Node(name=name, namespace=graph.nodes[name]['ns'],
-                    identifier=graph.nodes[name]['id'])
+def _edge_data_equals(edge_model: EdgeData,
+                      other_edge_model: EdgeData) -> bool:
+    # Check nodes of edge
+    assert all(_node_equals(n1, n2) for n1, n2 in zip(edge_model.edge,
+                                                      other_edge_model.edge))
+    assert edge_model.db_url_edge == other_edge_model.db_url_edge
+    assert edge_model.sign == other_edge_model.sign
+    assert edge_model.belief == other_edge_model.belief
+    assert edge_model.context_weight == other_edge_model.context_weight
+    assert edge_model.weight == other_edge_model.weight
+    assert \
+        all(all(_basemodels_equal(s1, s2, False) for s1, s2 in
+                zip(other_edge_model.statements[k], st_data_lst))
+            for k, st_data_lst in edge_model.statements.items())
+    return True
+
+
+def _basemodels_equal(basemodel: BaseModel, other_basemodel: BaseModel,
+                      any_item: bool,
+                      exclude: Optional[Set[str]] = None) -> bool:
+    b1d = basemodel.dict(exclude=exclude)
+    b2d = other_basemodel.dict(exclude=exclude)
+    qual_func = any if any_item else all
+    return qual_func(_equals(b1d[k1], b2d[k2], any_item)
+                     for k1, k2 in zip(b1d, b2d))
+
+
+def _equals(d1: Union[str, int, float, List, Set, Tuple, Dict],
+            d2: Union[str, int, float, List, Set, Tuple, Dict],
+            any_item: bool) -> bool:
+    qual_func = any if any_item else all
+    if d1 is None:
+        return d2 is None
+    elif isinstance(d1, (str, int, float)):
+        return d1 == d2
+    elif isinstance(d1, (list, tuple)):
+        return qual_func(_equals(e1, e2, any_item) for e1, e2 in zip(d1, d2))
+    elif isinstance(d1, set):
+        return d1 == d2
+    elif isinstance(d1, dict):
+        return qual_func(_equals(d1[k1], d2[k2], False)
+                         for k1, k2 in zip(d1, d2))
+    else:
+        raise TypeError(f'Unable to do comparison of type {type(d1)}')
+
+
+def _get_node(name: Union[str, Tuple[str, int]],
+              graph: DiGraph) -> Optional[Node]:
+    # Signed node
+    if isinstance(name, tuple):
+        node_name, sign = name
+        if node_name in graph.nodes:
+            return Node(name=node_name, namespace=graph.nodes[name]['ns'],
+                        identifier=graph.nodes[name]['id'], sign=sign)
+    # Unsigned node
+    else:
+        node_name = name
+        if node_name in graph.nodes:
+            return Node(name=node_name, namespace=graph.nodes[name]['ns'],
+                        identifier=graph.nodes[name]['id'])
+
     raise ValueError(f'{name} not in graph')
 
 
