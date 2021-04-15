@@ -297,6 +297,43 @@ def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
             set_of_paths = {tuple(n.name for n in p.path) for p in res_paths}
             exp_path_sets = {tuple(n.name for n in p.path) for p in expected}
             assert set_of_paths == exp_path_sets, f'Nodes are out of order'
+    return True
+
+
+def _check_shared_interactors(
+        rest_query: NetworkSearchQuery,
+        query: Union[SharedTargetsQuery, SharedRegulatorsQuery],
+        graph: DiGraph, expected_res: SharedInteractorsResults) -> bool:
+
+    # Check pipeline
+    results: BaseModel = _check_pipeline(rest_query=rest_query,
+                                         alg_name=query.alg_name, graph=graph)
+    assert isinstance(results, SharedInteractorsResults), \
+        f'Result is not SharedInteractorsResults model:\n{type(results)}'
+    assert results.is_empty() == expected_res.is_empty(), \
+        f'result is "{"empty" if results.is_empty() else "not empty"}"; but ' \
+        f'expected "{"empty" if expected_res.is_empty() else "not empty"}"'
+
+    # Check if results are as expected
+    assert all(_edge_data_equals(d1, d1) for d1, d2 in
+               zip(expected_res.source_data, results.source_data))
+    assert all(_edge_data_equals(d1, d1) for d1, d2 in
+               zip(expected_res.target_data, results.target_data))
+
+    # Check search api
+    signed = rest_query.sign is not None
+    api_res_mngr = _get_api_res(query=query, is_signed=signed, large=True)
+    api_res = api_res_mngr.get_results()
+    assert isinstance(api_res, SharedInteractorsResults)
+    assert api_res.is_empty() == expected_res.is_empty(), \
+        f'result is "{"empty" if results.is_empty() else "not empty"}"; but ' \
+        f'expected "{"empty" if expected_res.is_empty() else "not empty"}"'
+
+    # Check is results are as expected
+    assert all(_edge_data_equals(d1, d1) for d1, d2 in
+               zip(expected_res.source_data, api_res.source_data))
+    assert all(_edge_data_equals(d1, d1) for d1, d2 in
+               zip(expected_res.target_data, api_res.target_data))
 
     return True
 
