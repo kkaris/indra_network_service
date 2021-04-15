@@ -36,7 +36,7 @@ from indra_network_search.result_handler import ResultManager, \
 from indra_network_search.pathfinding import shared_parents, \
     shared_interactors, get_subgraph_edges
 from indra_network_search.search_api import IndraNetworkSearchAPI
-from . import edge_data, nodes
+from . import edge_data, nodes, more_edge_data
 
 
 def _setup_graph() -> DiGraph:
@@ -51,6 +51,20 @@ def _setup_graph() -> DiGraph:
         # Add edge data
         g.add_edge(*edge, **edge_data[edge])
     return g
+
+
+def _setup_bigger_graph() -> DiGraph:
+    big_g = DiGraph()
+    for edge in more_edge_data:
+        # Add node data
+        if edge[0] not in big_g.nodes:
+            big_g.add_node(edge[0], **nodes[edge[0]])
+        if edge[1] not in big_g.nodes:
+            big_g.add_node(edge[1], **nodes[edge[1]])
+
+        # Add edge data
+        big_g.add_edge(*edge, **edge_data[edge])
+    return big_g
 
 
 def _setup_signed_node_graph() -> DiGraph:
@@ -75,14 +89,18 @@ def _setup_signed_node_graph() -> DiGraph:
     return signed_edges_to_signed_nodes(graph=seg, copy_edge_data=True)
 
 
-def _setup_api() -> IndraNetworkSearchAPI:
+def _setup_api(large: bool) -> IndraNetworkSearchAPI:
     # fixme: add signed graph when that development is done
-    return IndraNetworkSearchAPI(unsigned_graph=unsigned_graph,
+    g = expanded_unsigned_graph if large else unsigned_graph
+    return IndraNetworkSearchAPI(unsigned_graph=g,
                                  signed_node_graph=DiGraph())
 
 
 unsigned_graph = _setup_graph()
-search_api = _setup_api()
+expanded_unsigned_graph = _setup_bigger_graph()
+signed_node_graph = _setup_signed_node_graph()
+search_api = _setup_api(False)
+exp_search_api = _setup_api(True)
 
 
 def _match_args(run_options: Set[str], alg_fun: Callable) -> bool:
