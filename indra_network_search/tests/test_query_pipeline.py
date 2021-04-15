@@ -392,11 +392,9 @@ def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
         raise ValueError(f'Unrecognized Query class {type(query)}')
 
 
-def _get_edge_data_list(
-        edge_list: List[Union[Tuple[str, str], Tuple[Tuple[str, int]],
-                              Tuple[str, int]]],
-        graph: DiGraph, large: bool
-) -> List[EdgeData]:
+def _get_edge_data_list(edge_list: List[Tuple[Union[str, Tuple[str, int]],
+                                              Union[str, Tuple[str, int]]]],
+                        graph: DiGraph, large: bool) -> List[EdgeData]:
     edges: List[EdgeData] = []
     for a, b in edge_list:
         edata = _get_edge_data(edge=(a, b), graph=graph, large=large)
