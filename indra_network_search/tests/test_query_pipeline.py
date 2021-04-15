@@ -24,6 +24,8 @@ from indra.explanation.pathfinding import bfs_search, shortest_simple_paths,\
     open_dijkstra_search
 from indra.explanation.model_checker.model_checker import \
     signed_edges_to_signed_nodes
+from depmap_analysis.network_functions.famplex_functions import \
+    get_identifiers_url
 from indra_network_search.util import get_mandatory_args
 from indra_network_search.data_models import *
 from indra_network_search.query import SharedTargetsQuery, Query,\
@@ -696,3 +698,79 @@ def test_dijkstra():
     # Test results mngr
     # Check results
     # Compare results with running search_api
+
+
+def test_shared_interactors():
+    BRCA1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    BRCA1_up = Node(name='BRCA1', namespace='HGNC', identifier='1100', sign=0,
+                    lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    BRCA1_down = Node(name='BRCA1', namespace='HGNC',
+                      identifier='1100', sign=1,
+                      lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    BRCA2 = Node(name='BRCA2', namespace='HGNC', identifier='1101',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
+    BRCA2_up = Node(name='BRCA2', namespace='HGNC', identifier='1101', sign=0,
+                    lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
+    BRCA2_down = Node(name='BRCA2', namespace='HGNC',
+                      identifier='1101', sign=1,
+                      lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
+
+    # 'HDAC3': {'ns': 'HGNC', 'id': '4854'}
+    HDAC3 = Node(name='HDAC3', namespace='HGNC', identifier='4854',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='4854'))
+    HDAC3_up = Node(name='HDAC3', namespace='HGNC', identifier='4854', sign=0,
+                    lookup=get_identifiers_url(db_name='HGNC', db_id='4854'))
+    HDAC3_down = Node(name='HDAC3', namespace='HGNC',
+                      identifier='4854', sign=1,
+                      lookup=get_identifiers_url(db_name='HGNC', db_id='4854'))
+
+    # 'CHEK1': {'ns': 'HGNC', 'id': '1925'}
+    CHEK1 = Node(name='CHEK1', namespace='HGNC', identifier='1925',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1925'))
+    CHEK1_up = Node(name='CHEK1', namespace='HGNC', identifier='1925', sign=0,
+                    lookup=get_identifiers_url(db_name='HGNC', db_id='1925'))
+    CHEK1_down = Node(name='CHEK1', namespace='HGNC', identifier='1925',
+                      lookup=get_identifiers_url(db_name='HGNC', db_id='1925'))
+
+    # 'H2AZ1': {'ns': 'HGNC', 'id': '4741'}
+    H2AZ1 = Node(name='H2AZ1', namespace='HGNC', identifier='4741',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='4741'))
+    H2AZ1_up = Node(name='H2AZ1', namespace='HGNC', identifier='4741', sign=0,
+                    lookup=get_identifiers_url(db_name='HGNC', db_id='4741'))
+    H2AZ1_down = Node(name='H2AZ1', namespace='HGNC',
+                      identifier='4741', sign=1,
+                      lookup=get_identifiers_url(db_name='HGNC', db_id='4741'))
+
+    # Check shared targets
+    rest_query = NetworkSearchQuery(source=BRCA1.name, target=HDAC3.name)
+    source_edges = [('BRCA1', n) for n in
+                    ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    target_edges = [('HDAC3', n) for n in
+                    ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    stq = SharedTargetsQuery(query=rest_query)
+    expected_results = SharedInteractorsResults(
+        source_data=_get_edge_data_list(edge_list=source_edges,
+                                        graph=expanded_unsigned_graph,
+                                        large=True),
+        target_data=_get_edge_data_list(edge_list=target_edges,
+                                        graph=expanded_unsigned_graph,
+                                        large=True),
+        downstream=True)
+    assert _check_shared_interactors(rest_query=rest_query, query=stq,
+                                     graph=expanded_unsigned_graph,
+                                     expected_res=expected_results)
+
+    # Check shared regulators
+    rest_query = NetworkSearchQuery(source=CHEK1.name, target=H2AZ1.name)
+
+    # Check
+    # - allowed ns
+    # - stmt types
+    # - source filter
+    # - max results
+    # - sign
+    # - hash blacklist
+    # - node blacklist
+    # - belief cutoff
+    # - curated db only
