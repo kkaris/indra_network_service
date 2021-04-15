@@ -234,8 +234,8 @@ def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
 
     # Check if we have any results
     assert results.is_empty() == expected_res.is_empty(), \
-        f'result is "{"empty" if results.is_empty() else "not empty"}"; but ' \
-        f'expected "{"empty" if expected_res.is_empty() else "not empty"}"'
+        f'result is {"empty" if results.is_empty() else "not empty"}; but ' \
+        f'expected {"empty" if expected_res.is_empty() else "not empty"}'
 
     assert _node_equals(results.source, expected_res.source)
     assert _node_equals(results.target, expected_res.target)
@@ -313,8 +313,8 @@ def _check_shared_interactors(
     assert isinstance(results, SharedInteractorsResults), \
         f'Result is not SharedInteractorsResults model:\n{type(results)}'
     assert results.is_empty() == expected_res.is_empty(), \
-        f'result is "{"empty" if results.is_empty() else "not empty"}"; but ' \
-        f'expected "{"empty" if expected_res.is_empty() else "not empty"}"'
+        f'result is {"empty" if results.is_empty() else "not empty"}; but ' \
+        f'expected {"empty" if expected_res.is_empty() else "not empty"}'
 
     # Check if results are as expected
     assert all(_edge_data_equals(d1, d1) for d1, d2 in
