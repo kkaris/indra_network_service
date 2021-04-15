@@ -294,8 +294,43 @@ def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
         raise ValueError(f'Unrecognized Query class {type(query)}')
 
 
-def _get_path_list(str_paths: List[Tuple[str, ...]], graph: DiGraph) \
-        -> List[Path]:
+def _get_edge_data_list(
+        edge_list: List[Union[Tuple[str, str], Tuple[Tuple[str, int]],
+                              Tuple[str, int]]],
+        graph: DiGraph, large: bool
+) -> List[EdgeData]:
+    edges: List[EdgeData] = []
+    for a, b in edge_list:
+        edata = _get_edge_data(edge=(a, b), graph=graph, large=large)
+        edges.append(edata)
+    return edges
+
+
+def _get_edge_data(edge: Tuple[Union[str, Tuple[str, int]], ...],
+                   graph: DiGraph, large: bool) -> EdgeData:
+    ed = more_edge_data[edge] if large else edge_data[edge]
+    stmt_dict = {}
+
+    for sd in ed['statements']:
+        url = DB_URL_HASH.format(stmt_hash=sd['stmt_hash'])
+        stmt_data = StmtData(db_url_hash=url, **sd)
+        try:
+            stmt_dict[stmt_data.stmt_type].append(stmt_data)
+        except KeyError:
+            stmt_dict[stmt_data.stmt_type] = [stmt_data]
+
+    node_edge = [_get_node(edge[0], graph), _get_node(edge[1], graph)]
+    edge_url = DB_URL_EDGE.format(subj_id=node_edge[0].identifier,
+                                  subj_ns=node_edge[0].namespace,
+                                  obj_id=node_edge[1].identifier,
+                                  obj_ns=node_edge[1].namespace)
+
+    return EdgeData(edge=node_edge, statements=stmt_dict, belief=ed['belief'],
+                    weight=ed['weight'], db_url_edge=edge_url)
+
+
+def _get_path_list(str_paths: List[Tuple[Union[str, Tuple[str, int]], ...]],
+                   graph: DiGraph, large: bool) -> List[Path]:
     paths: List[Path] = []
     for spath in str_paths:
         path: List[Node] = []
@@ -303,27 +338,10 @@ def _get_path_list(str_paths: List[Tuple[str, ...]], graph: DiGraph) \
             path.append(_get_node(sn, graph))
         edl: List[EdgeData] = []
         for a, b in zip(spath[:-1], spath[1:]):
-            ed = edge_data[(a, b)]
-            stmt_dict = {}
-            for sd in ed['statements']:
-                url = DB_URL_HASH.format(stmt_hash=sd['stmt_hash'])
-                stmt_data = StmtData(db_url_hash=url, **sd)
-                try:
-                    stmt_dict[stmt_data.stmt_type].append(stmt_data)
-                except KeyError:
-                    stmt_dict[stmt_data.stmt_type] = [stmt_data]
-            edge = [_get_node(a, graph), _get_node(b, graph)]
-            edge_url = DB_URL_EDGE.format(subj_id=edge[0].identifier,
-                                          subj_ns=edge[0].namespace,
-                                          obj_id=edge[1].identifier,
-                                          obj_ns=edge[1].namespace)
-            edl.append(EdgeData(edge=edge,
-                                statements=stmt_dict,
-                                belief=ed['belief'],
-                                weight=ed['weight'],
-                                db_url_edge=edge_url))
-        paths.append(Path(path=path,
-                          edge_data=edl))
+            edge = (a, b)
+            e_data = _get_edge_data(edge=edge, graph=graph, large=large)
+            edl.append(e_data)
+        paths.append(Path(path=path, edge_data=edl))
     return paths
 
 
@@ -387,8 +405,10 @@ def test_shortest_simple_paths():
                  ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
     str_paths5 = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
                   ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
-    paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph),
-             5: _get_path_list(str_paths=str_paths5, graph=unsigned_graph)}
+    paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph,
+                               large=False),
+             5: _get_path_list(str_paths=str_paths5, graph=unsigned_graph,
+                               large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -400,8 +420,10 @@ def test_shortest_simple_paths():
     belief_weighted_query = NetworkSearchQuery(source=BRCA1.name,
                                                target=BRCA2.name,
                                                weighted=True)
-    paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph),
-             5: _get_path_list(str_paths=str_paths5, graph=unsigned_graph)}
+    paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph,
+                               large=False),
+             5: _get_path_list(str_paths=str_paths5, graph=unsigned_graph,
+                               large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -413,7 +435,7 @@ def test_shortest_simple_paths():
     reverse_query = rest_query.reverse_search()
     rev_str_paths = [('BRCA2', 'BRCA1')]
     rev_paths = {2: _get_path_list(str_paths=rev_str_paths,
-                                   graph=unsigned_graph)}
+                                   graph=unsigned_graph, large=False)}
     expected_rev_paths: PathResultData = \
         PathResultData(source=BRCA2, target=BRCA1, paths=rev_paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -436,9 +458,9 @@ def test_shortest_simple_paths():
                           ['AR', 'MBD2', 'PATZ1']]
 
     paths = {4: _get_path_list(str_paths=stmt_filter_paths,
-                               graph=unsigned_graph),
+                               graph=unsigned_graph, large=False),
              5: _get_path_list(str_paths=stmt_filter_paths5,
-                               graph=unsigned_graph)}
+                               graph=unsigned_graph, large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -455,9 +477,9 @@ def test_shortest_simple_paths():
     hash_bl_paths5 = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
                       ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
     paths = {4: _get_path_list(str_paths=hash_bl_paths,
-                               graph=unsigned_graph),
+                               graph=unsigned_graph, large=False),
              5: _get_path_list(str_paths=hash_bl_paths5,
-                               graph=unsigned_graph)}
+                               graph=unsigned_graph, large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -471,7 +493,8 @@ def test_shortest_simple_paths():
                                   allowed_ns=['HGNC'])
     ns_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                 ['AR', 'NR2C2', 'MBD2', 'PATZ1']]
-    paths = {4: _get_path_list(str_paths=ns_paths, graph=unsigned_graph)}
+    paths = {4: _get_path_list(str_paths=ns_paths, graph=unsigned_graph,
+                               large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -487,8 +510,10 @@ def test_shortest_simple_paths():
                      ['AR', 'NR2C2', 'MBD2', 'PATZ1']]
     node_bl_paths5 = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
                       ['AR', 'NR2C2', 'MBD2', 'PATZ1']]
-    paths = {4: _get_path_list(str_paths=node_bl_paths, graph=unsigned_graph),
-             5: _get_path_list(str_paths=node_bl_paths5, graph=unsigned_graph)}
+    paths = {4: _get_path_list(str_paths=node_bl_paths,
+                               graph=unsigned_graph, large=False),
+             5: _get_path_list(str_paths=node_bl_paths5,
+                               graph=unsigned_graph, large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -501,7 +526,8 @@ def test_shortest_simple_paths():
                                    path_length=5)
     pl5_str_paths = [('BRCA1', n, 'CHEK1', 'NCOA', 'BRCA2') for n in
                      ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
-    paths = {5: _get_path_list(str_paths=pl5_str_paths, graph=unsigned_graph)}
+    paths = {5: _get_path_list(str_paths=pl5_str_paths,
+                               graph=unsigned_graph, large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -514,7 +540,8 @@ def test_shortest_simple_paths():
                                       belief_cutoff=0.71)
     belief_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                     ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
-    paths = {4: _get_path_list(str_paths=belief_paths, graph=unsigned_graph)}
+    paths = {4: _get_path_list(str_paths=belief_paths, graph=unsigned_graph,
+                               large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -527,7 +554,8 @@ def test_shortest_simple_paths():
                                        curated_db_only=True)
     curated_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                      ['AR', 'testosterone', 'NR2C2']]
-    paths = {4: _get_path_list(str_paths=curated_paths, graph=unsigned_graph)}
+    paths = {4: _get_path_list(str_paths=curated_paths,
+                               graph=unsigned_graph, large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -540,7 +568,8 @@ def test_shortest_simple_paths():
                                        k_shortest=4)
     k_short_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                      ['AR', 'testosterone', 'NR2C2', 'MBD2']]
-    paths = {4: _get_path_list(str_paths=k_short_paths, graph=unsigned_graph)}
+    paths = {4: _get_path_list(str_paths=k_short_paths,
+                               graph=unsigned_graph, large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
@@ -553,7 +582,8 @@ def test_shortest_simple_paths():
                                     cull_best_node=3)
     cull_paths = [('BRCA1', n, 'CHEK1', 'BRCA2') for n in
                   ['AR', 'testosterone', 'NR2C2']]
-    paths = {4: _get_path_list(str_paths=cull_paths, graph=unsigned_graph)}
+    paths = {4: _get_path_list(str_paths=cull_paths, graph=unsigned_graph,
+                               large=False)}
     expected_paths: PathResultData = \
         PathResultData(source=BRCA1, target=BRCA2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
