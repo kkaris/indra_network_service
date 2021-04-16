@@ -270,6 +270,23 @@ class Node(BaseModel):
         return self.__class__(**self.dict(exclude={'sign'},
                                           exclude_defaults=True))
 
+    def signed_node_tuple(self) -> Tuple[str, int]:
+        """Get a signed node tuple of node name and node sign
+
+        Returns
+        -------
+        Tuple[str, int]
+
+        Raises
+        ------
+        TypeError
+            If sign is not defined, a TypeError
+        """
+        if self.sign is None:
+            raise TypeError('Node is unsigned, unable to produce a signed '
+                            'node tuple')
+        return self.name, self.sign
+
 
 class StmtData(BaseModel):
     """Data for one statement supporting an edge"""
