@@ -65,8 +65,10 @@ def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
         f'result is {"empty" if results.is_empty() else "not empty"}; but ' \
         f'expected {"empty" if expected_res.is_empty() else "not empty"}'
 
-    assert _node_equals(results.source, expected_res.source)
-    assert _node_equals(results.target, expected_res.target)
+    assert _node_equals(results.source, expected_res.source), \
+        f'Got node {results.source}; expected {expected_res.source}'
+    assert _node_equals(results.target, expected_res.target), \
+        f'Got node {results.target}; expected {expected_res.target}'
 
     for exp_len, expected in expected_res.paths.items():
         try:
