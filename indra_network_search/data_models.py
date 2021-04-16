@@ -10,6 +10,7 @@ todo:
  - Use constr(min_length=N) to enforce that str fields are not empty
  - Figure out how to use conlist and other con* enforcers for e.g.:
     + Enfore hashes to be int and/or str
+    + Lowercase for string filters
  - In FilterOptions, set overall weighted based on values of weighted
    context weighted. See here for more info:
    https://stackoverflow.com/q/54023782/10478812
@@ -234,8 +235,8 @@ class DijkstraOptions(BaseModel):
 
 class SharedInteractorsOptions(BaseModel):
     """Arguments for indra_network_search.pathfinding.shared_interactors"""
-    source: str
-    target: str
+    source: Union[str, Tuple[str, int]]
+    target: Union[str, Tuple[str, int]]
     allowed_ns: Optional[List[str]] = None
     stmt_types: Optional[List[str]] = None
     source_filter: Optional[List[str]] = None
