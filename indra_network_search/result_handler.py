@@ -212,6 +212,10 @@ class PathResultManager(ResultManager):
         else:
             self.target = None
 
+        if self.source is None and self.target is None:
+            raise ValueError(f'Failed to set source ({source}) and/or target '
+                             f'({target})')
+
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         raise NotImplementedError
