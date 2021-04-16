@@ -31,7 +31,7 @@ __all__ = ['ResultManager', 'DijkstraResultManager',
            'ShortestSimplePathsResultManager',
            'BreadthFirstSearchResultManager',
            'SharedInteractorsResultManager', 'OntologyResultManager',
-           'SubgraphResultManager']
+           'SubgraphResultManager', 'alg_manager_mapping']
 
 
 logger = logging.getLogger(__name__)
