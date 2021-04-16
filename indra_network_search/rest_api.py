@@ -88,9 +88,9 @@ def sub_graph(search_query: SubgraphRestQuery):
 
 
 if DEBUG:
-    from indra_network_search.tests.test_query_pipeline import _setup_graph
-    from networkx import DiGraph
-    dir_graph, sign_node_graph = _setup_graph(), DiGraph()
+    from .tests.util import _setup_graph, _setup_signed_node_graph
+    dir_graph = _setup_graph()
+    sign_node_graph = _setup_signed_node_graph(False)
     network_search_api = IndraNetworkSearchAPI(
         unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
     )

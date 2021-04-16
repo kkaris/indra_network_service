@@ -31,7 +31,7 @@ __all__ = ['ResultManager', 'DijkstraResultManager',
            'ShortestSimplePathsResultManager',
            'BreadthFirstSearchResultManager',
            'SharedInteractorsResultManager', 'OntologyResultManager',
-           'SubgraphResultManager']
+           'SubgraphResultManager', 'alg_manager_mapping']
 
 
 logger = logging.getLogger(__name__)
@@ -85,8 +85,8 @@ class ResultManager:
             node_info = {'name': name}
 
         # Check if node exists in graph
-        db_ns = self._graph.nodes.get(name, {}).get('ns')
-        db_id = self._graph.nodes.get(name, {}).get('id')
+        db_ns = self._graph.nodes.get(node_name, {}).get('ns')
+        db_id = self._graph.nodes.get(node_name, {}).get('id')
         if db_id is None or db_ns is None:
             return None
 
@@ -140,7 +140,9 @@ class ResultManager:
         if a_node is None or b_node is None:
             return None
         edge = [a_node, b_node]
-        ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
+        str_edge = (a_node.name, b_node.name) if a_node.sign is None else \
+            (a_node.signed_node_tuple(), b_node.signed_node_tuple())
+        ed: Dict[str, Any] = self._graph.edges[str_edge]
         stmt_dict: Dict[str, List[StmtData]] = {}
         for sd in ed['statements']:
             stmt_data = self._get_stmt_data(stmt_dict=sd)
@@ -209,6 +211,10 @@ class PathResultManager(ResultManager):
                 self._get_node(target)
         else:
             self.target = None
+
+        if self.source is None and self.target is None:
+            raise ValueError(f'Failed to set source ({source}) and/or target '
+                             f'({target})')
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:

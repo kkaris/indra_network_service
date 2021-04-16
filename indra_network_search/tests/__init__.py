@@ -3,10 +3,11 @@ Todo:
     - Move all queries related to NetworkSearch into test_query_pipeline
     - Create standalone test files for subgraph queries
 """
+from copy import deepcopy
 from depmap_analysis.network_functions.net_functions import _weight_from_belief
 
 
-__all__ = ['nodes', 'edge_data']
+__all__ = ['nodes', 'edge_data', 'more_edge_data']
 
 wm = _weight_from_belief
 
@@ -19,9 +20,9 @@ nodes = {'BRCA1': {'ns': 'HGNC', 'id': '1100'},
          'NR2C2': {'ns': 'HGNC', 'id': '7972'},           # C
          'MBD2': {'ns': 'HGNC', 'id': '6917'},            # D
          'PATZ1': {'ns': 'HGNC', 'id': '13071'},          # E
-         'HDAC3': {'ns': 'HGNC', 'id': '4854'},           # F
+         'HDAC3': {'ns': 'HGNC', 'id': '4854'},           # F (unused in edges)
          'H2AZ1': {'ns': 'HGNC', 'id': '4741'},           # G (unused in edges)
-         'NCOA': {'ns': 'FPLX', 'id': 'NCOA'}}            # H (unused in edges)
+         'NCOA': {'ns': 'FPLX', 'id': 'NCOA'}}            # H
 
 edge_data = {
         ('BRCA1', 'AR'): {'belief': 0.999999,
@@ -120,3 +121,21 @@ edge_data = {
              'position': None, 'english': 'CHEK1 inhibits BRCA2.'}]
         },
 }
+
+more_edge_data = {}
+for edge, v in edge_data.items():
+    # Add parallel edges for BRCA1 and CHEK1
+    more_edge_data[edge] = v
+    if 'BRCA1' == edge[0]:
+        parallel_edge = ('HDAC3', edge[1])
+        vc = deepcopy(v)
+        vc['statements'][0]['english'] = \
+            v['statements'][0]['english'].replace('BRCA1', 'HDAC3')
+        more_edge_data[parallel_edge] = v
+
+    if 'CHEK1' == edge[1]:
+        parallel_edge = (edge[0], 'H2AZ1')
+        vc = deepcopy(v)
+        vc['statements'][0]['english'] = \
+            v['statements'][0]['english'].replace('CHEK1', 'H2AZ1')
+        more_edge_data[parallel_edge] = v
