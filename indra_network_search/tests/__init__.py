@@ -3,6 +3,7 @@ Todo:
     - Move all queries related to NetworkSearch into test_query_pipeline
     - Create standalone test files for subgraph queries
 """
+from copy import deepcopy
 from depmap_analysis.network_functions.net_functions import _weight_from_belief
 
 
@@ -127,8 +128,14 @@ for edge, v in edge_data.items():
     more_edge_data[edge] = v
     if 'BRCA1' == edge[0]:
         parallel_edge = ('HDAC3', edge[1])
+        vc = deepcopy(v)
+        vc['statements'][0]['english'] = \
+            v['statements'][0]['english'].replace('BRCA1', 'HDAC3')
         more_edge_data[parallel_edge] = v
 
     if 'CHEK1' == edge[1]:
         parallel_edge = (edge[0], 'H2AZ1')
+        vc = deepcopy(v)
+        vc['statements'][0]['english'] = \
+            v['statements'][0]['english'].replace('CHEK1', 'H2AZ1')
         more_edge_data[parallel_edge] = v
