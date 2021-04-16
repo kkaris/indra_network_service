@@ -218,13 +218,13 @@ def test_shortest_simple_paths():
     # - k_shortest <-- number of paths
     # - cull_best_node
     # - user_timeout <-- not yet implemented!
-    BRCA1 = Node(name='BRCA1', namespace='HGNC', identifier='1100')
-    BRCA1_up = Node(name='BRCA1', namespace='HGNC', identifier='1100', sign=0)
-    BRCA1_down = Node(name='BRCA1', namespace='HGNC',
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100')
+    brca1_up = Node(name='BRCA1', namespace='HGNC', identifier='1100', sign=0)
+    brca1_down = Node(name='BRCA1', namespace='HGNC',
                       identifier='1100', sign=1)
-    BRCA2 = Node(name='BRCA2', namespace='HGNC', identifier='1101')
-    BRCA2_up = Node(name='BRCA2', namespace='HGNC', identifier='1101', sign=0)
-    BRCA2_down = Node(name='BRCA2', namespace='HGNC',
+    brca2 = Node(name='BRCA2', namespace='HGNC', identifier='1101')
+    brca2_up = Node(name='BRCA2', namespace='HGNC', identifier='1101', sign=0)
+    brca2_down = Node(name='BRCA2', namespace='HGNC',
                       identifier='1101', sign=1)
 
     # Create rest query - normal search
@@ -238,7 +238,7 @@ def test_shortest_simple_paths():
              5: _get_path_list(str_paths=str_paths5, graph=unsigned_graph,
                                large=False, signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=rest_query,
@@ -252,22 +252,22 @@ def test_shortest_simple_paths():
                                     graph=signed_node_graph,
                                     large=False, signed=True)}
     expected_sign_paths: PathResultData = \
-        PathResultData(source=BRCA1_up, target=BRCA2_up, paths=sign_paths)
+        PathResultData(source=brca1_up, target=brca2_up, paths=sign_paths)
     assert _check_path_queries(graph=signed_node_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=signed_rest_query,
                                expected_res=expected_sign_paths)
 
     # Create rest query - belief weighted
-    belief_weighted_query = NetworkSearchQuery(source=BRCA1.name,
-                                               target=BRCA2.name,
+    belief_weighted_query = NetworkSearchQuery(source=brca1.name,
+                                               target=brca2.name,
                                                weighted=True)
     paths = {4: _get_path_list(str_paths=str_paths, graph=unsigned_graph,
                                large=False, signed=False),
              5: _get_path_list(str_paths=str_paths5, graph=unsigned_graph,
                                large=False, signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=belief_weighted_query,
@@ -280,7 +280,7 @@ def test_shortest_simple_paths():
                                    graph=unsigned_graph, large=False,
                                    signed=False)}
     expected_rev_paths: PathResultData = \
-        PathResultData(source=BRCA2, target=BRCA1, paths=rev_paths)
+        PathResultData(source=brca2, target=brca1, paths=rev_paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=reverse_query,
@@ -307,7 +307,7 @@ def test_shortest_simple_paths():
                                graph=unsigned_graph, large=False,
                                signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=stmt_filter_query,
@@ -328,7 +328,7 @@ def test_shortest_simple_paths():
                                graph=unsigned_graph, large=False,
                                signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=hash_bl_query,
@@ -343,7 +343,7 @@ def test_shortest_simple_paths():
     paths = {4: _get_path_list(str_paths=ns_paths, graph=unsigned_graph,
                                large=False, signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=ns_query,
@@ -364,7 +364,7 @@ def test_shortest_simple_paths():
                                graph=unsigned_graph, large=False,
                                signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=node_bl_query,
@@ -379,7 +379,7 @@ def test_shortest_simple_paths():
                                graph=unsigned_graph, large=False,
                                signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=pl5_query,
@@ -393,7 +393,7 @@ def test_shortest_simple_paths():
     paths = {4: _get_path_list(str_paths=belief_paths, graph=unsigned_graph,
                                large=False, signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=belief_query,
@@ -408,7 +408,7 @@ def test_shortest_simple_paths():
                                graph=unsigned_graph, large=False,
                                signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=curated_query,
@@ -423,7 +423,7 @@ def test_shortest_simple_paths():
                                graph=unsigned_graph, large=False,
                                signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=k_short_query,
@@ -437,7 +437,7 @@ def test_shortest_simple_paths():
     paths = {4: _get_path_list(str_paths=cull_paths, graph=unsigned_graph,
                                large=False, signed=False)}
     expected_paths: PathResultData = \
-        PathResultData(source=BRCA1, target=BRCA2, paths=paths)
+        PathResultData(source=brca1, target=brca2, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=cull_query,
@@ -457,49 +457,49 @@ def test_dijkstra():
 
 
 def test_shared_interactors():
-    BRCA1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
                  lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
-    BRCA1_up = Node(name='BRCA1', namespace='HGNC', identifier='1100', sign=0,
+    brca1_up = Node(name='BRCA1', namespace='HGNC', identifier='1100', sign=0,
                     lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
-    BRCA1_down = Node(name='BRCA1', namespace='HGNC',
+    brca1_down = Node(name='BRCA1', namespace='HGNC',
                       identifier='1100', sign=1,
                       lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
-    BRCA2 = Node(name='BRCA2', namespace='HGNC', identifier='1101',
+    brca2 = Node(name='BRCA2', namespace='HGNC', identifier='1101',
                  lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
-    BRCA2_up = Node(name='BRCA2', namespace='HGNC', identifier='1101', sign=0,
+    brca2_up = Node(name='BRCA2', namespace='HGNC', identifier='1101', sign=0,
                     lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
-    BRCA2_down = Node(name='BRCA2', namespace='HGNC',
+    brca2_down = Node(name='BRCA2', namespace='HGNC',
                       identifier='1101', sign=1,
                       lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
 
     # 'HDAC3': {'ns': 'HGNC', 'id': '4854'}
-    HDAC3 = Node(name='HDAC3', namespace='HGNC', identifier='4854',
+    hdac3 = Node(name='HDAC3', namespace='HGNC', identifier='4854',
                  lookup=get_identifiers_url(db_name='HGNC', db_id='4854'))
-    HDAC3_up = Node(name='HDAC3', namespace='HGNC', identifier='4854', sign=0,
+    hdac3_up = Node(name='HDAC3', namespace='HGNC', identifier='4854', sign=0,
                     lookup=get_identifiers_url(db_name='HGNC', db_id='4854'))
-    HDAC3_down = Node(name='HDAC3', namespace='HGNC',
+    hdac3_down = Node(name='HDAC3', namespace='HGNC',
                       identifier='4854', sign=1,
                       lookup=get_identifiers_url(db_name='HGNC', db_id='4854'))
 
     # 'CHEK1': {'ns': 'HGNC', 'id': '1925'}
-    CHEK1 = Node(name='CHEK1', namespace='HGNC', identifier='1925',
+    chek1 = Node(name='CHEK1', namespace='HGNC', identifier='1925',
                  lookup=get_identifiers_url(db_name='HGNC', db_id='1925'))
-    CHEK1_up = Node(name='CHEK1', namespace='HGNC', identifier='1925', sign=0,
+    chek1_up = Node(name='CHEK1', namespace='HGNC', identifier='1925', sign=0,
                     lookup=get_identifiers_url(db_name='HGNC', db_id='1925'))
-    CHEK1_down = Node(name='CHEK1', namespace='HGNC', identifier='1925',
+    chek1_down = Node(name='CHEK1', namespace='HGNC', identifier='1925',
                       lookup=get_identifiers_url(db_name='HGNC', db_id='1925'))
 
     # 'H2AZ1': {'ns': 'HGNC', 'id': '4741'}
-    H2AZ1 = Node(name='H2AZ1', namespace='HGNC', identifier='4741',
+    h2az1 = Node(name='H2AZ1', namespace='HGNC', identifier='4741',
                  lookup=get_identifiers_url(db_name='HGNC', db_id='4741'))
-    H2AZ1_up = Node(name='H2AZ1', namespace='HGNC', identifier='4741', sign=0,
+    h2az1_up = Node(name='H2AZ1', namespace='HGNC', identifier='4741', sign=0,
                     lookup=get_identifiers_url(db_name='HGNC', db_id='4741'))
-    H2AZ1_down = Node(name='H2AZ1', namespace='HGNC',
+    h2az1_down = Node(name='H2AZ1', namespace='HGNC',
                       identifier='4741', sign=1,
                       lookup=get_identifiers_url(db_name='HGNC', db_id='4741'))
 
     # Check shared targets
-    rest_query = NetworkSearchQuery(source=BRCA1.name, target=HDAC3.name)
+    rest_query = NetworkSearchQuery(source=brca1.name, target=hdac3.name)
     source_edges = [('BRCA1', n) for n in
                     ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
     target_edges = [('HDAC3', n) for n in
@@ -518,11 +518,11 @@ def test_shared_interactors():
                                      expected_res=expected_results)
 
     # Check shared regulators
-    rest_query = NetworkSearchQuery(source=CHEK1.name, target=H2AZ1.name,
+    rest_query = NetworkSearchQuery(source=chek1.name, target=h2az1.name,
                                     shared_regulators=True)
-    source_edges = [(n, CHEK1.name) for n in
+    source_edges = [(n, chek1.name) for n in
                     ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
-    target_edges = [(n, H2AZ1.name) for n in
+    target_edges = [(n, h2az1.name) for n in
                     ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
     srq = SharedRegulatorsQuery(query=rest_query)
     expected_results = SharedInteractorsResults(
@@ -539,10 +539,10 @@ def test_shared_interactors():
 
     # - sign
     # Check shared targets
-    rest_query = NetworkSearchQuery(source=BRCA1.name, target=HDAC3.name,
+    rest_query = NetworkSearchQuery(source=brca1.name, target=hdac3.name,
                                     sign='+')
-    source_edges = [(BRCA1_up.signed_node_tuple(), ('AR', 0))]
-    target_edges = [(HDAC3_up.signed_node_tuple(), ('AR', 0))]
+    source_edges = [(brca1_up.signed_node_tuple(), ('AR', 0))]
+    target_edges = [(hdac3_up.signed_node_tuple(), ('AR', 0))]
     stq = SharedTargetsQuery(query=rest_query)
     expected_results = SharedInteractorsResults(
         source_data=_get_edge_data_list(edge_list=source_edges,
@@ -557,10 +557,10 @@ def test_shared_interactors():
                                      expected_res=expected_results)
 
     # Check shared regulators
-    rest_query = NetworkSearchQuery(source=CHEK1.name, target=H2AZ1.name,
+    rest_query = NetworkSearchQuery(source=chek1.name, target=h2az1.name,
                                     shared_regulators=True)
-    source_edges = [(('AR', 0), CHEK1_up.signed_node_tuple())]
-    target_edges = [(('AR', 0), H2AZ1_up.get_unsigned_node())]
+    source_edges = [(('AR', 0), chek1_up.signed_node_tuple())]
+    target_edges = [(('AR', 0), h2az1_up.get_unsigned_node())]
     srq = SharedRegulatorsQuery(query=rest_query)
     expected_results = SharedInteractorsResults(
         source_data=_get_edge_data_list(edge_list=source_edges,
