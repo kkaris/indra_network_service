@@ -85,8 +85,8 @@ class ResultManager:
             node_info = {'name': name}
 
         # Check if node exists in graph
-        db_ns = self._graph.nodes.get(name, {}).get('ns')
-        db_id = self._graph.nodes.get(name, {}).get('id')
+        db_ns = self._graph.nodes.get(node_name, {}).get('ns')
+        db_id = self._graph.nodes.get(node_name, {}).get('id')
         if db_id is None or db_ns is None:
             return None
 
