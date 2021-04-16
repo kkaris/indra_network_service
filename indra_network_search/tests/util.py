@@ -198,16 +198,20 @@ def _get_node(name: Union[str, Tuple[str, int]],
               graph: DiGraph) -> Optional[Node]:
     # Signed node
     if isinstance(name, tuple):
-        node_name, sign = name
-        if node_name in graph.nodes:
+        if name in graph.nodes:
+            node_name, sign = name
             return Node(name=node_name, namespace=graph.nodes[name]['ns'],
                         identifier=graph.nodes[name]['id'], sign=sign)
+        else:
+            pass
     # Unsigned node
     else:
         node_name = name
         if node_name in graph.nodes:
             return Node(name=node_name, namespace=graph.nodes[name]['ns'],
                         identifier=graph.nodes[name]['id'])
+        else:
+            pass
 
     raise ValueError(f'{name} not in graph')
 
