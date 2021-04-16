@@ -518,6 +518,41 @@ def test_shared_interactors():
                                      expected_res=expected_results)
 
     # - sign
+    # Check shared targets
+    rest_query = NetworkSearchQuery(source=BRCA1.name, target=HDAC3.name,
+                                    sign='+')
+    source_edges = [(BRCA1_up.signed_node_tuple(), ('AR', 0))]
+    target_edges = [(HDAC3_up.signed_node_tuple(), ('AR', 0))]
+    stq = SharedTargetsQuery(query=rest_query)
+    expected_results = SharedInteractorsResults(
+        source_data=_get_edge_data_list(edge_list=source_edges,
+                                        graph=exp_signed_node_graph,
+                                        large=True, signed=True),
+        target_data=_get_edge_data_list(edge_list=target_edges,
+                                        graph=exp_signed_node_graph,
+                                        large=True, signed=True),
+        downstream=True)
+    assert _check_shared_interactors(rest_query=rest_query, query=stq,
+                                     graph=exp_signed_node_graph,
+                                     expected_res=expected_results)
+
+    # Check shared regulators
+    rest_query = NetworkSearchQuery(source=CHEK1.name, target=H2AZ1.name,
+                                    shared_regulators=True)
+    source_edges = [(('AR', 0), CHEK1_up.signed_node_tuple())]
+    target_edges = [(('AR', 0), H2AZ1_up.get_unsigned_node())]
+    srq = SharedRegulatorsQuery(query=rest_query)
+    expected_results = SharedInteractorsResults(
+        source_data=_get_edge_data_list(edge_list=source_edges,
+                                        graph=exp_signed_node_graph,
+                                        large=True, signed=True),
+        target_data=_get_edge_data_list(edge_list=target_edges,
+                                        graph=exp_signed_node_graph,
+                                        large=True, signed=True),
+        downstream=False)
+    assert _check_shared_interactors(rest_query=rest_query, query=srq,
+                                     graph=exp_signed_node_graph,
+                                     expected_res=expected_results)
 
     # Check
     # - allowed ns
