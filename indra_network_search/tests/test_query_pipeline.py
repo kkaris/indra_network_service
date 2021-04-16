@@ -258,6 +258,19 @@ def test_shortest_simple_paths():
                                rest_query=signed_rest_query,
                                expected_res=expected_sign_paths)
 
+    signed_rest_query2 = NetworkSearchQuery(source='BRCA2', target='BRCA1',
+                                            sign='-')
+    sign_str_paths2 = [(('BRCA2', 0), ('BRCA1', 1))]
+    sign_paths2 = {2: _get_path_list(str_paths=sign_str_paths2,
+                                     graph=signed_node_graph,
+                                     large=False, signed=True)}
+    expected_sign_paths2: PathResultData = \
+        PathResultData(source=brca2_up, target=brca1_down, paths=sign_paths2)
+    assert _check_path_queries(graph=signed_node_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=signed_rest_query2,
+                               expected_res=expected_sign_paths2)
+
     # Create rest query - belief weighted
     belief_weighted_query = NetworkSearchQuery(source=brca1.name,
                                                target=brca2.name,
