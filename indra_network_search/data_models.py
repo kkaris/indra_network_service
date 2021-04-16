@@ -188,8 +188,8 @@ class NetworkSearchQuery(BaseModel):
 #     Good for e.g. max_paths
 class ShortestSimplePathOptions(BaseModel):
     """Arguments for indra.explanation.pathfinding.shortest_simple_paths"""
-    source: str
-    target: str
+    source: Union[str, Tuple[str, int]]
+    target: Union[str, Tuple[str, int]]
     weight: Optional[str] = None
     ignore_nodes: Optional[Set[str]] = None
     ignore_edges: Optional[Set[Tuple[str, str]]] = None
@@ -202,7 +202,7 @@ class ShortestSimplePathOptions(BaseModel):
 
 class BreadthFirstSearchOptions(BaseModel):
     """Arguments for indra.explanation.pathfinding.bfs_search"""
-    source_node: str
+    source_node: Union[str, Tuple[str, int]]
     reverse: Optional[bool] = False
     depth_limit: Optional[int] = 2
     path_limit: Optional[int] = None
@@ -219,7 +219,7 @@ class BreadthFirstSearchOptions(BaseModel):
 
 class DijkstraOptions(BaseModel):
     """Arguments for open_dijkstra_search"""
-    start: str
+    start: Union[str, Tuple[str, int]]
     reverse: Optional[bool] = False
     path_limit: Optional[int] = None
     # node_filter: Optional[List[str]] = None  # Currently not implemented
