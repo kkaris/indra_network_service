@@ -264,10 +264,12 @@ def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
 
 def _get_edge_data_list(edge_list: List[Tuple[Union[str, Tuple[str, int]],
                                               Union[str, Tuple[str, int]]]],
-                        graph: DiGraph, large: bool) -> List[EdgeData]:
+                        graph: DiGraph, large: bool, signed: bool) \
+        -> List[EdgeData]:
     edges: List[EdgeData] = []
     for a, b in edge_list:
-        edata = _get_edge_data(edge=(a, b), graph=graph, large=large)
+        edata = _get_edge_data(edge=(a, b), graph=graph, large=large,
+                               signed=signed)
         edges.append(edata)
     return edges
 

@@ -488,10 +488,10 @@ def test_shared_interactors():
     expected_results = SharedInteractorsResults(
         source_data=_get_edge_data_list(edge_list=source_edges,
                                         graph=expanded_unsigned_graph,
-                                        large=True),
+                                        large=True, signed=False),
         target_data=_get_edge_data_list(edge_list=target_edges,
                                         graph=expanded_unsigned_graph,
-                                        large=True),
+                                        large=True, signed=False),
         downstream=True)
     assert _check_shared_interactors(rest_query=rest_query, query=stq,
                                      graph=expanded_unsigned_graph,
@@ -508,10 +508,10 @@ def test_shared_interactors():
     expected_results = SharedInteractorsResults(
         source_data=_get_edge_data_list(edge_list=source_edges,
                                         graph=expanded_unsigned_graph,
-                                        large=True),
+                                        large=True, signed=False),
         target_data=_get_edge_data_list(edge_list=target_edges,
                                         graph=expanded_unsigned_graph,
-                                        large=True),
+                                        large=True, signed=False),
         downstream=False)
     assert _check_shared_interactors(rest_query=rest_query, query=srq,
                                      graph=expanded_unsigned_graph,
