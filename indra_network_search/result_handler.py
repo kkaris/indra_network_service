@@ -140,7 +140,9 @@ class ResultManager:
         if a_node is None or b_node is None:
             return None
         edge = [a_node, b_node]
-        ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
+        str_edge = (a_node.name, b_node.name) if a_node.sign is None else \
+            (a_node.signed_node_tuple(), b_node.signed_node_tuple())
+        ed: Dict[str, Any] = self._graph.edges[str_edge]
         stmt_dict: Dict[str, List[StmtData]] = {}
         for sd in ed['statements']:
             stmt_data = self._get_stmt_data(stmt_dict=sd)
