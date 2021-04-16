@@ -188,10 +188,8 @@ def _check_pipeline(rest_query: NetworkSearchQuery, alg_name: str,
                              run_options=options)
 
     # Get the result manager
-    # Todo: Add signed node graph for future tests of signed paths
     ResMng: Type[ResultManager] = alg_manager_mapping[query.alg_name]
-    res_mngr = ResMng(path_generator=path_gen,
-                      graph=graph,
+    res_mngr = ResMng(path_generator=path_gen, graph=graph,
                       **query.result_options())
 
     # Get results
