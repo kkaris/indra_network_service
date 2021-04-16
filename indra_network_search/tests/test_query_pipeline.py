@@ -28,7 +28,8 @@ from indra_network_search.result_handler import ResultManager, \
     alg_manager_mapping
 from .util import _match_args, _node_equals, _edge_data_equals, \
     _get_path_gen, _get_api_res, _get_edge_data_list, _get_path_list, \
-    unsigned_graph, expanded_unsigned_graph, exp_signed_node_graph
+    unsigned_graph, expanded_unsigned_graph, exp_signed_node_graph, \
+    signed_node_graph
 
 
 def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
@@ -202,6 +203,7 @@ def _check_pipeline(rest_query: NetworkSearchQuery, alg_name: str,
 def test_shortest_simple_paths():
     # Test:
     # - normal search
+    # - signed search
     # - belief weighted
     # - reverse
     # - context weighted
@@ -217,7 +219,13 @@ def test_shortest_simple_paths():
     # - cull_best_node
     # - user_timeout <-- not yet implemented!
     BRCA1 = Node(name='BRCA1', namespace='HGNC', identifier='1100')
+    BRCA1_up = Node(name='BRCA1', namespace='HGNC', identifier='1100', sign=0)
+    BRCA1_down = Node(name='BRCA1', namespace='HGNC',
+                      identifier='1100', sign=1)
     BRCA2 = Node(name='BRCA2', namespace='HGNC', identifier='1101')
+    BRCA2_up = Node(name='BRCA2', namespace='HGNC', identifier='1101', sign=0)
+    BRCA2_down = Node(name='BRCA2', namespace='HGNC',
+                      identifier='1101', sign=1)
 
     # Create rest query - normal search
     rest_query = NetworkSearchQuery(source='BRCA1', target='BRCA2')
@@ -235,6 +243,20 @@ def test_shortest_simple_paths():
                                QueryCls=ShortestSimplePathsQuery,
                                rest_query=rest_query,
                                expected_res=expected_paths)
+
+    # Create rest query - signed search
+    signed_rest_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
+                                           sign='+')
+    sign_str_paths = [(('BRCA1', 0), ('AR', 0), ('CHEK1', 0), ('BRCA2', 0))]
+    sign_paths = {4: _get_path_list(str_paths=sign_str_paths,
+                                    graph=signed_node_graph,
+                                    large=False, signed=True)}
+    expected_sign_paths: PathResultData = \
+        PathResultData(source=BRCA1_up, target=BRCA2_up, paths=sign_paths)
+    assert _check_path_queries(graph=signed_node_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=signed_rest_query,
+                               expected_res=expected_sign_paths)
 
     # Create rest query - belief weighted
     belief_weighted_query = NetworkSearchQuery(source=BRCA1.name,
