@@ -338,9 +338,11 @@ class DijkstraResultManager(PathResultManager):
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         # Filters already done in algorithm
         # node_blacklist
-        # terminal_ns
+        # terminal_ns <- Not part of FilterOptions currently
+        # cull best nodes <- Not applicable
         return FilterOptions(**filter_options.dict(
-            exclude={'node_blacklist'}, exclude_defaults=True
+            exclude={'node_blacklist', 'cull_best_node'},
+            exclude_defaults=True
         ))
 
     def _pass_node(self, node: Node) -> bool:
