@@ -157,7 +157,7 @@ class IndraNetworkSearchAPI:
         ----------
         shortest_simple_paths_query : ShortestSimplePathsQuery
             The input query holding the options to the algorithm
-        is_signed : is_signed
+        is_signed : bool
             Whether the query is signed or not
 
         Returns
@@ -253,15 +253,16 @@ class IndraNetworkSearchAPI:
                                               graph=graph,
                                               **stq.result_options())
 
-    def shared_regulators(
-            self, shared_regulators_query: SharedRegulatorsQuery) -> \
-            SharedInteractorsResultManager:
-        """Get results from running
+    def shared_regulators(self, shared_regulators_query: SharedRegulatorsQuery,
+                          is_signed: bool) -> SharedInteractorsResultManager:
+        """Get results from running shared_interactors
 
         Parameters
         ----------
         shared_regulators_query
             The input query holding options for ... and ...ResultManager
+        is_signed : bool
+            Whether the query is signed or not
 
         Returns
         -------
@@ -270,7 +271,7 @@ class IndraNetworkSearchAPI:
             running ...
         """
         srq = shared_regulators_query
-        graph = self.get_graph()
+        graph = self.get_graph(signed=is_signed)
         path_gen = shared_interactors(graph=graph,
                                       **srq.run_options())
         return SharedInteractorsResultManager(path_generator=path_gen,

@@ -10,13 +10,14 @@ todo:
  - Use constr(min_length=N) to enforce that str fields are not empty
  - Figure out how to use conlist and other con* enforcers for e.g.:
     + Enfore hashes to be int and/or str
+    + Lowercase for string filters
  - In FilterOptions, set overall weighted based on values of weighted
    context weighted. See here for more info:
    https://stackoverflow.com/q/54023782/10478812
 """
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict
 
-from pydantic import BaseModel, validator, Extra, constr
+from pydantic import BaseModel, validator, Extra, constr, conint
 
 from .util import get_query_hash, is_weighted, is_context_weighted
 
@@ -187,8 +188,8 @@ class NetworkSearchQuery(BaseModel):
 #     Good for e.g. max_paths
 class ShortestSimplePathOptions(BaseModel):
     """Arguments for indra.explanation.pathfinding.shortest_simple_paths"""
-    source: str
-    target: str
+    source: Union[str, Tuple[str, int]]
+    target: Union[str, Tuple[str, int]]
     weight: Optional[str] = None
     ignore_nodes: Optional[Set[str]] = None
     ignore_edges: Optional[Set[Tuple[str, str]]] = None
@@ -201,7 +202,7 @@ class ShortestSimplePathOptions(BaseModel):
 
 class BreadthFirstSearchOptions(BaseModel):
     """Arguments for indra.explanation.pathfinding.bfs_search"""
-    source_node: str
+    source_node: Union[str, Tuple[str, int]]
     reverse: Optional[bool] = False
     depth_limit: Optional[int] = 2
     path_limit: Optional[int] = None
@@ -218,7 +219,7 @@ class BreadthFirstSearchOptions(BaseModel):
 
 class DijkstraOptions(BaseModel):
     """Arguments for open_dijkstra_search"""
-    start: str
+    start: Union[str, Tuple[str, int]]
     reverse: Optional[bool] = False
     path_limit: Optional[int] = None
     # node_filter: Optional[List[str]] = None  # Currently not implemented
@@ -234,8 +235,8 @@ class DijkstraOptions(BaseModel):
 
 class SharedInteractorsOptions(BaseModel):
     """Arguments for indra_network_search.pathfinding.shared_interactors"""
-    source: str
-    target: str
+    source: Union[str, Tuple[str, int]]
+    target: Union[str, Tuple[str, int]]
     allowed_ns: Optional[List[str]] = None
     stmt_types: Optional[List[str]] = None
     source_filter: Optional[List[str]] = None
@@ -262,19 +263,29 @@ class Node(BaseModel):
     namespace: constr(min_length=1)
     identifier: constr(min_length=1)
     lookup: Optional[constr(min_length=1)]
+    sign: Optional[conint(ge=0, le=1)]
 
-
-class SignedNode(BaseModel):
-    """Data for a node"""
-    name: str
-    namespace: str
-    identifier: str
-    sign: int
-    lookup: Optional[str] = ''
-
-    def get_unsigned_node(self) -> Node:
+    def get_unsigned_node(self):
         """Get unsigned version of this node instance"""
-        return Node(**self.dict(exclude={'sign'}, exclude_defaults=True))
+        return self.__class__(**self.dict(exclude={'sign'},
+                                          exclude_defaults=True))
+
+    def signed_node_tuple(self) -> Tuple[str, int]:
+        """Get a signed node tuple of node name and node sign
+
+        Returns
+        -------
+        Tuple[str, int]
+
+        Raises
+        ------
+        TypeError
+            If sign is not defined, a TypeError
+        """
+        if self.sign is None:
+            raise TypeError('Node is unsigned, unable to produce a signed '
+                            'node tuple')
+        return self.name, self.sign
 
 
 class StmtData(BaseModel):

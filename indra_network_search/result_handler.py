@@ -31,7 +31,7 @@ __all__ = ['ResultManager', 'DijkstraResultManager',
            'ShortestSimplePathsResultManager',
            'BreadthFirstSearchResultManager',
            'SharedInteractorsResultManager', 'OntologyResultManager',
-           'SubgraphResultManager']
+           'SubgraphResultManager', 'alg_manager_mapping']
 
 
 logger = logging.getLogger(__name__)
@@ -74,19 +74,39 @@ class ResultManager:
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         raise NotImplementedError
 
-    def _get_node(self, node_name: str,
-                  apply_filter: bool = True) -> Union[Node, None]:
+    def _get_node(self, node_name: Union[str, Tuple[str, int]],
+                  apply_filter: bool = True) -> Optional[Node]:
+        # Check if node is signed
+        if isinstance(node_name, tuple):
+            name, sign = node_name
+            node_info = {'name': name, 'sign': sign}
+        else:
+            name, sign = node_name, None
+            node_info = {'name': name}
+
+        # Check if node exists in graph
         db_ns = self._graph.nodes.get(node_name, {}).get('ns')
         db_id = self._graph.nodes.get(node_name, {}).get('id')
         if db_id is None or db_ns is None:
             return None
-        lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
-        node = Node(name=node_name, namespace=db_ns,
-                    identifier=db_id, lookup=lookup)
+
+        # Add ns/id to data
+        node_info['namespace'] = db_ns
+        node_info['identifier'] = db_id
+
+        # Create Node
+        node = Node(**node_info)
+
+        # Check if we need to filter node
         if not apply_filter:
+            lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
+            node.lookup = lookup
             return node
+        # Apply filters if there are any
         elif self.filter_options.no_node_filters() or \
                 self._pass_node(node=node):
+            lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
+            node.lookup = lookup
             return node
 
         return None
@@ -111,14 +131,18 @@ class ResultManager:
             )
             return None
 
-    def _get_edge_data(self, a: Union[str, Node], b: Union[str, Node]) -> \
-            Union[EdgeData, None]:
+    def _get_edge_data(self,
+                       a: Union[str, Tuple[str, int], Node],
+                       b: Union[str, Tuple[str, int], Node]) \
+            -> Union[EdgeData, None]:
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
         if a_node is None or b_node is None:
             return None
         edge = [a_node, b_node]
-        ed: Dict[str, Any] = self._graph.edges[(a_node.name, b_node.name)]
+        str_edge = (a_node.name, b_node.name) if a_node.sign is None else \
+            (a_node.signed_node_tuple(), b_node.signed_node_tuple())
+        ed: Dict[str, Any] = self._graph.edges[str_edge]
         stmt_dict: Dict[str, List[StmtData]] = {}
         for sd in ed['statements']:
             stmt_data = self._get_stmt_data(stmt_dict=sd)
@@ -135,21 +159,20 @@ class ResultManager:
         edge_belief = ed['belief']
         edge_weight = ed['weight']
 
-        # FixMe: assume signed paths are (node, sign) tuples, and translate
-        #  sign from there
-        # sign = ed.get('sign')
-        context_weight = ed.get('context_weight')
-        if context_weight:
-            ct_dict = {'context_weight': context_weight}
-        else:
-            ct_dict = {}
+        # Get sign and context weight if present
+        extra_dict = {}
+        if a_node.sign is not None and b_node.sign is not None:
+            sign = 1 if a_node.sign != b_node.sign else 0
+            extra_dict['sign'] = sign
+        if ed.get('context_weight'):
+            extra_dict['context_weight'] = ed['context_weight']
 
         url: str = DB_URL_EDGE.format(subj_id=a_node.identifier,
                                       subj_ns=a_node.namespace,
                                       obj_id=b_node.identifier,
                                       obj_ns=b_node.namespace)
         return EdgeData(edge=edge, statements=stmt_dict, belief=edge_belief,
-                        weight=edge_weight, db_url_edge=url, **ct_dict)
+                        weight=edge_weight, db_url_edge=url, **extra_dict)
 
     def get_results(self):
         """Loops out and builds results from the paths from the generator"""
@@ -167,7 +190,8 @@ class PathResultManager(ResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str]):
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options)
 
@@ -187,6 +211,10 @@ class PathResultManager(ResultManager):
                 self._get_node(target)
         else:
             self.target = None
+
+        if self.source is None and self.target is None:
+            raise ValueError(f'Failed to set source ({source}) and/or target '
+                             f'({target})')
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -300,7 +328,8 @@ class DijkstraResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str]):
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target)
@@ -360,7 +389,8 @@ class BreadthFirstSearchResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str]):
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target)
@@ -416,7 +446,8 @@ class ShortestSimplePathsResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str]):
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target)
@@ -516,7 +547,8 @@ class OntologyResultManager(ResultManager):
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str], target: Union[Node, str]):
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options)
         self.source: Node = source if isinstance(source, Node) else \
@@ -636,10 +668,6 @@ class SubgraphResultManager(ResultManager):
         # Get edge aggregated belief, weight
         edge_belief = ed['belief']
         edge_weight = ed['weight']
-
-        # FixMe: assume signed paths are (node, sign) tuples, and translate
-        #  sign from there
-        # sign = ed.get('sign')
 
         return EdgeDataByHash(
             edge=edge, stmts=stmt_dict, belief=edge_belief, weight=edge_weight,

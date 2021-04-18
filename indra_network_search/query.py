@@ -6,6 +6,7 @@ from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List
 
 import networkx as nx
 from pydantic import BaseModel
+from itertools import product
 
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
@@ -13,6 +14,9 @@ from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
 from .data_models import *
 from .pathfinding import *
+
+INT_PLUS = 0
+INT_MINUS = 1
 
 __all__ = ['ShortestSimplePathsQuery', 'BreadthFirstSearchQuery',
            'DijkstraQuery', 'SharedTargetsQuery', 'SharedRegulatorsQuery',
@@ -51,6 +55,12 @@ class Query:
         self.query: NetworkSearchQuery = query
         self.query_hash: str = query.get_hash()
 
+    def _get_node_blacklist(self) -> List[Union[str, Tuple[str, int]]]:
+        if not self.query.node_blacklist or self.query.sign is None:
+            return self.query.node_blacklist
+        else:
+            return list(product(self.query.node_blacklist, [0, 1]))
+
     def api_options(self) -> Dict[str, Any]:
         """These options are used when IndraNetworkSearchAPI handles the query
 
@@ -83,6 +93,34 @@ class PathQuery(Query):
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
 
+    def _get_source_target(self) -> Tuple[Union[str, Tuple[str, int]],
+                                          Union[str, Tuple[str, int]]]:
+        """Use for source-target path searches"""
+        if self.query.sign is not None:
+            if SIGNS_TO_INT_SIGN[self.query.sign] == 0:
+                return (self.query.source, 0), (self.query.target, 0)
+            elif SIGNS_TO_INT_SIGN[self.query.sign] == 1:
+                return (self.query.source, 0), (self.query.target, 1)
+            else:
+                raise ValueError(f'Unknown sign {self.query.sign}')
+        else:
+            return self.query.source, self.query.target
+
+    def _get_source_node(self) -> Tuple[Union[str, Tuple[str, int]], bool]:
+        """Use for open ended path searches"""
+        if self.query.source and not self.query.target:
+            start_node, reverse = self.query.source, False
+        elif not self.query.source and self.query.target:
+            start_node, reverse = self.query.target, True
+        else:
+            raise InvalidParametersError(
+                f'Cannot use {self.alg_name} with both source and target '
+                f'set.'
+            )
+        signed_node = get_open_signed_node(node=start_node, reverse=reverse,
+                                           sign=self.query.sign)
+        return signed_node, reverse
+
     def alg_options(self) -> Dict[str, Any]:
         """Returns the options for the algorithm used, excl mesh options"""
         raise NotImplementedError
@@ -100,8 +138,14 @@ class PathQuery(Query):
 
     def result_options(self) -> Dict:
         """Provide args to corresponding result class in result_handler"""
+        if self.query.source and self.query.target:
+            source, target = self._get_source_target()
+        else:
+            start, reverse = self._get_source_node()
+            source = '' if reverse else start
+            target = start if reverse else ''
         return {'filter_options': self.query.get_filter_options(),
-                'source': self.query.source, 'target': self.query.target}
+                'source': source, 'target': target}
 
     # This method is specific for PathQuery classes
     def _get_mesh_options(self, get_func: bool = True) \
@@ -128,9 +172,10 @@ class ShortestSimplePathsQuery(PathQuery):
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shortest_simple_paths from query"""
-        return {'source': self.query.source,
-                'target': self.query.target,
-                'ignore_nodes': self.query.node_blacklist,
+        source, target = self._get_source_target()
+        return {'source': source,
+                'target': target,
+                'ignore_nodes': self._get_node_blacklist(),
                 'weight': 'weight' if self.query.weighted else None}
 
     def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
@@ -165,24 +210,16 @@ class BreadthFirstSearchQuery(PathQuery):
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of bfs_search from query"""
-        if self.query.source and not self.query.target:
-            source_node, reverse = self.query.source, False
-        elif not self.query.source and self.query.target:
-            source_node, reverse = self.query.target, True
-        else:
-            raise InvalidParametersError(
-                f'Cannot use {self.alg_name} with both source and target '
-                f'set.'
-            )
+        start_node, reverse = self._get_source_node()
         depth_limit = self.query.path_length - 1 if self.query.path_length \
             else 2
-        return {'source_node': source_node,
+        return {'source_node': start_node,
                 'reverse': reverse,
                 'depth_limit': depth_limit,
                 'path_limit': None,  # Sets yield limit inside algorithm
                 'max_per_node': self.query.max_per_node or 5,
                 'node_filter': self.query.allowed_ns,
-                'node_blacklist': self.query.node_blacklist,
+                'node_blacklist': self._get_node_blacklist(),
                 'terminal_ns': self.query.terminal_ns,
                 'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
                 'max_memory': int(2**29)}  # Currently not set in UI
@@ -222,20 +259,12 @@ class DijkstraQuery(PathQuery):
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of open_dijkstra_search from query"""
-        if self.query.source and not self.query.target:
-            start, reverse = self.query.source, False
-        elif not self.query.source and self.query.target:
-            start, reverse = self.query.target, True
-        else:
-            raise InvalidParametersError(
-                f'Cannot use {self.alg_name} with both source and target '
-                f'set.'
-            )
+        start, reverse = self._get_source_node()
         return {'start': start,
                 'reverse': reverse,
                 'path_limit': None,  # Sets yield limit inside algorithm
                 'node_filter': None,  # Unused in algorithm currently
-                'ignore_nodes': self.query.node_blacklist,
+                'ignore_nodes': self._get_node_blacklist(),
                 'ignore_edges': None,  # Not provided as an option in UI
                 'terminal_ns': self.query.terminal_ns,
                 'weight': 'weight' if self.query.weighted else None}
@@ -268,8 +297,13 @@ class SharedInteractorsQuery(Query):
 
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of shared_interactors from query"""
-        return {'source': self.query.source,
-                'target': self.query.target,
+        source = get_open_signed_node(node=self.query.source,
+                                      reverse=self.reverse,
+                                      sign=self.query.sign)
+        target = get_open_signed_node(node=self.query.target,
+                                      reverse=self.reverse,
+                                      sign=self.query.sign)
+        return {'source': source, 'target': target,
                 'allowed_ns': self.query.allowed_ns,
                 'stmt_types': self.query.stmt_filter,
                 'source_filter': None,  # Not implemented in UI
@@ -277,7 +311,7 @@ class SharedInteractorsQuery(Query):
                 'regulators': self.reverse,
                 'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
                 'hash_blacklist': self.query.edge_hash_blacklist,
-                'node_blacklist': self.query.node_blacklist,
+                'node_blacklist': self._get_node_blacklist(),
                 'belief_cutoff': self.query.belief_cutoff,
                 'curated_db_only': self.query.curated_db_only}
 
@@ -428,6 +462,45 @@ class SubgraphQuery:
                 'original_nodes': self.query.nodes,
                 'nodes_in_graph': self._nodes_in_graph,
                 'not_in_graph': self._not_in_graph}
+
+
+def get_open_signed_node(node: str, reverse: bool, sign: Optional[int] = None)\
+        -> Union[str, Tuple[str, int]]:
+    """Given sign and direction, return a node
+
+    Assign the correct sign to the source node:
+    If search is downstream, source is the first node and the search must
+    always start with + as node sign. The leaf node sign (i.e. the end of
+    the path) in this case will then be determined by the requested sign.
+
+    If reversed search, the source is the last node and can have
+    + or - as node sign depending on the requested sign.
+
+    Parameters
+    ----------
+    node: str
+        Starting node
+    reverse: bool
+        Direction of search:
+        reverse == False -> downstream search
+        reverse == True -> upstream search
+    sign: Optional[int]
+        The requested sign of the search
+
+    Returns
+    -------
+    Union[str, Tuple[str, int]]
+        A node or signed node
+    """
+    if sign is None:
+        return node
+    else:
+        # Upstream: return asked sign
+        if reverse:
+            return node, sign
+        # Downstream: return positive node
+        else:
+            return node, INT_PLUS
 
 
 def _get_ref_counts_func(hash_mesh_dict: Dict):
