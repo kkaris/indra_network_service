@@ -95,6 +95,13 @@ class IndraNetworkSearchAPI:
         # Execute all get_results with the path query last, as it takes the
         # longest
         for alg_name, res_man in result_managers.items():
+            try:
+                assert isinstance(res_man, ResultManager)
+            except AssertionError:
+                logger.warning(f'Object {type(res_man)} is not a '
+                               f'ResultManager, skipping...')
+                continue
+
             if alg_name == 'shared_targets':
                 results.shared_target_results = res_man.get_results()
             elif alg_name == 'shared_regulators':
