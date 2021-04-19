@@ -180,7 +180,8 @@ class ResultManager:
 
     def get_results(self):
         """Loops out and builds results from the paths from the generator"""
-        self.start_time = datetime.utcnow()
+        if self.start_time is None:
+            self.start_time = datetime.utcnow()
         return self._get_results()
 
 
