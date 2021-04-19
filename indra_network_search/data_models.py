@@ -36,6 +36,10 @@ __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults']
 
 
+# Set defaults
+DEFAULT_TIMEOUT = 30
+
+
 # Models for API options and filtering options
 class ApiOptions(BaseModel):
     """Options that determine API behaviour"""
@@ -103,7 +107,7 @@ class NetworkSearchQuery(BaseModel):
     strict_mesh_id_filtering: bool = False
     const_c: int = 1
     const_tk: int = 10
-    user_timeout: Union[float, bool] = 30
+    user_timeout: Union[float, bool] = DEFAULT_TIMEOUT
     two_way: bool = False
     shared_regulators: bool = False
     terminal_ns: List[str] = []
