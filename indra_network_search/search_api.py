@@ -6,7 +6,7 @@ This class represents an API that executes search queries
 Queries for specific searches are found in indra_network_search.query
 """
 import logging
-from typing import Union
+from typing import Union, Dict
 
 from networkx import DiGraph
 
@@ -60,18 +60,21 @@ class IndraNetworkSearchAPI:
         eligible_queries = query_handler.get_queries()
 
         # Initialize results
-        results = Results(query_hash=rest_query.get_hash())
+        results = Results(query_hash=rest_query.get_hash(),
+                          time_limit=rest_query.user_timeout,
+                          timed_out=False)
 
         # Get result manager for path query
-        result_managers = {}
+        result_managers: Dict[str, ResultManager] = {}
         path_result_manager = self.path_query(eligible_queries['path_query'],
                                               is_signed=query_handler.signed)
+        # Get result manager for reverse path query if requested
         if 'reverse_path_query' in eligible_queries:
-            reverse_path_result = \
+            rev_path_res_mngr = \
                 self.path_query(eligible_queries['reverse_path_query'],
                                 is_signed=query_handler.signed)
         else:
-            reverse_path_result = None
+            rev_path_res_mngr = None
 
         for alg_name, query in eligible_queries.items():
             if alg_name == 'path_query':
@@ -99,9 +102,22 @@ class IndraNetworkSearchAPI:
             elif alg_name == shared_parents.__name__:
                 results.ontology_results = res_man.get_results()
 
-        results.path_results = path_result_manager.get_results()
-        if reverse_path_result:
-            results.reverse_path_results = reverse_path_result.get_results()
+            if res_man.timed_out:
+                results.timed_out = True
+                logger.warning(f'Search timed out')
+            break
+
+        if not results.timed_out:
+            results.path_results = path_result_manager.get_results()
+            if path_result_manager.timed_out:
+                results.timed_out = True
+                logger.warning(f'Search timed out')
+
+        if not results.timed_out and rev_path_res_mngr:
+            results.reverse_path_results = rev_path_res_mngr.get_results()
+            if rev_path_res_mngr.timed_out:
+                results.timed_out = True
+                logger.warning(f'Search timed out')
 
         return results
 
