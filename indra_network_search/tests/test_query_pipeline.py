@@ -7,6 +7,8 @@ Todo
     Add tests for:
     - Test arg types match if possible, i.e. is the model's attribute of the
       same type as the arg of the algorithm function
+    - Test how non-resolving queries are handled, e.g. source or target does
+      not exist in graph
 FixMe
     Add mock db call for
     indra_db.client.readonly.mesh_ref_counts::get_mesh_ref_counts
