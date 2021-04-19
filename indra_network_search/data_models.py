@@ -33,7 +33,8 @@ __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'DijkstraOptions', 'SharedInteractorsOptions', 'OntologyOptions',
            'Node', 'StmtData', 'EdgeData', 'EdgeDataByHash', 'Path',
            'PathResultData', 'OntologyResults', 'SharedInteractorsResults',
-           'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults']
+           'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults',
+           'DEFAULT_TIMEOUT']
 
 
 # Set defaults
