@@ -7,11 +7,9 @@ The results handler deals with things like:
 - Keeping count of number of paths returned
 - Filtering paths when it's not done in the algorithm
 
-Todo:
- - Consider using a wrapper for checking time elapsed
 """
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Generator, Union, List, Optional, Iterator, Iterable, \
     Dict, Any, Set, Tuple
 
@@ -25,7 +23,7 @@ from pydantic import ValidationError
 from .pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions, PathResultData, Path, \
-    EdgeDataByHash, SubgraphResults
+    EdgeDataByHash, SubgraphResults, DEFAULT_TIMEOUT
 
 __all__ = ['ResultManager', 'DijkstraResultManager',
            'ShortestSimplePathsResultManager',
@@ -51,9 +49,11 @@ class ResultManager:
     alg_name: str = NotImplemented
 
     def __init__(self, path_generator: Union[Generator, Iterator, Iterable],
-                 graph: DiGraph, filter_options: FilterOptions):
+                 graph: DiGraph, filter_options: FilterOptions,
+                 timeout: Optional[float] = DEFAULT_TIMEOUT):
         self.path_gen: Union[Generator, Iterator, Iterable] = path_generator
         self.start_time: Optional[datetime] = None  # Start when looping paths
+        self.timeout = timeout
         self.timed_out = False
         # Remove used filters per algorithm
         self.filter_options: FilterOptions = \
@@ -174,10 +174,15 @@ class ResultManager:
         return EdgeData(edge=edge, statements=stmt_dict, belief=edge_belief,
                         weight=edge_weight, db_url_edge=url, **extra_dict)
 
-    def get_results(self):
-        """Loops out and builds results from the paths from the generator"""
+    def _get_results(self):
         # Main method for looping the path finding and results assembly
         raise NotImplementedError
+
+    def get_results(self):
+        """Loops out and builds results from the paths from the generator"""
+        if self.start_time is None:
+            self.start_time = datetime.utcnow()
+        return self._get_results()
 
 
 class PathResultManager(ResultManager):
@@ -240,6 +245,12 @@ class PathResultManager(ResultManager):
             weight = None
 
         while True:
+            if self.timeout and datetime.utcnow() - self.start_time > \
+                    timedelta(seconds=self.timeout):
+                logger.info(f'Timeout reached ({self.timeout} seconds), '
+                            f'breaking results loop')
+                self.timed_out = True
+                break
             if paths_built >= self.filter_options.max_paths:
                 logger.info(f'Found all {self.filter_options.max_paths} '
                             f'shortest paths')
@@ -314,7 +325,7 @@ class PathResultManager(ResultManager):
             paths_built += 1
             prev_path = path
 
-    def get_results(self) -> PathResultData:
+    def _get_results(self) -> PathResultData:
         """Returns the result for the associated algorithm"""
         if len(self.paths) == 0:
             self._build_paths()
@@ -527,11 +538,17 @@ class SharedInteractorsResultManager(ResultManager):
         # algorithm
         return True
 
-    def get_results(self) -> SharedInteractorsResults:
+    def _get_results(self) -> SharedInteractorsResults:
         """Get results for shared_targets and shared_regulators"""
         source_edges: List[EdgeData] = []
         target_edges: List[EdgeData] = []
         for (s1, s2), (t1, t2) in self.path_gen:
+            if self.timeout and datetime.utcnow() - self.start_time > \
+                    timedelta(seconds=self.timeout):
+                logger.info(f'Timeout reached ({self.timeout} seconds), '
+                            f'breaking results loop')
+                self.timed_out = True
+                break
             source_edge = self._get_edge_data(a=s1, b=s2)
             target_edge = self._get_edge_data(a=t1, b=t2)
             if source_edge and target_edge:
@@ -576,10 +593,16 @@ class OntologyResultManager(ResultManager):
 
     def _get_parents(self):
         for name, ns, _id, id_url in self.path_gen:
+            if self.timeout and datetime.utcnow() - self.start_time > \
+                    timedelta(seconds=self.timeout):
+                logger.info(f'Timeout reached ({self.timeout} seconds), '
+                            f'breaking results loop')
+                self.timed_out = True
+                break
             node = Node(name=name, namespace=ns, identifier=_id, lookup=id_url)
             self._parents.append(node)
 
-    def get_results(self) -> OntologyResults:
+    def _get_results(self) -> OntologyResults:
         """Get results for shared_parents"""
         self._get_parents()
         return OntologyResults(source=self.source, target=self.target,
@@ -685,6 +708,12 @@ class SubgraphResultManager(ResultManager):
                     f'{len(self._available_nodes)} eligible nodes')
         # Loop edges
         for a, b in self.path_gen:
+            if self.timeout and datetime.utcnow() - self.start_time > \
+                    timedelta(seconds=self.timeout):
+                logger.info(f'Timeout reached ({self.timeout} seconds), '
+                            f'breaking results loop')
+                self.timed_out = True
+                break
             edge: Tuple[str, str] = (a, b)
             if edge not in self.edge_dict:
                 half_edge = (self._available_nodes[a]
@@ -696,7 +725,7 @@ class SubgraphResultManager(ResultManager):
                 if edge_data:
                     self.edge_dict[edge] = edge_data
 
-    def get_results(self) -> SubgraphResults:
+    def _get_results(self) -> SubgraphResults:
         """Get results for get_subgraph_edges"""
         if not self.edge_dict and len(self._available_nodes) > 0:
             self._fill_data()

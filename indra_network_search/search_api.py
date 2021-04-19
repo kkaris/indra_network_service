@@ -5,7 +5,8 @@ This class represents an API that executes search queries
 
 Queries for specific searches are found in indra_network_search.query
 """
-from typing import Union
+import logging
+from typing import Union, Dict
 
 from networkx import DiGraph
 
@@ -20,6 +21,9 @@ from .result_handler import *
 from .pathfinding import *
 
 __all__ = ['IndraNetworkSearchAPI']
+
+
+logger = logging.getLogger(__name__)
 
 
 class IndraNetworkSearchAPI:
@@ -56,18 +60,21 @@ class IndraNetworkSearchAPI:
         eligible_queries = query_handler.get_queries()
 
         # Initialize results
-        results = Results(query_hash=rest_query.get_hash())
+        results = Results(query_hash=rest_query.get_hash(),
+                          time_limit=rest_query.user_timeout,
+                          timed_out=False)
 
         # Get result manager for path query
-        result_managers = {}
+        result_managers: Dict[str, ResultManager] = {}
         path_result_manager = self.path_query(eligible_queries['path_query'],
                                               is_signed=query_handler.signed)
+        # Get result manager for reverse path query if requested
         if 'reverse_path_query' in eligible_queries:
-            reverse_path_result = \
+            rev_path_res_mngr = \
                 self.path_query(eligible_queries['reverse_path_query'],
                                 is_signed=query_handler.signed)
         else:
-            reverse_path_result = None
+            rev_path_res_mngr = None
 
         for alg_name, query in eligible_queries.items():
             if alg_name == 'path_query':
@@ -79,7 +86,8 @@ class IndraNetworkSearchAPI:
                     self.shared_targets(query, is_signed=query_handler.signed)
             elif isinstance(query, SharedRegulatorsQuery):
                 result_managers[alg_name] = \
-                    self.shared_regulators(query)
+                    self.shared_regulators(query,
+                                           is_signed=query_handler.signed)
             elif isinstance(query, OntologyQuery):
                 result_managers[alg_name] = \
                     self.shared_parents(query)
@@ -87,6 +95,13 @@ class IndraNetworkSearchAPI:
         # Execute all get_results with the path query last, as it takes the
         # longest
         for alg_name, res_man in result_managers.items():
+            try:
+                assert isinstance(res_man, ResultManager)
+            except AssertionError:
+                logger.warning(f'Object {type(res_man)} is not a '
+                               f'ResultManager, skipping...')
+                continue
+
             if alg_name == 'shared_targets':
                 results.shared_target_results = res_man.get_results()
             elif alg_name == 'shared_regulators':
@@ -94,9 +109,22 @@ class IndraNetworkSearchAPI:
             elif alg_name == shared_parents.__name__:
                 results.ontology_results = res_man.get_results()
 
-        results.path_results = path_result_manager.get_results()
-        if reverse_path_result:
-            results.reverse_path_results = reverse_path_result.get_results()
+            if res_man.timed_out:
+                results.timed_out = True
+                logger.warning(f'Search timed out')
+            break
+
+        if not results.timed_out:
+            results.path_results = path_result_manager.get_results()
+            if path_result_manager.timed_out:
+                results.timed_out = True
+                logger.warning(f'Search timed out')
+
+        if not results.timed_out and rev_path_res_mngr:
+            results.reverse_path_results = rev_path_res_mngr.get_results()
+            if rev_path_res_mngr.timed_out:
+                results.timed_out = True
+                logger.warning(f'Search timed out')
 
         return results
 

@@ -33,7 +33,12 @@ __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'DijkstraOptions', 'SharedInteractorsOptions', 'OntologyOptions',
            'Node', 'StmtData', 'EdgeData', 'EdgeDataByHash', 'Path',
            'PathResultData', 'OntologyResults', 'SharedInteractorsResults',
-           'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults']
+           'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults',
+           'DEFAULT_TIMEOUT']
+
+
+# Set defaults
+DEFAULT_TIMEOUT = 30
 
 
 # Models for API options and filtering options
@@ -103,7 +108,7 @@ class NetworkSearchQuery(BaseModel):
     strict_mesh_id_filtering: bool = False
     const_c: int = 1
     const_tk: int = 10
-    user_timeout: Union[float, bool] = 30
+    user_timeout: Union[float, bool] = DEFAULT_TIMEOUT
     two_way: bool = False
     shared_regulators: bool = False
     terminal_ns: List[str] = []
@@ -397,6 +402,8 @@ class SubgraphResults(BaseModel):
 class Results(BaseModel):
     """The model wrapping all results from the NetworkSearchQuery"""
     query_hash: str
+    time_limit: float
+    timed_out: bool
     hashes: List[str] = []  # Cast as string for JavaScript
     path_results: Optional[PathResultData] = None
     reverse_path_results: Optional[PathResultData] = None
