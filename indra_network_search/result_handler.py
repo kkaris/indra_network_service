@@ -174,10 +174,14 @@ class ResultManager:
         return EdgeData(edge=edge, statements=stmt_dict, belief=edge_belief,
                         weight=edge_weight, db_url_edge=url, **extra_dict)
 
-    def get_results(self):
-        """Loops out and builds results from the paths from the generator"""
+    def _get_results(self):
         # Main method for looping the path finding and results assembly
         raise NotImplementedError
+
+    def get_results(self):
+        """Loops out and builds results from the paths from the generator"""
+        self.start_time = datetime.utcnow()
+        return self._get_results()
 
 
 class PathResultManager(ResultManager):
@@ -314,7 +318,7 @@ class PathResultManager(ResultManager):
             paths_built += 1
             prev_path = path
 
-    def get_results(self) -> PathResultData:
+    def _get_results(self) -> PathResultData:
         """Returns the result for the associated algorithm"""
         if len(self.paths) == 0:
             self._build_paths()
@@ -527,7 +531,7 @@ class SharedInteractorsResultManager(ResultManager):
         # algorithm
         return True
 
-    def get_results(self) -> SharedInteractorsResults:
+    def _get_results(self) -> SharedInteractorsResults:
         """Get results for shared_targets and shared_regulators"""
         source_edges: List[EdgeData] = []
         target_edges: List[EdgeData] = []
@@ -579,7 +583,7 @@ class OntologyResultManager(ResultManager):
             node = Node(name=name, namespace=ns, identifier=_id, lookup=id_url)
             self._parents.append(node)
 
-    def get_results(self) -> OntologyResults:
+    def _get_results(self) -> OntologyResults:
         """Get results for shared_parents"""
         self._get_parents()
         return OntologyResults(source=self.source, target=self.target,
@@ -696,7 +700,7 @@ class SubgraphResultManager(ResultManager):
                 if edge_data:
                     self.edge_dict[edge] = edge_data
 
-    def get_results(self) -> SubgraphResults:
+    def _get_results(self) -> SubgraphResults:
         """Get results for get_subgraph_edges"""
         if not self.edge_dict and len(self._available_nodes) > 0:
             self._fill_data()
