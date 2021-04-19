@@ -5,6 +5,7 @@ This class represents an API that executes search queries
 
 Queries for specific searches are found in indra_network_search.query
 """
+import logging
 from typing import Union
 
 from networkx import DiGraph
@@ -20,6 +21,9 @@ from .result_handler import *
 from .pathfinding import *
 
 __all__ = ['IndraNetworkSearchAPI']
+
+
+logger = logging.getLogger(__name__)
 
 
 class IndraNetworkSearchAPI:
