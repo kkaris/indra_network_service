@@ -79,7 +79,8 @@ class IndraNetworkSearchAPI:
                     self.shared_targets(query, is_signed=query_handler.signed)
             elif isinstance(query, SharedRegulatorsQuery):
                 result_managers[alg_name] = \
-                    self.shared_regulators(query)
+                    self.shared_regulators(query,
+                                           is_signed=query_handler.signed)
             elif isinstance(query, OntologyQuery):
                 result_managers[alg_name] = \
                     self.shared_parents(query)
