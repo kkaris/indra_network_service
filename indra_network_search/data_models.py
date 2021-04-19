@@ -402,6 +402,8 @@ class SubgraphResults(BaseModel):
 class Results(BaseModel):
     """The model wrapping all results from the NetworkSearchQuery"""
     query_hash: str
+    time_limit: float
+    timed_out: bool
     hashes: List[str] = []  # Cast as string for JavaScript
     path_results: Optional[PathResultData] = None
     reverse_path_results: Optional[PathResultData] = None
