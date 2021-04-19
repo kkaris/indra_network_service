@@ -720,6 +720,12 @@ class SubgraphResultManager(ResultManager):
                             f'breaking results loop')
                 self.timed_out = True
                 break
+            if self.timeout and datetime.utcnow() - self.start_time > \
+                    timedelta(seconds=self.timeout):
+                logger.info(f'Timeout reached ({self.timeout} seconds), '
+                            f'breaking results loop')
+                self.timed_out = True
+                break
             edge: Tuple[str, str] = (a, b)
             if edge not in self.edge_dict:
                 half_edge = (self._available_nodes[a]
