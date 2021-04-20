@@ -474,6 +474,7 @@ def test_dijkstra():
 
 
 def test_bfs():
+    # Todo: Update tests when depth_limit and path_length are decoupled
     # Normal BFS
     # signed
     # reverse
@@ -482,7 +483,8 @@ def test_bfs():
     # - edge_hash_blacklist
     # - allowed_ns
     # - node_blacklist
-    # - path_length <-- path length
+    # - path_length <-- path length; NOTE: for bfs, path_length is set to
+    # depth limit
     # - belief_cutoff
     # - curated_db_only
     # - k_shortest <-- number of paths
@@ -504,7 +506,7 @@ def test_bfs():
                       lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
 
     # Normal search (depth limit=3)
-    rest_query = NetworkSearchQuery(source='BRCA1',)
+    rest_query = NetworkSearchQuery(source='BRCA1')
     str_paths2 = [('BRCA1', n) for n in
                   ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
     str_paths3 = [('BRCA1', 'AR', 'CHEK1')]
@@ -513,6 +515,19 @@ def test_bfs():
     paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
                                large=False, signed=False),
              3: _get_path_list(str_paths=str_paths3, graph=unsigned_graph,
+                               large=False, signed=False)}
+    expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=rest_query,
+                               expected_res=expected_paths)
+
+    # Extend the
+    rest_query = NetworkSearchQuery(source='BRCA1', max_per_node=10,
+                                    path_length=4)
+    str_paths4 = [('BRCA1', 'AR', 'CHEK1', 'BRCA2'),
+                  ('BRCA1', 'AR', 'CHEK1', 'NCOA')]
+    paths = {4: _get_path_list(str_paths=str_paths4, graph=unsigned_graph,
                                large=False, signed=False)}
     expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
