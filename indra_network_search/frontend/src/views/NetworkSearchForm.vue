@@ -273,9 +273,9 @@
 </template>
 
 <script>
-import BaseSelectBS from "@/components/BaseSelectBS";
-import BaseCheckboxBS from "@/components/BaseCheckboxBS";
-import BaseInputBS from "@/components/BaseInputBS";
+import BaseSelectBS from "@/components/Form/BaseSelectBS";
+import BaseCheckboxBS from "@/components/Form/BaseCheckboxBS";
+import BaseInputBS from "@/components/Form/BaseInputBS";
 import AxiosMethods from "@/services/AxiosMethods";
 
 export default {
