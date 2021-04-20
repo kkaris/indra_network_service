@@ -4,7 +4,7 @@
 </template>
 
 <script>
-import NetworkSearchForm from "@/components/NetworkSearchForm";
+import NetworkSearchForm from "@/views/NetworkSearchForm";
 
 export default {
   name: "App",
