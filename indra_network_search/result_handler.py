@@ -196,11 +196,12 @@ class PathResultManager(ResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]]):
+                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options)
 
         self.paths: Dict[int, List[Path]] = {}
+        self.reverse: bool = reverse
 
         # Set path source and/or target
         if not source and not target:
@@ -272,6 +273,11 @@ class PathResultManager(ResultManager):
                     path = self.path_gen.send(send_values)
                 else:
                     path = next(self.path_gen)
+
+                # Reverse path if it is reversed, e.g. upstream open search
+                if self.reverse:
+                    path = path[::-1]
+
             except StopIteration:
                 logger.info('Reached StopIteration in PathResultsManager, '
                             'breaking.')
