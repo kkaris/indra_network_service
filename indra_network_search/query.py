@@ -140,12 +140,13 @@ class PathQuery(Query):
         """Provide args to corresponding result class in result_handler"""
         if self.query.source and self.query.target:
             source, target = self._get_source_target()
+            reverse = False
         else:
             start, reverse = self._get_source_node()
             source = '' if reverse else start
             target = start if reverse else ''
         return {'filter_options': self.query.get_filter_options(),
-                'source': source, 'target': target}
+                'source': source, 'target': target, 'reverse': reverse}
 
     # This method is specific for PathQuery classes
     def _get_mesh_options(self, get_func: bool = True) \
