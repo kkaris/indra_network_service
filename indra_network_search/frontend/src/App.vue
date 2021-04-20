@@ -1,14 +1,16 @@
 <template>
   <NetworkSearchForm/>
-  <!-- Put Results Here -->
+  <ResultArea/>
 </template>
 
 <script>
 import NetworkSearchForm from "@/views/NetworkSearchForm";
+import ResultArea from "@/views/ResultArea"
 
 export default {
   name: "App",
   components: {
+    ResultArea,
     NetworkSearchForm,
   },
 };
