@@ -258,6 +258,7 @@ export default {
       allowed_ns: [],
       node_blacklist_text: "",
       path_length: null,
+      depth_limit: 2,
       sign: "",
       weighted: false,
       belief_cutoff: 0.0,
