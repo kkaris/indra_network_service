@@ -358,6 +358,7 @@ export default {
         allowed_ns: this.allowed_ns, // Pick from multi-select
         node_blacklist: this.splitTrim(this.node_blacklist_text),
         path_length: this.path_length,
+        depth_limit: this.depth_limit,
         sign: this.sign,
         weighted: this.weighted,
         belief_cutoff: this.belief_cutoff,
