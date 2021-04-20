@@ -96,6 +96,7 @@ class NetworkSearchQuery(BaseModel):
     allowed_ns: List[str] = []
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
+    depth_limit: int = 2
     sign: Optional[str] = None
     weighted: bool = False
     belief_cutoff: Union[float, bool] = 0.0
