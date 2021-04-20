@@ -2,6 +2,7 @@
 This file contains the Query classes that maps to different algorithms used
 in the search api.
 """
+import logging
 from typing import Callable, Dict, Any, Optional, Tuple, Set, Union, List
 
 import networkx as nx
@@ -22,6 +23,9 @@ __all__ = ['ShortestSimplePathsQuery', 'BreadthFirstSearchQuery',
            'DijkstraQuery', 'SharedTargetsQuery', 'SharedRegulatorsQuery',
            'OntologyQuery', 'Query', 'PathQuery', 'alg_func_mapping',
            'alg_name_query_mapping', 'SubgraphQuery']
+
+
+logger = logging.getLogger(__name__)
 
 
 class MissingParametersError(Exception):
@@ -212,8 +216,16 @@ class BreadthFirstSearchQuery(PathQuery):
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of bfs_search from query"""
         start_node, reverse = self._get_source_node()
-        depth_limit = self.query.path_length - 1 if self.query.path_length \
-            else 2
+        # path_length == len([node1, node2, ...])
+        # depth_limit == len([(node1, node2), (node2, node3), ...])
+        # ==> path_length == depth_limit + 1
+        if self.query.path_length > self.query.depth_limit + 1:
+            logger.warning(f'Resetting depth_limit from '
+                           f'{self.query.depth_limit} to match requested '
+                           f'path_length ({self.query.path_length})')
+            depth_limit = self.query.path_length - 1
+        else:
+            depth_limit = self.query.depth_limit
         return {'source_node': start_node,
                 'reverse': reverse,
                 'depth_limit': depth_limit,
