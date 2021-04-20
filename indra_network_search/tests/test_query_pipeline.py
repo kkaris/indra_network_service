@@ -24,8 +24,8 @@ from depmap_analysis.network_functions.famplex_functions import \
     get_identifiers_url
 from indra_network_search.data_models import *
 from indra_network_search.query import SharedTargetsQuery, Query, \
-    SharedRegulatorsQuery, ShortestSimplePathsQuery, alg_func_mapping, \
-    alg_name_query_mapping
+    SharedRegulatorsQuery, ShortestSimplePathsQuery, \
+    BreadthFirstSearchQuery, alg_func_mapping, alg_name_query_mapping
 from indra_network_search.result_handler import ResultManager, \
     alg_manager_mapping
 from .util import _match_args, _node_equals, _edge_data_equals, \
@@ -471,11 +471,54 @@ def test_shortest_simple_paths():
 
 def test_dijkstra():
     pass
-    # Create dijkstra specific query
-    # Test query
-    # Test results mngr
-    # Check results
-    # Compare results with running search_api
+
+
+def test_bfs():
+    # Normal BFS
+    # signed
+    # reverse
+    # strict context <-- currently not available
+    # stmt_filter
+    # - edge_hash_blacklist
+    # - allowed_ns
+    # - node_blacklist
+    # - path_length <-- path length
+    # - belief_cutoff
+    # - curated_db_only
+    # - k_shortest <-- number of paths
+    # - cull_best_node  <-- previously untested
+
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    brca1_up = Node(name='BRCA1', namespace='HGNC', identifier='1100', sign=0,
+                    lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    brca1_down = Node(name='BRCA1', namespace='HGNC',
+                      identifier='1100', sign=1,
+                      lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    brca2 = Node(name='BRCA2', namespace='HGNC', identifier='1101',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
+    brca2_up = Node(name='BRCA2', namespace='HGNC', identifier='1101', sign=0,
+                    lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
+    brca2_down = Node(name='BRCA2', namespace='HGNC',
+                      identifier='1101', sign=1,
+                      lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
+
+    # Normal search (depth limit=3)
+    rest_query = NetworkSearchQuery(source='BRCA1',)
+    str_paths2 = [('BRCA1', n) for n in
+                  ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    str_paths3 = [('BRCA1', 'AR', 'CHEK1')]
+    # str_paths4 = [('BRCA1', 'AR', 'CHEK1', 'BRCA2'),
+    #               ('BRCA1', 'AR', 'CHEK1', 'NCOA')]
+    paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
+                               large=False, signed=False),
+             3: _get_path_list(str_paths=str_paths3, graph=unsigned_graph,
+                               large=False, signed=False)}
+    expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=rest_query,
+                               expected_res=expected_paths)
 
 
 def test_shared_interactors():
