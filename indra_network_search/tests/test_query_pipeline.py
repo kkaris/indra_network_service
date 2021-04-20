@@ -9,6 +9,8 @@ Todo
       same type as the arg of the algorithm function
     - Test how non-resolving queries are handled, e.g. source or target does
       not exist in graph
+    - Test some options (all would lead to permuation explosion) that
+      shouldn't affect the outcome of the result
 FixMe
     Add mock db call for
     indra_db.client.readonly.mesh_ref_counts::get_mesh_ref_counts
@@ -226,7 +228,8 @@ def test_shortest_simple_paths():
     # - curated_db_only
     # - k_shortest <-- number of paths
     # - cull_best_node
-    # - user_timeout <-- not yet implemented!
+    # Todo:
+    #  - user_timeout
     brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100')
     brca1_up = Node(name='BRCA1', namespace='HGNC', identifier='1100', sign=0)
     brca1_down = Node(name='BRCA1', namespace='HGNC',
@@ -470,6 +473,8 @@ def test_shortest_simple_paths():
 
 
 def test_dijkstra():
+    # Test weighted searches with all applicable options
+    # Test signed weighted searches
     pass
 
 
