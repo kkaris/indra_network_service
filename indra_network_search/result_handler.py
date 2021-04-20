@@ -346,10 +346,10 @@ class DijkstraResultManager(PathResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]]):
+                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target)
+                         target=target, reverse=reverse)
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -409,10 +409,10 @@ class BreadthFirstSearchResultManager(PathResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]]):
+                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target)
+                         target=target, reverse=reverse)
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -466,10 +466,10 @@ class ShortestSimplePathsResultManager(PathResultManager):
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]]):
+                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target)
+                         target=target, reverse=reverse)
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
