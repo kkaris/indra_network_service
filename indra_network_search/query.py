@@ -219,7 +219,8 @@ class BreadthFirstSearchQuery(PathQuery):
         # path_length == len([node1, node2, ...])
         # depth_limit == len([(node1, node2), (node2, node3), ...])
         # ==> path_length == depth_limit + 1
-        if self.query.path_length > self.query.depth_limit + 1:
+        if self.query.path_length and \
+                self.query.path_length > self.query.depth_limit + 1:
             logger.warning(f'Resetting depth_limit from '
                            f'{self.query.depth_limit} to match requested '
                            f'path_length ({self.query.path_length})')
