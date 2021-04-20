@@ -505,6 +505,9 @@ def test_bfs():
                       identifier='1101', sign=1,
                       lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
 
+    chek1 = Node(name='CHEK1', namespace='HGNC', identifier='1925',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1925'))
+
     # Normal search (depth limit=3)
     rest_query = NetworkSearchQuery(source='BRCA1')
     str_paths2 = [('BRCA1', n) for n in
@@ -540,6 +543,21 @@ def test_bfs():
     paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
                                large=False, signed=False)}
     expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=rest_query,
+                               expected_res=expected_paths)
+
+    # Reverse: get upstream of CHEK1
+    rest_query = NetworkSearchQuery(target='CHEK1')
+    str_paths2 = [(n, 'CHEK1') for n in
+                  ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    str_paths3 = [('BRCA1', 'AR', 'CHEK1')]
+    paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
+                               large=False, signed=False),
+             3: _get_path_list(str_paths=str_paths3, graph=unsigned_graph,
+                               large=False, signed=False)}
+    expected_paths: PathResultData = PathResultData(target=chek1, paths=paths)
     assert _check_path_queries(graph=unsigned_graph,
                                QueryCls=BreadthFirstSearchQuery,
                                rest_query=rest_query,
