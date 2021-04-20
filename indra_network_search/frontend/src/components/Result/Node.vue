@@ -7,6 +7,7 @@
 
 <script>
 export default {
+  // Match the fields of class Node in indra_network_search/data_models.py
   props: {
     name: {
       type: String,
