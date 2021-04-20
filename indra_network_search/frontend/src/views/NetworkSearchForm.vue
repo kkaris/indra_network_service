@@ -235,7 +235,7 @@
               />
               <BaseInputBS
                 v-model="depth_limit"
-                label="Maximum number of edges in Breadth First Search"
+                label="Depth limit in unweighted search"
                 type="number"
                 :min="1"
                 :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
