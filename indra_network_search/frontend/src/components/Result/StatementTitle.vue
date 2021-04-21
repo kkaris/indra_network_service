@@ -1,6 +1,6 @@
 <template>
   <span>
-    <Node v-bind="subj_node"/> {{ sentence }} <Node v-bind="obj_node" />
+    <Node v-bind="subj_node"/> {{ linkedSentence }} <Node v-bind="obj_node" />
   </span>
 </template>
 
