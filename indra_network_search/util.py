@@ -3,7 +3,7 @@ import json
 import inspect
 import logging
 from os import path
-from typing import Callable, Dict, Any, Set, List, Tuple, Optional
+from typing import Callable, Dict, Any, Set, List, Tuple, Optional, Union
 from datetime import datetime
 
 from botocore.exceptions import ClientError
@@ -31,7 +31,7 @@ __all__ = ['load_indra_graph', 'list_chunk_gen', 'read_query_json_from_s3',
            'CACHE', 'INDRA_DG', 'INDRA_SEG', 'INDRA_SNG', 'INDRA_DG_CACHE',
            'INDRA_SEG_CACHE',  'INDRA_SNG_CACHE', 'TEST_DG_CACHE',
            'get_default_args', 'get_mandatory_args', 'is_weighted',
-           'is_context_weighted']
+           'is_context_weighted', 'StrNode', 'StrEdge']
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +48,11 @@ INDRA_SNG_CACHE = path.join(CACHE, INDRA_SNG)
 INDRA_SEG_CACHE = path.join(CACHE, INDRA_SEG)
 INDRA_PBSNG_CACHE = path.join(CACHE, INDRA_PBSNG)
 INDRA_PBSEG_CACHE = path.join(CACHE, INDRA_PBSEG)
+
+
+# Derived types
+StrNode = Union[str, Tuple[str, int]]
+StrEdge = Tuple[StrNode]
 
 
 def get_query_resp_fstr(query_hash):
