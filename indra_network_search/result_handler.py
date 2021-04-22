@@ -600,38 +600,18 @@ class SubgraphResultManager(ResultManager):
         """Build EdgeDataByHash for all edges, without duplicates"""
         logger.info(f'Generating output data for subgraph with '
                     f'{len(self._available_nodes)} eligible nodes')
-        for node_name in self.path_gen:
-            node = self._available_nodes.get(node_name)
-            if node is None:
-                logger.warning(f'Node {node_name} not found in available '
-                               f'nodes')
-                continue
-
-            # Get in-edges for current node
-            for a, b in self.path_gen[node_name]['in_edges']:
-                edge = (a, b)
-                if edge not in self.edge_dict:
-                    half_edge = (self._available_nodes[a]
-                                 if a in self._available_nodes else a,
-                                 self._available_nodes[b]
-                                 if b in self._available_nodes else b)
-                    edge_data: EdgeDataByHash = \
-                        self._get_edge_data_by_hash(*half_edge)
-                    if edge_data:
-                        self.edge_dict[edge] = edge_data
-
-            # Get out-edges for current node
-            for a, b in self.path_gen[node_name]['out_edges']:
-                edge = (a, b)
-                if edge not in self.edge_dict:
-                    half_edge = (self._available_nodes[a]
-                                 if a in self._available_nodes else a,
-                                 self._available_nodes[b]
-                                 if b in self._available_nodes else b)
-                    edge_data: EdgeDataByHash = \
-                        self._get_edge_data_by_hash(*half_edge)
-                    if edge_data:
-                        self.edge_dict[edge] = edge_data
+        # Loop edges
+        for a, b in self.path_gen:
+            edge: Tuple[str, str] = (a, b)
+            if edge not in self.edge_dict:
+                half_edge = (self._available_nodes[a]
+                             if a in self._available_nodes else a,
+                             self._available_nodes[b]
+                             if b in self._available_nodes else b)
+                edge_data: EdgeDataByHash = \
+                    self._get_edge_data_by_hash(*half_edge)
+                if edge_data:
+                    self.edge_dict[edge] = edge_data
 
     def get_results(self) -> SubgraphResults:
         """Get results for get_subgraph_edges"""
