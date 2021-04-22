@@ -521,7 +521,8 @@ class SubgraphResultManager(ResultManager):
     """Handles results from get_subgraph_edges"""
     alg_name = get_subgraph_edges.__name__
 
-    def __init__(self, path_generator: Iterable, graph: DiGraph,
+    def __init__(self, path_generator: Iterator[Tuple[str, str]],
+                 graph: DiGraph,
                  filter_options: FilterOptions, original_nodes: List[Node],
                  nodes_in_graph: List[Node], not_in_graph: List[Node]):
         super().__init__(path_generator=path_generator,
