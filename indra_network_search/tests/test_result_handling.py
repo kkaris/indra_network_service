@@ -1,3 +1,4 @@
+from typing import Iterator, Tuple
 from networkx import DiGraph
 
 from indra_network_search.query import OntologyQuery, SharedRegulatorsQuery, \
@@ -156,86 +157,48 @@ def test_subgraph():
     subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
     subgraph_query = SubgraphQuery(query=subgrap_rest_query)
     options = subgraph_query.run_options(graph=g)
-    neigh_dict = get_subgraph_edges(graph=g, **options)
+    edge_iter: Iterator[Tuple[str, str]] = get_subgraph_edges(graph=g,
+                                                              **options)
 
-    # Should have three results total:
-    # Out-edges: B1 -> B2; B1 -> ST;
-    # In-edges: SR -> B1;
-    assert len(neigh_dict['n1']['in_edges']) == 1
-    assert set(neigh_dict['n1']['in_edges']) == {('nsr', 'n1')}
-    assert len(neigh_dict['n1']['out_edges']) == 2
-    assert set(neigh_dict['n1']['out_edges']) == {('n1', 'n2'), ('n1', 'nst')}
+    # Should have zero results
+    edges = list(edge_iter)
+    assert len(edges) == 0
 
     # Get result manager
-    res_mngr = SubgraphResultManager(path_generator=neigh_dict, graph=g,
+    res_mngr = SubgraphResultManager(path_generator=iter(edges), graph=g,
                                      **subgraph_query.result_options())
     results: SubgraphResults = res_mngr.get_results()
 
-    # Should have three results total:
-    # Out-edges: B1 -> B2; B1 -> ST;
-    # In-edges: SR -> B1;
-    assert len(results.edges) == 3
+    # Should have zero results
+    assert len(results.edges) == 0
 
-    # In edges go first, so (nsr, n1) should be first edge
-    edges = {tuple([n.name for n in e.edge]) for e in results.edges}
-    assert edges == {('n1', 'n2'), ('nsr', 'n1'), ('n1', 'nst')}
-    assert results.edges[0].weight == mock_edge_dict['weight']
-    assert results.edges[0].belief == mock_edge_dict['belief']
-    assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
-        subj_id='1102', subj_ns='HGNC', obj_id='1100', obj_ns='HGNC'
-    ), results.edges[0].db_url_edge
-    assert list(results.edges[0].stmts.values())[0].db_url_hash == \
-           DB_URL_HASH.format(stmt_hash=mock_edge_dict['statements'][0][
-               'stmt_hash']), \
-           list(results.edges[0].stmts.values())[0].db_url_hash
-    assert set(
-        list(results.edges[0].stmts.values())[0].dict().keys()
-    ).difference({'db_url_hash'}) == \
-        set(mock_edge_dict['statements'][0].keys())
-    assert all(mock_edge_dict['statements'][0][k] == v for k, v in
-               list(results.edges[0].stmts.values())[0].dict().items() if k
-               != 'db_url_hash')
-
-    # Check that input nodes were mapped properly
-    assert results.input_nodes[0].name == input_node.name
-    assert results.input_nodes[0].namespace == input_node.namespace
-    assert results.input_nodes[0].identifier == input_node.identifier
-    assert len(results.not_in_graph) == 0
-    assert results.available_nodes[0].name == input_node.name
-    assert results.available_nodes[0].namespace == input_node.namespace
-    assert results.available_nodes[0].identifier == input_node.identifier
-
-    # Test with node that has the wrong name
-    input_node = Node(name='n2', namespace='HGNC', identifier='1100')
-    subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
+    # Test with n1, n2
+    input_nodes = [Node(name='n1', namespace='HGNC', identifier='1100'),
+                   Node(name='n2', namespace='HGNC', identifier='1101')]
+    subgrap_rest_query = SubgraphRestQuery(nodes=input_nodes)
     subgraph_query = SubgraphQuery(query=subgrap_rest_query)
     options = subgraph_query.run_options(graph=g)
-    neigh_dict = get_subgraph_edges(graph=g, **options)
+    edge_iter = get_subgraph_edges(graph=g, **options)
 
-    # Should have three results total:
-    # Out-edges: B1 -> B2; B1 -> ST;
-    # In-edges: SR -> B1;
-    assert len(neigh_dict['n1']['in_edges']) == 1
-    assert set(neigh_dict['n1']['in_edges']) == {('nsr', 'n1')}
-    assert len(neigh_dict['n1']['out_edges']) == 2
-    assert set(neigh_dict['n1']['out_edges']) == {('n1', 'n2'), ('n1', 'nst')}
+    # Should have one result total: B1 -> B2
+    edges = list(edge_iter)
+    assert len(edges) == 1
+    assert set(edges) == {('n1', 'n2')}
 
     # Get result manager
-    res_mngr = SubgraphResultManager(path_generator=neigh_dict, graph=g,
+    res_mngr = SubgraphResultManager(path_generator=iter(edges), graph=g,
                                      **subgraph_query.result_options())
     results: SubgraphResults = res_mngr.get_results()
 
-    # Should have three results total:
-    # Out-edges: B1 -> B2; B1 -> ST;
-    # In-edges: SR -> B1;
-    assert len(results.edges) == 3
+    # Should have one result total: B1 -> B2
+    assert len(results.edges) == 1
 
-    edges = {tuple([n.name for n in e.edge]) for e in results.edges}
-    assert edges == {('n1', 'n2'), ('nsr', 'n1'), ('n1', 'nst')}
+    str_edges = {tuple([n.name for n in e.edge]) for e in results.edges}
+    assert str_edges == {('n1', 'n2')}
     assert results.edges[0].weight == mock_edge_dict['weight']
     assert results.edges[0].belief == mock_edge_dict['belief']
     assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
-        subj_id='1102', subj_ns='HGNC', obj_id='1100', obj_ns='HGNC'
+        subj_id='1100', subj_ns='HGNC', obj_id='1101', obj_ns='HGNC'
     ), results.edges[0].db_url_edge
     assert list(results.edges[0].stmts.values())[0].db_url_hash == \
            DB_URL_HASH.format(stmt_hash=mock_edge_dict['statements'][0][
@@ -259,41 +222,38 @@ def test_subgraph():
     assert results.available_nodes[0].identifier == input_node.identifier
 
     # Check correct name, missing/bad ns & id
-    input_node = Node(name='n1', namespace='bad ns', identifier='bad id')
-    subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
+    input_nodes = [Node(name='n1', namespace='bad ns', identifier='bad id'),
+                   Node(name='n2', namespace='HGNC', identifier='1101'),
+                   Node(name='nst', namespace='HGNC', identifier='1103'),
+                   Node(name='nsr', namespace='HGNC', identifier='1102')]
+    subgrap_rest_query = SubgraphRestQuery(nodes=input_nodes)
     subgraph_query = SubgraphQuery(query=subgrap_rest_query)
     options = subgraph_query.run_options(graph=g)
-    neigh_dict = get_subgraph_edges(graph=g, **options)
+    edge_iter = get_subgraph_edges(graph=g, **options)
 
-    # Should have three results total:
-    # Out-edges: B1 -> B2; B1 -> ST;
-    # In-edges: SR -> B1;
-    assert len(neigh_dict['n1']['in_edges']) == 1
-    assert set(neigh_dict['n1']['in_edges']) == {('nsr', 'n1')}
-    assert len(neigh_dict['n1']['out_edges']) == 2
-    assert set(neigh_dict['n1']['out_edges']) == {('n1', 'n2'), ('n1', 'nst')}
+    # Should have five results total
+    edges = list(edge_iter)
+    assert len(edges) == 5
+    assert set(edges) == {('nsr', 'n1'), ('nsr', 'n2'), ('n1', 'n2'),
+                          ('n1', 'nst'), ('n2', 'nst')}
 
     # Get result manager
-    res_mngr = SubgraphResultManager(path_generator=neigh_dict, graph=g,
+    res_mngr = SubgraphResultManager(path_generator=iter(edges), graph=g,
                                      **subgraph_query.result_options())
     results: SubgraphResults = res_mngr.get_results()
 
-    # Should have three results total:
-    # Out-edges: B1 -> B2; B1 -> ST;
-    # In-edges: SR -> B1;
-    assert len(results.edges) == 3
+    # Should have five results total
+    assert len(results.edges) == 5
 
-    edges = {tuple([n.name for n in e.edge]) for e in results.edges}
-    assert edges == {('n1', 'n2'), ('nsr', 'n1'), ('n1', 'nst')}
+    str_edges = {tuple([n.name for n in e.edge]) for e in results.edges}
+    assert str_edges == {('nsr', 'n1'), ('nsr', 'n2'), ('n1', 'n2'),
+                         ('n1', 'nst'), ('n2', 'nst')}
     assert results.edges[0].weight == mock_edge_dict['weight']
     assert results.edges[0].belief == mock_edge_dict['belief']
     assert list(results.edges[0].stmts.values())[0].db_url_hash == \
            DB_URL_HASH.format(stmt_hash=mock_edge_dict['statements'][0][
                'stmt_hash']), \
            list(results.edges[0].stmts.values())[0].db_url_hash
-    assert results.edges[0].db_url_edge == DB_URL_EDGE.format(
-        subj_id='1102', subj_ns='HGNC', obj_id='1100', obj_ns='HGNC'
-    ), results.edges[0].db_url_edge
     assert set(
         list(results.edges[0].stmts.values())[0].dict().keys()
     ).difference({'db_url_hash'}) == \
@@ -303,11 +263,11 @@ def test_subgraph():
                != 'db_url_hash')
 
     # Check that input nodes were mapped properly
-    assert results.input_nodes[0].name == input_node.name
-    assert results.input_nodes[0].namespace == input_node.namespace
-    assert results.input_nodes[0].identifier == input_node.identifier
+    assert results.input_nodes[0].name == input_nodes[0].name
+    assert results.input_nodes[0].namespace == input_nodes[0].namespace
+    assert results.input_nodes[0].identifier == input_nodes[0].identifier
     assert len(results.not_in_graph) == 0
-    assert results.available_nodes[0].name == input_node.name
+    assert results.available_nodes[0].name == input_nodes[0].name
     assert results.available_nodes[0].namespace == 'HGNC'
     assert results.available_nodes[0].identifier == '1100'
 
@@ -317,12 +277,12 @@ def test_subgraph():
     subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
     subgraph_query = SubgraphQuery(query=subgrap_rest_query)
     options = subgraph_query.run_options(graph=g)
-    neigh_dict = get_subgraph_edges(graph=g, **options)
+    edge_iter = list(get_subgraph_edges(graph=g, **options))
 
-    assert len(neigh_dict) == 0
+    assert len(edge_iter) == 0
 
     # Get result manager
-    res_mngr = SubgraphResultManager(path_generator=neigh_dict, graph=g,
+    res_mngr = SubgraphResultManager(path_generator=edge_iter, graph=g,
                                      **subgraph_query.result_options())
     results: SubgraphResults = res_mngr.get_results()
     assert len(results.edges) == 0
