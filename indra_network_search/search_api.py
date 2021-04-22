@@ -320,7 +320,7 @@ class IndraNetworkSearchAPI:
 
         """
         graph = self.get_graph(signed=False)
-        edge_dict = get_subgraph_edges(graph=self.get_graph(),
+        edge_iter = get_subgraph_edges(graph=self.get_graph(),
                                        **query.run_options(graph=graph))
-        return SubgraphResultManager(path_generator=edge_dict, graph=graph,
+        return SubgraphResultManager(path_generator=edge_iter, graph=graph,
                                      **query.result_options())
