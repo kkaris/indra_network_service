@@ -277,16 +277,16 @@ def _belief_filter(start_node: str, neighbor_nodes: Set[str],
 
 
 def get_subgraph_edges(graph: DiGraph,
-                       nodes: List[Dict[str, str]]) \
-        -> Dict[str, Dict[str, List[Tuple[str, str]]]]:
-    """
+                       nodes: List[Dict[str, str]])\
+        -> Iterator[Tuple[str, str]]:
+    """Get the subgraph connecting the provided nodes
 
     Parameters
     ----------
     graph : DiGraph
         Graph to look for in and out edges in
-    nodes : List[Node]
-        List of Node instances to look for neighbors in
+    nodes : List[Dict[str, str]]
+        List of dicts of Node instances to look for neighbors in
 
     Returns
     -------
@@ -295,26 +295,6 @@ def get_subgraph_edges(graph: DiGraph,
         the graph. For each node, two lists are provided for in-edges
         and out-edges respectively
     """
-    edge_dict = {}
-    # Loop nodes
-    for node in nodes:
-        # Per node, get in- and out-edges
-        if node['name'] not in graph.nodes:
-            mapped_name: str = graph.graph['node_by_ns_id'].get((
-                node['namespace'], node['identifier']))
-            if mapped_name is not None and mapped_name in graph.nodes:
-                node_name = mapped_name
-            else:
-                logger.warning(f'Node "{node["name"]}" was not found in the '
-                               f'graph')
-                continue
-        else:
-            node_name = node["name"]
-
-        in_edges = [e for e in graph.in_edges(node_name)]
-        out_edges = [e for e in graph.out_edges(node_name)]
-        if in_edges or out_edges:
-            edge_dict[node_name] = {'in_edges': in_edges,
-                                    'out_edges': out_edges}
-
-    return edge_dict
+    node_names = [n['name'] for n in nodes]
+    subgraph = graph.subgraph(nodes=node_names)
+    return iter(subgraph.edges)
