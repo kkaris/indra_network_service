@@ -534,6 +534,31 @@ def _get_ref_counts_func(hash_mesh_dict: Dict):
     return _func
 
 
+def pass_stmt(stmt_dict: Dict[str, Any],
+              stmt_types: Optional[List[str]],
+              hash_blacklist: Optional[List[int]],
+              check_curated: bool,
+              belief_cutoff: float = 0) -> bool:
+    """Checks and edge statement dict against several filters
+
+    Parameters
+    ----------
+    stmt_dict : Dict[str, Any]
+        The statement dict to check
+    stmt_types
+    hash_blacklist
+    check_curated : bool
+        If True, check the boolean in stmt_dict for
+    belief_cutoff : Optional[float]
+        The cutoff for belief scores
+
+    Returns
+    -------
+
+    """
+    return True
+
+
 alg_name_query_mapping = {
     bfs_search.__name__: BreadthFirstSearchQuery,
     shortest_simple_paths.__name__: ShortestSimplePathsQuery,
