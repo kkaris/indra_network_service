@@ -23,10 +23,13 @@ todo:
    https://stackoverflow.com/q/54023782/10478812
 """
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict
+from networkx import DiGraph
 
 from pydantic import BaseModel, validator, Extra, constr, conint
 
-from .util import get_query_hash, is_weighted, is_context_weighted
+from indra.explanation.pathfinding.util import EdgeFilter
+
+from .util import get_query_hash, is_weighted, is_context_weighted, StrNode
 
 __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'ShortestSimplePathOptions', 'BreadthFirstSearchOptions',
@@ -226,7 +229,8 @@ class BreadthFirstSearchOptions(BaseModel):
     sign: Optional[int] = None
     max_memory: Optional[int] = int(2**29)
     hashes: Optional[List[int]] = None
-    allow_edge: Optional[Callable] = None
+    allow_edge: Optional[Callable[[DiGraph, StrNode, StrNode], bool]] = None
+    edge_filter: Optional[EdgeFilter] = None
     strict_mesh_id_filtering: Optional[bool] = False
 
 
