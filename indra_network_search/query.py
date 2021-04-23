@@ -13,9 +13,11 @@ from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
+from .util import StrNode, StrEdge
 from .data_models import *
 from .pathfinding import *
 
+# Constants
 INT_PLUS = 0
 INT_MINUS = 1
 
@@ -213,6 +215,35 @@ class BreadthFirstSearchQuery(PathQuery):
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
 
+    def _get_edge_filter(self) \
+            -> Optional[Callable[[nx.DiGraph, StrNode, StrNode], bool]]:
+        # Get edge filter function:
+        # - belief (of statement)
+        # - statement type
+        # - hash: Only do hash blacklist, the mesh associated hashes are taken
+        #         care of in mesh options
+        # - curated
+        belief_cutoff = self.query.belief_cutoff
+        stmt_types = self.query.stmt_filter or None
+        hash_blacklist = self.query.edge_hash_blacklist or None
+        check_curated = self.query.curated_db_only
+
+        # Simplify function if no filters are applied
+        if belief_cutoff == 0 and not stmt_types and not hash_blacklist and \
+                not check_curated:
+            return None
+        else:
+            def _edge_filter(g: nx.DiGraph, u: StrNode, v: StrNode) -> bool:
+                for edge_stmt in g.edges[(u, v)]['statements']:
+                    if pass_stmt(stmt_dict=edge_stmt, stmt_types=stmt_types,
+                                 hash_blacklist=hash_blacklist,
+                                 check_curated=check_curated,
+                                 belief_cutoff=belief_cutoff):
+                        return True
+                return False
+
+            return _edge_filter
+
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of bfs_search from query"""
         start_node, reverse = self._get_source_node()
@@ -227,6 +258,9 @@ class BreadthFirstSearchQuery(PathQuery):
             depth_limit = self.query.path_length - 1
         else:
             depth_limit = self.query.depth_limit
+
+        edge_filter_func = self._get_edge_filter()
+
         return {'source_node': start_node,
                 'reverse': reverse,
                 'depth_limit': depth_limit,
@@ -236,7 +270,8 @@ class BreadthFirstSearchQuery(PathQuery):
                 'node_blacklist': self._get_node_blacklist(),
                 'terminal_ns': self.query.terminal_ns,
                 'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
-                'max_memory': int(2**29)}  # Currently not set in UI
+                'max_memory': int(2**29),  # Currently not set in UI
+                'edge_filter': edge_filter_func}
 
     def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Union[Set, bool, Callable]]:
