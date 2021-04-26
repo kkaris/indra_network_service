@@ -591,6 +591,18 @@ def pass_stmt(stmt_dict: Dict[str, Any],
     -------
 
     """
+    if stmt_types and stmt_dict['stmt_type'].lower() not in stmt_types:
+        return False
+
+    if hash_blacklist and stmt_dict['stmt_hash'] in hash_blacklist:
+        return False
+
+    if check_curated and not stmt_dict['curated']:
+        return False
+
+    if belief_cutoff > 0 and stmt_dict['belief'] < belief_cutoff:
+        return False
+
     return True
 
 
