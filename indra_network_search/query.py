@@ -11,7 +11,7 @@ from itertools import product
 
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
-    open_dijkstra_search
+    open_dijkstra_search, EdgeFilter
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
 from .util import StrNode, StrEdge
 from .data_models import *
@@ -215,8 +215,7 @@ class BreadthFirstSearchQuery(PathQuery):
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
 
-    def _get_edge_filter(self) \
-            -> Optional[Callable[[nx.DiGraph, StrNode, StrNode], bool]]:
+    def _get_edge_filter(self) -> Optional[EdgeFilter]:
         # Get edge filter function:
         # - belief (of statement)
         # - statement type
@@ -233,15 +232,10 @@ class BreadthFirstSearchQuery(PathQuery):
                 not check_curated:
             return None
         else:
-            def _edge_filter(g: nx.DiGraph, u: StrNode, v: StrNode) -> bool:
-                for edge_stmt in g.edges[(u, v)]['statements']:
-                    if pass_stmt(stmt_dict=edge_stmt, stmt_types=stmt_types,
-                                 hash_blacklist=hash_blacklist,
-                                 check_curated=check_curated,
-                                 belief_cutoff=belief_cutoff):
-                        return True
-                return False
-
+            _edge_filter = _get_edge_filter_func(stmt_types=stmt_types,
+                                                 hash_blacklist=hash_blacklist,
+                                                 check_curated=check_curated,
+                                                 belief_cutoff=belief_cutoff)
             return _edge_filter
 
     def alg_options(self) -> Dict[str, Any]:
@@ -284,11 +278,9 @@ class BreadthFirstSearchQuery(PathQuery):
                     f'mesh options.'
                 )
             hashes, _ = self._get_mesh_options(get_func=False)
-            allowed_edge = {graph.graph['edge_by_hash'][h] for h in
-                            hashes if h in graph.graph['edge_by_hash']}
-            def _allow_edge_func(u: Union[str, Tuple[str, int]],
-                                 v: Union[str, Tuple[str, int]]):
-                return (u, v) in allowed_edge
+            allowed_edges = {graph.graph['edge_by_hash'][h] for h in
+                             hashes if h in graph.graph['edge_by_hash']}
+            _allow_edge_func = _get_allowed_edges_func(allowed_edges)
         else:
             hashes, _allow_edge_func = None, lambda u, v: True
         return {
