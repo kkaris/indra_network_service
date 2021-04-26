@@ -570,9 +570,9 @@ def _get_ref_counts_func(hash_mesh_dict: Dict):
 
 
 def pass_stmt(stmt_dict: Dict[str, Any],
-              stmt_types: Optional[List[str]],
-              hash_blacklist: Optional[List[int]],
-              check_curated: bool,
+              stmt_types: Optional[List[str]] = None,
+              hash_blacklist: Optional[List[int]] = None,
+              check_curated: bool = False,
               belief_cutoff: float = 0) -> bool:
     """Checks and edge statement dict against several filters
 
