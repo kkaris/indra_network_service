@@ -569,6 +569,30 @@ def _get_ref_counts_func(hash_mesh_dict: Dict):
     return _func
 
 
+def _get_allowed_edges_func(allowed_edges: Set[StrEdge]) -> \
+        Callable[[StrNode, StrNode], bool]:
+
+    def _allow_edge_func(u: StrNode, v: StrNode):
+        return (u, v) in allowed_edges
+
+    return _allow_edge_func
+
+
+def _get_edge_filter_func(stmt_types: Optional[List[str]] = None,
+                          hash_blacklist: Optional[List[int]] = None,
+                          check_curated: Optional[bool] = False,
+                          belief_cutoff: Optional[float] = 0.0) -> EdgeFilter:
+    def _edge_filter(g: nx.DiGraph, u: StrNode, v: StrNode) -> bool:
+        for edge_stmt in g.edges[(u, v)]['statements']:
+            if pass_stmt(stmt_dict=edge_stmt, stmt_types=stmt_types,
+                         hash_blacklist=hash_blacklist,
+                         check_curated=check_curated,
+                         belief_cutoff=belief_cutoff):
+                return True
+        return False
+    return _edge_filter
+
+
 def pass_stmt(stmt_dict: Dict[str, Any],
               stmt_types: Optional[List[str]] = None,
               hash_blacklist: Optional[List[int]] = None,
