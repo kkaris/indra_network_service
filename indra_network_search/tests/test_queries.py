@@ -19,7 +19,7 @@ from indra_network_search.data_models import NetworkSearchQuery
 from indra_network_search.query import SharedTargetsQuery,\
     SharedRegulatorsQuery, ShortestSimplePathsQuery, BreadthFirstSearchQuery,\
     DijkstraQuery, OntologyQuery, MissingParametersError, \
-    InvalidParametersError, alg_func_mapping
+    InvalidParametersError, alg_func_mapping, pass_stmt
 
 
 def _match_args(run_options: Set[str], alg_fun: Callable) -> bool:
@@ -128,3 +128,31 @@ def test_dijkstra_query():
     dijq = DijkstraQuery(query)
     options = set(dijq.run_options().keys())
     _match_args(run_options=options, alg_fun=alg_func_mapping[dijq.alg_name])
+
+
+def test_pass_stmt():
+    # stmt_types: Optional[List[str]],
+    stmt_dict = {'stmt_type': 'Activation'}
+    assert pass_stmt(stmt_dict=stmt_dict, stmt_types=['activation']) == True
+    assert pass_stmt(stmt_dict=stmt_dict, stmt_types=['complex']) == False
+
+    # hash_blacklist: Optional[List[int]],
+    stmt_dict = {'stmt_hash': 123456}
+    assert pass_stmt(stmt_dict=stmt_dict) == True
+    assert pass_stmt(stmt_dict=stmt_dict, hash_blacklist=[654321]) == True
+    assert pass_stmt(stmt_dict=stmt_dict, hash_blacklist=[123456]) == False
+
+    # check_curated: bool,
+    stmt_dict = {'curated': True}
+    assert pass_stmt(stmt_dict=stmt_dict, check_curated=True) == True
+    assert pass_stmt(stmt_dict=stmt_dict) == True
+
+    stmt_dict = {'curated': False}
+    assert pass_stmt(stmt_dict=stmt_dict, check_curated=True) == False
+    assert pass_stmt(stmt_dict=stmt_dict) == True
+
+    # belief_cutoff: float = 0
+    stmt_dict = {'belief': 0.7}
+    assert pass_stmt(stmt_dict=stmt_dict) == True
+    assert pass_stmt(stmt_dict=stmt_dict, belief_cutoff=0.6) == True
+    assert pass_stmt(stmt_dict=stmt_dict, belief_cutoff=0.8) == False
