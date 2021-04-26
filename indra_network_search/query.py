@@ -580,16 +580,21 @@ def pass_stmt(stmt_dict: Dict[str, Any],
     ----------
     stmt_dict : Dict[str, Any]
         The statement dict to check
-    stmt_types
-    hash_blacklist
+    stmt_types : Optional[List[str]]
+        A list of statement types. If provided, specifies which type are
+        allowed. If no list is provided or the list is empty, all types are
+        allowed. Default: All statement types are allowed.
+    hash_blacklist : Optional[List[int]]
+        A list of hashes that are not allowed as supporting statements for
+        an edge. Default: all statements are allowed.
     check_curated : bool
-        If True, check the boolean in stmt_dict for
+        If True, check if the statement is curated
     belief_cutoff : Optional[float]
         The cutoff for belief scores
 
     Returns
     -------
-
+    bool
     """
     if stmt_types and stmt_dict['stmt_type'].lower() not in stmt_types:
         return False
