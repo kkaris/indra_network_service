@@ -612,15 +612,19 @@ def pass_stmt(stmt_dict: Dict[str, Any],
     -------
     bool
     """
+    # Pass if type is in allowed types
     if stmt_types and stmt_dict['stmt_type'].lower() not in stmt_types:
         return False
 
+    # Pass if hash is not in blacklist
     if hash_blacklist and stmt_dict['stmt_hash'] in hash_blacklist:
         return False
 
+    # Pass if statement is curated
     if check_curated and not stmt_dict['curated']:
         return False
 
+    # Pass if belief score is above cutoff
     if belief_cutoff > 0 and stmt_dict['belief'] < belief_cutoff:
         return False
 
