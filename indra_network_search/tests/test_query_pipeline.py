@@ -478,42 +478,9 @@ def test_dijkstra():
     pass
 
 
-def test_bfs():
-    # Todo: Update tests when depth_limit and path_length are decoupled
-    # Normal BFS
-    # signed
-    # reverse
-    # strict context <-- currently not available
-    # stmt_filter
-    # edge_hash_blacklist
-    # allowed_ns
-    # node_blacklist
-    # path_length <-- path length; NOTE: for bfs, path_length is set to
-    # depth limit
-    # belief_cutoff
-    # curated_db_only
-    # k_shortest <-- number of paths
-    # cull_best_node  <-- previously untested
-
+def test_bfs_default():
     brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
                  lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
-    brca1_up = Node(name='BRCA1', namespace='HGNC', identifier='1100', sign=0,
-                    lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
-    brca1_down = Node(name='BRCA1', namespace='HGNC',
-                      identifier='1100', sign=1,
-                      lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
-    brca2 = Node(name='BRCA2', namespace='HGNC', identifier='1101',
-                 lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
-    brca2_up = Node(name='BRCA2', namespace='HGNC', identifier='1101', sign=0,
-                    lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
-    brca2_down = Node(name='BRCA2', namespace='HGNC',
-                      identifier='1101', sign=1,
-                      lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
-
-    chek1 = Node(name='CHEK1', namespace='HGNC', identifier='1925',
-                 lookup=get_identifiers_url(db_name='HGNC', db_id='1925'))
-
-    # Normal search
     rest_query = NetworkSearchQuery(source='BRCA1')
     str_paths2 = [('BRCA1', n) for n in
                   ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
@@ -528,7 +495,10 @@ def test_bfs():
                                rest_query=rest_query,
                                expected_res=expected_paths)
 
-    # Test path_length = 4
+
+def test_bfs_path_length():
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
     rest_query = NetworkSearchQuery(source='BRCA1', max_per_node=10,
                                     path_length=4)
     str_paths4 = [('BRCA1', 'AR', 'CHEK1', 'BRCA2'),
@@ -541,6 +511,10 @@ def test_bfs():
                                rest_query=rest_query,
                                expected_res=expected_paths)
 
+
+def test_bfs_depth_limit():
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
     # Test depth limit = 4 (i.e. max number of edges = 4)
     rest_query = NetworkSearchQuery(source='BRCA1', depth_limit=4)
     str_paths2 = [('BRCA1', n) for n in
@@ -560,7 +534,10 @@ def test_bfs():
                                rest_query=rest_query,
                                expected_res=expected_paths)
 
-    # k_shortest
+
+def test_bfs_k_shortest():
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
     rest_query = NetworkSearchQuery(source='BRCA1', k_shortest=3)
     str_paths2 = [('BRCA1', n) for n in
                   ['AR', 'testosterone', 'NR2C2']]
@@ -572,7 +549,10 @@ def test_bfs():
                                rest_query=rest_query,
                                expected_res=expected_paths)
 
-    # Reverse: get upstream of CHEK1
+
+def test_bfs_reverse():
+    chek1 = Node(name='CHEK1', namespace='HGNC', identifier='1925',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1925'))
     rest_query = NetworkSearchQuery(target='CHEK1')
     str_paths2 = [(n, 'CHEK1') for n in
                   ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
