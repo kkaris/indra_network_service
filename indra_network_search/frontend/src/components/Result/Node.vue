@@ -33,7 +33,7 @@ export default {
   },
   computed: {
     title() {
-      return `${this.namespace}:${this.identifier}`
+      return `Grounded to: ${this.namespace}:${this.identifier}`
     }
   }
 }
