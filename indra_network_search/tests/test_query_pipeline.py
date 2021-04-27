@@ -569,6 +569,173 @@ def test_bfs_reverse():
                                expected_res=expected_paths)
 
 
+def test_bfs_stmt_filter():
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+
+    # stmt_filter - should only leave ('BRCA1', 'AR'), ('AR', 'CHEK1'),
+    # ('CHEK1', 'BRCA2')
+    stmt_filter_query = NetworkSearchQuery(source='BRCA1',
+                                           stmt_filter=['Activation'])
+    str_paths2 = [('BRCA1', 'AR')]
+    str_paths3 = [('BRCA1', 'AR', 'CHEK1')]
+    paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
+                               large=False, signed=False),
+             3: _get_path_list(str_paths=str_paths3, graph=unsigned_graph,
+                               large=False, signed=False)}
+
+    expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=stmt_filter_query,
+                               expected_res=expected_paths)
+
+    # Increase depth limit - should add 'BRCA1'-'AR'-'CHEK1'-'BRCA2' as path
+    stmt_filter_query = NetworkSearchQuery(source='BRCA1',
+                                           stmt_filter=['Activation'],
+                                           depth_limit=5)
+    str_paths2 = [('BRCA1', 'AR')]
+    str_paths3 = [('BRCA1', 'AR', 'CHEK1')]
+    str_paths4 = [('BRCA1', 'AR', 'CHEK1', 'BRCA2')]
+    paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
+                               large=False, signed=False),
+             3: _get_path_list(str_paths=str_paths3, graph=unsigned_graph,
+                               large=False, signed=False),
+             4: _get_path_list(str_paths=str_paths4, graph=unsigned_graph,
+                               large=False, signed=False)}
+
+    expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=stmt_filter_query,
+                               expected_res=expected_paths)
+
+
+def test_bfs_hash_blacklist():
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    stmt_filter_query = NetworkSearchQuery(source=brca1.name,
+                                           edge_hash_blacklist=[
+                                               5603789525715921])
+    str_paths2 = [('BRCA1', n) for n in
+                  ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    str_paths3 = [('BRCA1', n, 'CHEK1') for n in
+                  ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
+                               large=False, signed=False),
+             3: _get_path_list(str_paths=str_paths3, graph=unsigned_graph,
+                               large=False, signed=False)}
+
+    expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=stmt_filter_query,
+                               expected_res=expected_paths)
+
+
+def test_bfs_allowed_ns():
+    # Test allowing hgnc
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    stmt_filter_query = NetworkSearchQuery(source=brca1.name,
+                                           allowed_ns=['HGNC'], depth_limit=5)
+    str_paths2 = [('BRCA1', n) for n in
+                  ['AR', 'NR2C2', 'MBD2', 'PATZ1']]
+    str_paths3 = [('BRCA1', 'AR', 'CHEK1')]
+    str_paths4 = [('BRCA1', 'AR', 'CHEK1', 'BRCA2')]
+    paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
+                               large=False, signed=False),
+             3: _get_path_list(str_paths=str_paths3, graph=unsigned_graph,
+                               large=False, signed=False),
+             4: _get_path_list(str_paths=str_paths4, graph=unsigned_graph,
+                               large=False, signed=False)}
+
+    expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=stmt_filter_query,
+                               expected_res=expected_paths)
+
+    # Test allowing fplx, starting node should be allowed to have any
+    # namespace
+    brca2 = Node(name='BRCA2', namespace='HGNC', identifier='1101',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1101'))
+    stmt_filter_query = NetworkSearchQuery(target=brca2.name,
+                                           allowed_ns=['FPLX'], depth_limit=5)
+    str_paths2 = [('NCOA', 'BRCA2')]
+    paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
+                               large=False, signed=False)}
+
+    expected_paths: PathResultData = PathResultData(target=brca2, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=stmt_filter_query,
+                               expected_res=expected_paths)
+
+
+def test_bfs_node_blacklist():
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    stmt_filter_query = NetworkSearchQuery(source=brca1.name,
+                                           node_blacklist=['CHEK1'])
+    str_paths2 = [('BRCA1', n) for n in
+                  ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
+                               large=False, signed=False)}
+
+    expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=stmt_filter_query,
+                               expected_res=expected_paths)
+
+
+def test_bfs_belief_cutoff():
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    stmt_filter_query = NetworkSearchQuery(source=brca1.name,
+                                           belief_cutoff=0.8, depth_limit=5)
+    str_paths2 = [('BRCA1', n) for n in
+                  ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    str_paths3 = [('BRCA1', 'AR', 'CHEK1')]
+    paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
+                               large=False, signed=False),
+             3: _get_path_list(str_paths=str_paths3, graph=unsigned_graph,
+                               large=False, signed=False)}
+
+    expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=stmt_filter_query,
+                               expected_res=expected_paths)
+
+
+def test_bfs_curated():
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
+                 lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
+    stmt_filter_query = NetworkSearchQuery(source=brca1.name,
+                                           curated_db_only=True)
+    str_paths2 = [('BRCA1', n) for n in
+                  ['AR', 'testosterone', 'NR2C2']]
+    str_paths3 = [('BRCA1', 'AR', 'CHEK1')]
+    paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
+                               large=False, signed=False),
+             3: _get_path_list(str_paths=str_paths3, graph=unsigned_graph,
+                               large=False, signed=False)}
+
+    expected_paths: PathResultData = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=BreadthFirstSearchQuery,
+                               rest_query=stmt_filter_query,
+                               expected_res=expected_paths)
+
+
+# Todo for BFS:
+# signed
+# strict context <-- currently not available
+# cull_best_node  <-- previously untested
+
+
 def test_shared_interactors():
     brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
                  lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
