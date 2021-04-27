@@ -96,13 +96,14 @@ def _check_path_queries(graph: DiGraph, QueryCls: Type[Query],
             for rp, ep in zip(res_paths, expected):
                 for rn, en in zip(rp.path, ep.path):
                     assert _node_equals(rn, en), \
-                        f'Paths are out of order or nodes in path are not ' \
-                        f'the same'
+                        'Paths are out of order or nodes in path are not ' \
+                        'the same'
         else:
             # Check that sets of paths are the same
             set_of_paths = {tuple(n.name for n in p.path) for p in res_paths}
             exp_path_sets = {tuple(n.name for n in p.path) for p in expected}
-            assert set_of_paths == exp_path_sets, f'Nodes are out of order'
+            assert set_of_paths == exp_path_sets, \
+                'Paths are not the same'
 
     # Check search api
     query = QueryCls(query=rest_query)
