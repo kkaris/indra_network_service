@@ -597,7 +597,7 @@ def pass_stmt(stmt_dict: Dict[str, Any],
     stmt_dict : Dict[str, Any]
         The statement dict to check
     stmt_types : Optional[List[str]]
-        A list of statement types. If provided, specifies which type are
+        A list of statement types. If provided, specifies which types are
         allowed. If no list is provided or the list is empty, all types are
         allowed. Default: All statement types are allowed.
     hash_blacklist : Optional[List[int]]
