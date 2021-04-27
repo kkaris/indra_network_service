@@ -417,14 +417,23 @@ class BreadthFirstSearchResultManager(PathResultManager):
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         # Filters already done in algorithm
+        # Node filters:
         # ns filter
         # node blacklist
         # path len <-- not really though, BFS stops when paths starts to be
         #              longer than path_len, but also allows paths that are
         #              shorter
         # terminal ns <-- not in post filtering anyway
+        #
+        # Edge filters:
+        # exclude_stmts ('stmt_filter' NetworkSearchQuery)
+        # hash_blacklist ('edge_hash_blacklist'  NetworkSearchQuery)
+        # belief_cutoff
+        # curated_db_only
         return FilterOptions(**filter_options.dict(
-            exclude={'allowed_ns', 'node_blacklist', }, exclude_defaults=True
+            exclude={'allowed_ns', 'node_blacklist', 'exclude_stmts',
+                     'hash_blacklist', 'belief_cutoff', 'curated_db_only'},
+            exclude_defaults=True
         ))
 
     def _pass_node(self, node: Node) -> bool:
@@ -435,27 +444,8 @@ class BreadthFirstSearchResultManager(PathResultManager):
     def _pass_stmt(self,
                    stmt_dict: Dict[str, Union[str, int, float,
                                               Dict[str, int]]]) -> bool:
-        # Check:
-        # - stmt_type
-        # - hash_blacklist
-        # - belief
-        # - curated
-        # Order the checks by likelihood of being applied
-        if self.filter_options.exclude_stmts and \
-                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
-            return False
-
-        if self.filter_options.belief_cutoff > 0.0 and \
-                self.filter_options.belief_cutoff > stmt_dict['belief']:
-            return False
-
-        if self.filter_options.curated_db_only and not stmt_dict['curated']:
-            return False
-
-        if self.filter_options.hash_blacklist and \
-                stmt_dict['stmt_hash'] in self.filter_options.hash_blacklist:
-            return False
-
+        # stmt_type, hash_blacklist, belief, curated already applied in
+        # bfs_search
         return True
 
 
