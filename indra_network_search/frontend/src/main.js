@@ -1,4 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "@dafcoe/vue-collapsible-panel/dist/vue-collapsible-panel.css";
 import { createApp } from "vue";
 import App from "./App.vue";
