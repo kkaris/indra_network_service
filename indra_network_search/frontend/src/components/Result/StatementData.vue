@@ -1,18 +1,17 @@
 <template>
-  <h3>
-    <StatementTitle
-      :subj_node="subj_node"
-      :obj_node="obj_node"
-      :sentence="english"
-    /><br/>
-    <!-- Add meta data section -->
-    <p class="stmt-meta">
-      <span>Evidence: {{ evidence_count }} | </span>
-      <span>Curated: {{ curated }} | </span>
-      <span><a :href="db_url_hash">View in INDRA DB</a></span>
-    </p>
-  </h3>
-
+  <div class="container border rounded-lg gray-500">
+    <h3>
+      <StatementTitle
+        :subj_node="subj_node"
+        :obj_node="obj_node"
+        :sentence="english"
+      /></h3>
+      <p class="d-inline-flex p-2 bd-highlight border rounded-sm">
+        <span>Evidence: {{ evidence_count }}| </span>
+        <span> Curated: {{ curated }}| </span>
+        <span> <a :href="db_url_hash">View in INDRA DB</a></span>
+      </p>
+  </div>
 </template>
 
 <script>
@@ -82,9 +81,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.stmt-meta {
-  background-color: lightcyan;
-}
-</style>
