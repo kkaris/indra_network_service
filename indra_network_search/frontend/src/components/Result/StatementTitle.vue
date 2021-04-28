@@ -12,11 +12,17 @@ export default {
   props: {
     subj_node: {
       type: Object,
-      required: true
+      required: true,
+      validator: obj => {
+        return obj.name && obj.identifier && obj.namespace
+      }
     },
     obj_node: {
       type: Object,
-      required: true
+      required: true,
+      validator: obj => {
+        return obj.name && obj.identifier && obj.namespace
+      }
     },
     sentence: {
       type: String,
