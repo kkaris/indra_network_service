@@ -1,5 +1,5 @@
 <template>
-  <div class="container border rounded-lg gray-500">
+  <div class="container border rounded-lg">
     <h3>
       <StatementTitle
         :subj_node="subj_node"
