@@ -64,11 +64,11 @@ export default {
         lookup: "https://identifiers.org/fplx:MEK",
       },
       testNode4: {
-        name: "MEK",
+        name: "ERK",
         namespace: "FPLX",
-        identifier: "MEK",
+        identifier: "ERK",
         sign: 0,
-        lookup: "https://identifiers.org/fplx:MEK",
+        lookup: "https://identifiers.org/fplx:ERK",
       },
       testStmt111: {
         stmt_type: "Activation",
@@ -167,7 +167,7 @@ export default {
         weight: 1.5,
         sign: null,
         context_weight: 'N/A',
-        db_url_edge: ''
+        db_url_edge: 'unset'
       }
     },
     testEdge2() {
@@ -178,7 +178,7 @@ export default {
         weight: 1.2,
         sign: null,
         context_weight: 'N/A',
-        db_url_edge: ''
+        db_url_edge: 'unset'
       }
     },
     testEdge3() {
@@ -189,7 +189,7 @@ export default {
         weight: 1.1,
         sign: null,
         context_weight: 'N/A',
-        db_url_edge: ''
+        db_url_edge: 'unset'
       }
     },
   },
