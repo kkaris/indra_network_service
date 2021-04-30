@@ -192,6 +192,12 @@ export default {
         db_url_edge: 'unset'
       }
     },
+    testPath() {
+      return [this.testNode1, this.testNode2, this.testNode3, this.testNode4]
+    },
+    testEdgeDataArr() {
+      return [this.testEdge1, this.testEdge2, this.testEdge3]
+    }
   },
 };
 </script>
