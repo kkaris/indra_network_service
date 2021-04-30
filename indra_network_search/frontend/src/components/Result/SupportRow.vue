@@ -7,7 +7,13 @@
     <th scope="col">Link to DB</th>
   </tr>
  -->
-  <td>{{ stmtType }}</td>
+  <td>
+    <StatementTitle
+      :subj-node="subjNode"
+      :obj-node="objNode"
+      :sentence="english"
+    />
+  </td>
   <td>{{ evidenceCount }}</td>
   <!-- ToDo: v-for over all sources and create badges -->
   <td><span class="badge badge-pill badge-secondary">sparser</span></td>
@@ -15,16 +21,24 @@
 </template>
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
+import StatementTitle from "@/components/Result/StatementTitle";
 
 export default {
+  components: {StatementTitle},
   props: {
-    objName: {
-      type: String,
-      required: true
+    objNode: {
+      type: Object,
+      required: true,
+      validator: obj => {
+        return sharedHelpers.isNode(obj)
+      }
     },
-    subjName: {
-      type: String,
-      required: true
+    subjNode: {
+      type: Object,
+      required: true,
+      validator: obj => {
+        return sharedHelpers.isNode(obj)
+      }
     },
     stmtType: {
       type: String,
@@ -51,9 +65,16 @@ export default {
       return 10
     },
     linkToDB() {
-      return `https://db.indra.bio/statements/from_agents?subject=
-      ${this.subjName}&object=${this.objName}&stmt_type=${this.stmtType}
-      &format=html`;
+      return `https://db.indra.bio/statements/from_agents?
+      subject=${this.subjNode.name}&object=${this.objNode.name}&
+      stmt_type=${this.stmtType}&format=html`;
+    },
+    english() {
+      if (!this.stmtArr) {
+        return '';
+      }
+      let sd = this.stmtArr[0];
+      return sd.english
     }
   },
 }
