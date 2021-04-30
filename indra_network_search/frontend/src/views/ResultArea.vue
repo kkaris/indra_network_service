@@ -13,8 +13,8 @@
     <p>testNode2: <Node v-bind="testNode2" /></p>
     <p>Testing StatementTitle:<br/>
       <StatementTitle
-          subjNode="testNode1"
-          objNode="testNode2"
+        :subj-node="testNode1"
+        :obj-node="testNode2"
         :sentence="testStmt111.english"
       />
     </p>
