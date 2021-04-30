@@ -7,11 +7,13 @@ const isEmptyObject = function (obj) {
   return true;
 };
 
+const isNode = function (obj) {
+  return obj.name && obj.identifier && obj.namespace;
+};
+
 export default {
   isEmptyObject,
-  isNode(obj) {
-    return obj.name && obj.identifier && obj.namespace;
-  },
+  isNode,
   isStmtData(obj) {
     // Using Boolean for the simple properties that are expected to have a
     // value that does not evaluate to False
@@ -28,6 +30,12 @@ export default {
 
     // noinspection OverlyComplexBooleanExpressionJS
     return st && ec && sh && sc && bl && cr && en && ur;
+  },
+  isNodeArray(arr) {
+      const notEmpty = arr.length > 0;
+      const containsNodes = arr.every(isNode);
+
+    return notEmpty && containsNodes;
   },
   isObjectOf(obj, validatorFunc) {
     // FixMe: Check that the values in obj are validated by validatorFunc
