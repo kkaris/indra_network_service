@@ -9,26 +9,44 @@
     <!--Shared Targets-->
     <!--Shared Regulators-->
     <h1>Test Space</h1>
-    <p>testNode1: <Node v-bind="testNode1" /></p>
-    <p>testNode2: <Node v-bind="testNode2" /></p>
-    <p>Testing StatementTitle:<br/>
-      <StatementTitle
-        :subj-node="testNode1"
-        :obj-node="testNode2"
-        :sentence="testStmt111.english"
-      />
-    </p>
-    <p>Testing StatementData:<br/>
-      <StatementData
-        v-bind="{...this.testStmt111,
-                 subjNode: this.testNode1,
-                 objNode: this.testNode2}"
-      />
-    </p>
-    <p>Testing Edge:<br/>
-      <Edge v-bind="testEdge1" />
-    </p>
-<!-- Test Path -->
+    <div class="container border rounded-lg">
+      <p>testNode1: <Node v-bind="testNode1" /></p>
+    </div>
+    <div class="container border rounded-lg">
+      <p>testNode2: <Node v-bind="testNode2" /></p>
+    </div>
+    <div class="container border rounded-lg">
+      <p>Testing StatementTitle:<br/>
+        <StatementTitle
+          :subj-node="testNode1"
+          :obj-node="testNode2"
+          :sentence="testStmt111.english"
+        />
+      </p>
+    </div>
+    <div class="container border rounded-lg">
+      <p>Testing StatementData:<br/>
+        <StatementData
+          v-bind="{...this.testStmt111,
+                   subjNode: this.testNode1,
+                   objNode: this.testNode2}"
+        />
+      </p>
+    </div>
+    <div class="container border rounded-lg">
+      <p>Testing Edge:<br/>
+        <Edge v-bind="testEdge1" />
+      </p>
+    </div>
+    <!-- Test Path -->
+    <div class="container border rounded-lg">
+      <p>Testing Path:<br/>
+        <Path
+          :path="testPath"
+          :edge_data="testEdgeDataArr"
+        />
+      </p>
+    </div>
   </div>
 </template>
 
@@ -37,9 +55,10 @@ import Node from "@/components/Result/Node";
 import StatementTitle from "@/components/Result/StatementTitle";
 import StatementData from "@/components/Result/StatementData";
 import Edge from "@/components/Result/Edge";
+import Path from "@/components/Result/Path";
 
 export default {
-  components: {Edge, StatementData, StatementTitle, Node },
+  components: {Path, Edge, StatementData, StatementTitle, Node },
   data() {
     return {
       testNode1: {
