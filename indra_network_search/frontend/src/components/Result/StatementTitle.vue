@@ -1,6 +1,6 @@
 <template>
   <span>
-    <Node v-bind="subj_node"/> {{ linkedSentence }} <Node v-bind="obj_node" />
+    <Node v-bind="subjNode"/> {{ linkedSentence }} <Node v-bind="objNode" />
   </span>
 </template>
 
@@ -10,14 +10,14 @@ import Node from "@/components/Result/Node";
 export default {
   components: {Node},
   props: {
-    subj_node: {
+    subjNode: {
       type: Object,
       required: true,
       validator: obj => {
         return obj.name && obj.identifier && obj.namespace
       }
     },
-    obj_node: {
+    objNode: {
       type: Object,
       required: true,
       validator: obj => {
@@ -32,8 +32,8 @@ export default {
   computed: {
     linkedSentence() {
       return this.sentence
-          .replace(this.subj_node.name, '')
-          .replace(this.obj_node.name, '')
+          .replace(this.subjNode.name, '')
+          .replace(this.objNode.name, '')
     }
   }
 };

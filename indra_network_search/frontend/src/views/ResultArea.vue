@@ -13,16 +13,16 @@
     <p>testNode2: <Node v-bind="testNode2" /></p>
     <p>Testing StatementTitle:<br/>
       <StatementTitle
-        :subj_node="testNode1"
-        :obj_node="testNode2"
+          subjNode="testNode1"
+          objNode="testNode2"
         :sentence="testStmt111.english"
       />
     </p>
     <p>Testing StatementData:<br/>
       <StatementData
         v-bind="{...this.testStmt111,
-                 subj_node: this.testNode1,
-                 obj_node: this.testNode2}"
+                 subjNode: this.testNode1,
+                 objNode: this.testNode2}"
       />
     </p>
     <p>Testing Edge:<br/>

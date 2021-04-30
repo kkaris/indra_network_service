@@ -2,8 +2,8 @@
   <div class="container border rounded-lg">
     <h3>
       <StatementTitle
-        :subj_node="subj_node"
-        :obj_node="obj_node"
+          subjNode="subj_node"
+          objNode="obj_node"
         :sentence="english"
       /></h3>
       <p class="d-inline-flex p-2 bd-highlight border rounded-sm">
