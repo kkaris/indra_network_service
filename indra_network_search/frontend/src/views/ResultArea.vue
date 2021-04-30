@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container border rounded-lg">
     <h1>Results</h1>
     <p>Click on titles to expand results</p>
     <!--Source/Target info???-->
