@@ -65,9 +65,7 @@ export default {
       return 10
     },
     linkToDB() {
-      return `https://db.indra.bio/statements/from_agents?
-      subject=${this.subjNode.name}&object=${this.objNode.name}&
-      stmt_type=${this.stmtType}&format=html`;
+      return `https://db.indra.bio/statements/from_agents?subject=${this.subjNode.name}&object=${this.objNode.name}&stmt_type=${this.stmtType}&format=html`;
     },
     english() {
       if (!this.stmtArr) {
