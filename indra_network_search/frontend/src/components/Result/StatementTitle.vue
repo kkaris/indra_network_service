@@ -6,6 +6,7 @@
 
 <script>
 import Node from "@/components/Result/Node";
+import sharedHelpers from "@/helpers/sharedHelpers";
 
 export default {
   components: {Node},
@@ -14,17 +15,18 @@ export default {
       type: Object,
       required: true,
       validator: obj => {
-        return obj.name && obj.identifier && obj.namespace
+        return sharedHelpers.isNode(obj)
       }
     },
     objNode: {
       type: Object,
       required: true,
       validator: obj => {
-        return obj.name && obj.identifier && obj.namespace
+        return sharedHelpers.isNode(obj)
       }
     },
     sentence: {
+      // Simple english string from statements
       type: String,
       required: true,
     }
