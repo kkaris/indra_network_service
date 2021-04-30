@@ -12,8 +12,8 @@
     <tbody>
       <tr v-for="(stmtDataArr, type, index) in stmtDataObj" :key="index">
         <SupportRow
-          :subj-name="subjName"
-          :obj-name="objName"
+          :subj-node="subjNode"
+          :obj-node="objNode"
           :stmt-arr="stmtDataArr"
           :stmt-type="type"
         />
@@ -29,13 +29,19 @@ import SupportRow from "@/components/Result/SupportRow";
 export default {
   components: {SupportRow},
   props: {
-    objName: {
-      type: String,
-      required: true
+    objNode: {
+      type: Object,
+      required: true,
+      validator: obj => {
+        return sharedHelpers.isNode(obj)
+      }
     },
-    subjName: {
-      type: String,
-      required: true
+    subjNode: {
+      type: Object,
+      required: true,
+      validator: obj => {
+        return sharedHelpers.isNode(obj)
+      }
     },
     stmtDataObj: {
       type: Object,
