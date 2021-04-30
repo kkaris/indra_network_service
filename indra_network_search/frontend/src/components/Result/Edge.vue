@@ -6,8 +6,8 @@
   <span class="badge badge-pill badge-secondary">{{ evidenceCount }}</span>
   <span><a :href="db_url_edge"><i class="bi bi-box-arrow-up-right"></i></a></span>
   <EdgeSupport
-    :subj-name="subjNode.name"
-    :obj-name="objNode.name"
+    :subj-node="subjNode"
+    :obj-node="objNode"
     :stmt-data-obj="statements"
   />
 </template>
