@@ -607,7 +607,8 @@ if __name__ == '__main__':
         dg, _, _, _ = load_indra_graph(unsigned_graph=True,
                                        sign_edge_graph=False,
                                        sign_node_graph=False,
-                                       unsigned_multi_graph=False)
+                                       unsigned_multi_graph=False,
+                                       use_cache=USE_CACHE)
         indra_network = IndraNetwork(indra_dir_graph=dg)
 
     if args.test:
