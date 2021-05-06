@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 INDRA_DB_FROMAGENTS = 'https://db.indra.bio/statements/from_agents'
 STMTS_FROM_HSH_URL = environ.get('INDRA_DB_HASHES_URL')
-USE_CACHE = int(environ.get('USE_CACHE', 0))
+USE_CACHE = bool(environ.get('USE_CACHE', 0))
 VERBOSITY = int(environ.get('VERBOSITY', 0))
 API_DEBUG = int(environ.get('API_DEBUG', 0))
 if API_DEBUG:
@@ -80,30 +80,11 @@ else:
             INDRANET_DATE = datetime.utcfromtimestamp(get_earliest_date(file))
             break
     if argv[0].split('/')[-1].lower() != 'api.py':
-        if USE_CACHE:
-            # Load unsigned
-            if path.isfile(INDRA_DG_CACHE):
-                dg = file_opener(INDRA_DG_CACHE)
-            else:
-                logger.warning(f'File {INDRA_DG_CACHE} does not exist')
-                dg = None
-            # Load signed node
-            if path.isfile(INDRA_SNG_CACHE):
-                sng = file_opener(INDRA_SNG_CACHE)
-            else:
-                logger.warning(f'File {INDRA_SNG_CACHE} does not exist')
-                sng = None
-            # Load signed edge
-            if path.isfile(INDRA_SEG_CACHE):
-                seg = file_opener(INDRA_SEG_CACHE)
-            else:
-                logger.warning(f'File {INDRA_SEG_CACHE} does not exist')
-                seg = None
-        else:
-            dg, _, sng, seg = load_indra_graph(unsigned_graph=True,
-                                               sign_edge_graph=True,
-                                               sign_node_graph=True,
-                                               unsigned_multi_graph=False)
+        dg, _, sng, seg = load_indra_graph(unsigned_graph=True,
+                                           sign_edge_graph=True,
+                                           sign_node_graph=True,
+                                           unsigned_multi_graph=False,
+                                           use_cache=USE_CACHE)
         indra_network = IndraNetwork(indra_dir_graph=dg,
                                      indra_sign_node_graph=sng,
                                      indra_sign_edge_graph=seg)

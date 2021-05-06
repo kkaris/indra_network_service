@@ -195,7 +195,8 @@ def get_latest_graphs() -> Dict[str, str]:
 def load_indra_graph(unsigned_graph: bool = True,
                      unsigned_multi_graph: bool = False,
                      sign_node_graph: bool = True,
-                     sign_edge_graph: bool = False) \
+                     sign_edge_graph: bool = False,
+                     use_cache: bool = False) \
         -> Tuple[Optional[nx.DiGraph], Optional[nx.MultiDiGraph],
                  Optional[nx.MultiDiGraph], Optional[nx.DiGraph]]:
     """Return a tuple of graphs to be used in the network search API
@@ -210,6 +211,8 @@ def load_indra_graph(unsigned_graph: bool = True,
         Load the latest signed node graph. Default: True.
     sign_edge_graph : bool
         Load the latest signed edge graph. Default: False.
+    use_cache : bool
+        If True, try to load files from the designated local cache
 
     Returns
     -------
@@ -227,31 +230,63 @@ def load_indra_graph(unsigned_graph: bool = True,
     indra_multi_di_graph = None
     indra_signed_edge_graph = None
     indra_signed_node_graph = None
-    latest_graphs = get_latest_graphs()
 
-    if unsigned_graph:
-        if latest_graphs.get(INDRA_DG):
-            indra_dir_graph = file_opener(latest_graphs[INDRA_DG])
-        else:
-            logger.warning(f'{INDRA_DG} was not found')
+    if use_cache:
+        # Load unsigned
+        if unsigned_graph:
+            if path.isfile(INDRA_DG_CACHE):
+                indra_dir_graph = file_opener(INDRA_DG_CACHE)
+            else:
+                logger.warning(f'File {INDRA_DG_CACHE} does not exist')
 
-    if unsigned_multi_graph:
-        if latest_graphs.get(INDRA_MDG):
-            indra_multi_di_graph = file_opener(latest_graphs[INDRA_MDG])
-        else:
-            logger.warning(f'{INDRA_MDG} was not found')
+        # Load multi digraph
+        if unsigned_multi_graph:
+            if path.isfile(INDRA_MDG_CACHE):
+                indra_multi_di_graph = file_opener(INDRA_MDG_CACHE)
+            else:
+                logger.warning(f'File {INDRA_MDG_CACHE} does not exist')
 
-    if sign_node_graph:
-        if latest_graphs.get(INDRA_SNG):
-            indra_signed_node_graph = file_opener(latest_graphs[INDRA_SNG])
-        else:
-            logger.warning(f'{INDRA_SNG} was not found')
+        # Load signed node
+        if sign_node_graph:
+            if path.isfile(INDRA_SNG_CACHE):
+                indra_signed_node_graph = file_opener(INDRA_SNG_CACHE)
+            else:
+                logger.warning(f'File {INDRA_SNG_CACHE} does not exist')
 
-    if sign_edge_graph:
-        if latest_graphs.get(INDRA_SEG):
-            indra_signed_edge_graph = file_opener(latest_graphs[INDRA_SEG])
-        else:
-            logger.warning(f'{INDRA_SEG} was not found')
+        # Load signed edge
+        if sign_edge_graph:
+            if path.isfile(INDRA_SEG_CACHE):
+                indra_signed_edge_graph = file_opener(INDRA_SEG_CACHE)
+            else:
+                logger.warning(f'File {INDRA_SEG_CACHE} does not exist')
+
+    else:
+        # Load from S3
+        latest_graphs = get_latest_graphs()
+
+        if unsigned_graph:
+            if latest_graphs.get(INDRA_DG):
+                indra_dir_graph = file_opener(latest_graphs[INDRA_DG])
+            else:
+                logger.warning(f'{INDRA_DG} was not found')
+
+        if unsigned_multi_graph:
+            if latest_graphs.get(INDRA_MDG):
+                indra_multi_di_graph = file_opener(latest_graphs[INDRA_MDG])
+            else:
+                logger.warning(f'{INDRA_MDG} was not found')
+
+        if sign_node_graph:
+            if latest_graphs.get(INDRA_SNG):
+                indra_signed_node_graph = file_opener(latest_graphs[INDRA_SNG])
+            else:
+                logger.warning(f'{INDRA_SNG} was not found')
+
+        if sign_edge_graph:
+            if latest_graphs.get(INDRA_SEG):
+                indra_signed_edge_graph = file_opener(latest_graphs[INDRA_SEG])
+            else:
+                logger.warning(f'{INDRA_SEG} was not found')
 
     return indra_dir_graph, indra_multi_di_graph, indra_signed_edge_graph, \
         indra_signed_node_graph
