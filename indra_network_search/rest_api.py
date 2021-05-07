@@ -2,6 +2,7 @@
 The IndraNetworkSearch REST API
 """
 import logging
+from os import environ
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
@@ -22,6 +23,7 @@ class Health(BaseModel):
     status: str
 
 
+USE_CACHE = bool(environ.get('USE_CACHE', False))
 HEALTH = Health(status='booting')
 
 
@@ -85,7 +87,8 @@ def sub_graph(search_query: SubgraphRestQuery):
 
 dir_graph, _, sign_node_graph, _ = \
     load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
-                     sign_node_graph=True, sign_edge_graph=False)
+                     sign_node_graph=True, sign_edge_graph=False,
+                     use_cache=USE_CACHE)
 
 network_search_api = IndraNetworkSearchAPI(unsigned_graph=dir_graph,
                                            signed_node_graph=sign_node_graph)
