@@ -7,11 +7,11 @@
     </template>
   </td>
   <td>
-  <div class="container border rounded-lg">
-    <div class="row" v-for="(edge, index) in edge_data" :key="index">
-      <Edge v-bind="edge" />
+    <div class="container">
+      <div class="row" v-for="(edge, index) in edge_data" :key="index">
+        <Edge v-bind="edge" />
+      </div>
     </div>
-  </div>
   </td>
 </template>
 
