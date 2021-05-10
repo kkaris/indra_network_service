@@ -24,15 +24,12 @@
         />
       </p>
     </div>
-    <div class="container border rounded-lg">
-      <p>Testing StatementData:<br/>
-        <StatementData
-          v-bind="{...this.testStmt111,
-                   subjNode: this.testNode1,
-                   objNode: this.testNode2}"
-        />
-      </p>
-    </div>
+<!--    <div class="container border rounded-lg">-->
+<!--      <p>Testing StatementData:<br/>-->
+<!--        <StatementData-->
+<!--        />-->
+<!--      </p>-->
+<!--    </div>-->
     <div class="container border rounded-lg">
       <p>Testing Edge:<br/>
         <Edge v-bind="testEdge1" />
@@ -53,12 +50,16 @@
 <script>
 import Node from "@/components/Result/Node";
 import StatementTitle from "@/components/Result/StatementTitle";
-import StatementData from "@/components/Result/StatementData";
 import Edge from "@/components/Result/Edge";
 import Path from "@/components/Result/Path";
 
 export default {
-  components: {Path, Edge, StatementData, StatementTitle, Node },
+  components: {Path, Edge, StatementTitle, Node },
+  /* To spread together two objects into another object for usage in a v-bind:
+  * v-bind="{...this.testStmt111,
+  *          subjNode: this.testNode1,
+  *          objNode: this.testNode2}"
+  * */
   data() {
     return {
       testNode1: {
