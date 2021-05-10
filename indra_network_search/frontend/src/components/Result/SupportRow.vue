@@ -16,7 +16,7 @@
   </td>
   <td>{{ evidenceCount }}</td>
   <!-- ToDo: v-for over all sources and create badges -->
-  <td><span class="badge badge-pill badge-secondary">sparser</span></td>
+  <td><span class="badge rounded-pill bg-secondary">sparser</span></td>
   <td><a :href="linkToDB"><i class="bi bi-box-arrow-up-right"></i></a></td>
 </template>
 <script>
