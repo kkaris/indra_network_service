@@ -1,15 +1,28 @@
 <template>
-  <Node v-bind="subjNode" />
-  <i class="bi bi-arrow-right"></i>
-  <Node v-bind="objNode" />
-  <a class="badge badge-primary">{{ stmtCount }}</a>
-  <span class="badge badge-pill badge-secondary">{{ evidenceCount }}</span>
-  <span><a :href="db_url_edge"><i class="bi bi-box-arrow-up-right"></i></a></span>
-  <EdgeSupport
-    :subj-node="subjNode"
-    :obj-node="objNode"
-    :stmt-data-obj="statements"
-  />
+  <div class="container">
+    <div class="row d-flex justify-content-center">
+      <div class="col-6">
+        <Node v-bind="subjNode" /><i class="bi bi-arrow-right"></i><Node v-bind="objNode" />
+      </div>
+      <div class="col">
+        <span class="badge bg-primary">{{ stmtCount }}</span>
+        <span class="badge rounded-pill bg-secondary">{{ evidenceCount }}</span>
+      </div>
+      <div class="col">
+        <span><a :href="db_url_edge"><i class="bi bi-box-arrow-up-right"></i></a></span>
+      </div>
+      <div class="col">
+        <span><i title="Click to expand" class="bi-plus-circle"></i></span>
+      </div>
+    </div>
+    <div class="row">
+      <EdgeSupport
+          :subj-node="subjNode"
+          :obj-node="objNode"
+          :stmt-data-obj="statements"
+      />
+    </div>
+  </div>
 </template>
 
 <script>
