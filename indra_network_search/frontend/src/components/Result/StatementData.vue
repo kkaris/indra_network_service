@@ -1,16 +1,17 @@
 <template>
   <div class="container border rounded-lg">
-    <h3>
+    <h5>
       <StatementTitle
-          subjNode="subj_node"
-          objNode="obj_node"
+        :subj-node="subjNode"
+        :obj-node="objNode"
         :sentence="english"
-      /></h3>
-      <p class="d-inline-flex p-2 bd-highlight border rounded-sm">
-        <span>Evidence: {{ evidence_count }}| </span>
-        <span> Curated: {{ curated }}| </span>
-        <span> <a :href="db_url_hash">View in INDRA DB</a></span>
-      </p>
+      />
+    </h5>
+    <p class="d-inline-flex p-2 bd-highlight border rounded-sm">
+      <span>Evidence: {{ evidence_count }}| </span>
+      <span> Curated: {{ curated }}| </span>
+      <span> <a :href="db_url_hash">View in INDRA DB</a></span>
+    </p>
   </div>
 </template>
 
@@ -21,11 +22,11 @@ export default {
   components: {StatementTitle},
   props: {
     // Pass nodes to StatmentTitle
-    subj_node: {
+    subjNode: {
       type: Object,
       required: true,
     },
-    obj_node: {
+    objNode: {
       type: Object,
       required: true,
     },
