@@ -1,5 +1,5 @@
 <template>
-  <td>
+  <td class="border-end">
     <Node v-bind="path[0]" />
     <template v-for="(nodeObj, index) in path.slice(1)" :key="index">
       <i class="bi bi-arrow-right"></i>
