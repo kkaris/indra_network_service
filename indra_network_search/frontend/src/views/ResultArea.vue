@@ -160,7 +160,7 @@ export default {
         },
         belief: 0.8991,
         curated: true,
-        english: "BRCA1 binds MEK",
+        english: "BRCA2 binds MEK",
         weight: null,
         residue: '',
         position: '',
