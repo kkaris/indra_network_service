@@ -37,7 +37,6 @@
 
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
-// import Path from "@/components/Result/Path";
 import Node from "@/components/Result/Node";
 import Path from "@/components/Result/Path";
 
@@ -54,18 +53,14 @@ export default {
       type: Object,
       default: null,
       validator: obj => {
-        const notProvided = obj === null;
-        const isNode = sharedHelpers.isNode(obj);
-        return isNode || notProvided
+        return sharedHelpers.isOptionalNode(obj);
       }
     },
     target: {
       type: Object,
       default: null,
       validator: obj => {
-        const notProvided = obj === null;
-        const isNode = sharedHelpers.isNode(obj);
-        return isNode || notProvided
+        return sharedHelpers.isOptionalNode(obj)
       }
     },
     pathArray: {
