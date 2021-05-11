@@ -29,6 +29,7 @@
 import Node from "@/components/Result/Node";
 import EdgeSupport from "@/components/Result/EdgeSupport";
 import sharedHelpers from "@/helpers/sharedHelpers";
+import UniqueID from "@/helpers/BasicHelpers";
 export default {
   components: {EdgeSupport, Node},
   props: {
@@ -75,6 +76,12 @@ export default {
       required: true
     }
   },
+  setup() {
+    const uuid = UniqueID().getID();
+    return {
+      uuid
+    }
+  },
   computed: {
     stmtCount() {
       // FixMe: sum up all statements (or statement types?)
@@ -89,6 +96,9 @@ export default {
     },
     objNode() {
       return this.edge[1]
+    },
+    strUUID() {
+      return `collapse-${this.uuid}`
     }
   }
 }
