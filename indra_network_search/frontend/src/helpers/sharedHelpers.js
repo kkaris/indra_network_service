@@ -14,6 +14,11 @@ const isNode = function (obj) {
 export default {
   isEmptyObject,
   isNode,
+  isOptionalNode(obj) {
+    const notProvided = Boolean(obj);
+    const isNodeObj = isNode(obj);
+    return isNodeObj || notProvided;
+  },
   isStmtData(obj) {
     // Using Boolean for the simple properties that are expected to have a
     // value that does not evaluate to False
