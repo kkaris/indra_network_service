@@ -1,5 +1,5 @@
 <template>
-  <td class="border-end">
+  <td class="border-end align-middle">
     <Node v-bind="path[0]" />
     <template v-for="(nodeObj, index) in path.slice(1)" :key="index">
       <i class="bi bi-arrow-right"></i>
@@ -8,8 +8,11 @@
   </td>
   <td>
     <div class="container">
-      <div class="row border-bottom" v-for="(edge, index) in edge_data"
-           :key="index">
+      <div
+        class="row"
+        v-for="(edge, index) in edge_data"
+        :key="index"
+      >
         <Edge v-bind="edge" />
       </div>
     </div>
