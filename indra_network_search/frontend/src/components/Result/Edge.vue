@@ -12,10 +12,17 @@
         <span><a :href="db_url_edge"><i class="bi bi-box-arrow-up-right"></i></a></span>
       </div>
       <div class="col">
-        <span><i title="Click to expand" class="bi-plus-circle"></i></span>
+        <button
+          type="button" data-bs-toggle="collapse"
+          :data-bs-target="`#${strUUID}`"
+          aria-expanded="false"
+          :aria-controls="strUUID"
+        >
+          <i title="Click to expand" class="bi-plus-circle"></i>
+        </button>
       </div>
     </div>
-    <div class="row">
+    <div class="row collapse" :id="strUUID">
       <EdgeSupport
           :subj-node="subjNode"
           :obj-node="objNode"
