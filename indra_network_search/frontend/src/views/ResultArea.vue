@@ -217,6 +217,26 @@ export default {
     },
     testEdgeDataArr() {
       return [this.testEdge1, this.testEdge2, this.testEdge3]
+    },
+    testPathDataModel() {
+      // indra_network_search.data_models::Path
+      return {
+        path: this.testPath,
+        edge_data: this.testEdgeDataArr
+      }
+    },
+    testNPathRes() {
+      // indra_network_search.data_models::PathResultData.paths
+      const nodeCount = this.testPathDataModel.path.length;
+      return {[nodeCount]: [this.testPathDataModel, this.testPathDataModel]}
+    },
+    testPathResultData() {
+      // indra_network_search.data_models::PathResultData
+      return {
+        source: this.testNode1,
+        target: this.testNode4,
+        paths: this.testNPathRes
+      }
     }
   },
 };
