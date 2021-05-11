@@ -12,21 +12,37 @@
       <template v-if="targetExist"><Node v-bind="target" /></template>
       <template v-else>X{{ pathNodeCount + 1 }}</template>
     </div>
+    <div class="card-body">
+      <!-- Table (or grid) with two columns: Path | Support -->
+      <div class="container">
+        <table class="table">
+          <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Support</th>
+          </tr>
+          </thead>
+          <tbody>
+          <!-- v-for loop over table/grid rows: <Path />; <Path /> currently assumes
+               a table encapsulating it -->
+            <tr v-for="(path, index) in pathArray" :key="index">
+              <Path v-bind="path" />
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-
-  <!-- Table (or grid) with two columns: Path | Support -->
-  <!-- v-for loop over table/grid rows: <Path />; <Path /> currently assumes
-   a table encapsulating it
-   -->
 </template>
 
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
 // import Path from "@/components/Result/Path";
 import Node from "@/components/Result/Node";
+import Path from "@/components/Result/Path";
 
 export default {
-  components: {Node},
+  components: {Path, Node},
   props: {
     // Follows one entry in
     // indra_network_search.data_models::PathResultData.paths: Dict[int, List[Path]]
