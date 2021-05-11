@@ -44,6 +44,17 @@
         />
       </p>
     </div>
+    <div class="container border rounded">
+      <p>Testing NPathResult</p>
+      <p>
+        <NPathResult
+          :source="testNode1"
+          :target="testNode4"
+          :path-node-count="testPathDataModel.path.length"
+          :path-array="[testPathDataModel, testPathDataModel]"
+        />
+      </p>
+    </div>
   </div>
 </template>
 
@@ -52,9 +63,10 @@ import Node from "@/components/Result/Node";
 import StatementTitle from "@/components/Result/StatementTitle";
 import Edge from "@/components/Result/Edge";
 import Path from "@/components/Result/Path";
+import NPathResult from "@/components/Result/NPathResult";
 
 export default {
-  components: {Path, Edge, StatementTitle, Node },
+  components: {NPathResult, Path, Edge, StatementTitle, Node },
   /* To spread together two objects into another object for usage in a v-bind:
   * v-bind="{...this.testStmt111,
   *          subjNode: this.testNode1,
