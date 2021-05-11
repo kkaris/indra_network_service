@@ -30,13 +30,13 @@
 <!--        />-->
 <!--      </p>-->
 <!--    </div>-->
-    <div class="container border rounded-lg">
+    <div class="container border rounded">
       <p>Testing Edge:<br/>
         <Edge v-bind="testEdge1" />
       </p>
     </div>
     <!-- Test Path -->
-    <div class="container border rounded-lg">
+    <div class="container border rounded">
       <p>Testing Path:<br/>
         <Path
           :path="testPath"
