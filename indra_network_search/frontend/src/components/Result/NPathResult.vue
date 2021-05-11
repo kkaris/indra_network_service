@@ -1,6 +1,6 @@
 <template>
   <div class="card text-center">
-    <div class="card-header">
+    <h5 class="card-header">
       <!-- Header N-edge paths | Source -> {X_n} -> target | source badges | collapse toggle icon -->
       {{ edgeCount }}-edge paths;
       <template v-if="sourceExist"><Node v-bind="source" /></template>
@@ -11,7 +11,7 @@
       </template>
       <template v-if="targetExist"><Node v-bind="target" /></template>
       <template v-else>X{{ pathNodeCount + 1 }}</template>
-    </div>
+    </h5>
     <div class="card-body">
       <!-- Table (or grid) with two columns: Path | Support -->
       <div class="container">
