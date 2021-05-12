@@ -1,18 +1,29 @@
 <template>
   <div class="card text-center">
-    <h5 class="card-header">
-      <!-- Header N-edge paths | Source -> {X_n} -> target | source badges | collapse toggle icon -->
-      {{ edgeCount }}-edge paths;
-      <template v-if="sourceExist"><Node v-bind="source" /></template>
-      <template v-else>X0</template>
-      <i class="bi bi-arrow-right"></i>
-      <template v-for="n in edgeCount - 1" :key="n">
-        X{{ n }}<i class="bi bi-arrow-right"></i>
-      </template>
-      <template v-if="targetExist"><Node v-bind="target" /></template>
-      <template v-else>X{{ pathNodeCountNum + 1 }}</template>
-    </h5>
-    <div class="card-body">
+    <div class="card-header">
+      <h5>
+        <!-- Header N-edge paths | Source -> {X_n} -> target | source badges | collapse toggle icon -->
+        {{ edgeCount }}-edge paths;
+        <template v-if="sourceExist"><Node v-bind="source" /></template>
+        <template v-else>X0</template>
+        <i class="bi bi-arrow-right"></i>
+        <template v-for="n in edgeCount - 1" :key="n">
+          X{{ n }}<i class="bi bi-arrow-right"></i>
+        </template>
+        <template v-if="targetExist"><Node v-bind="target" /></template>
+        <template v-else>X{{ pathNodeCountNum + 1 }}</template>
+      </h5>
+      <a
+        role="button"
+        data-bs-toggle="collapse"
+        :href="`#${strUUID}`"
+        :aria-expanded="false"
+        :aria-controls="strUUID"
+      >
+        <i title="Click to expand" class="bi-plus-circle"></i>
+      </a>
+    </div>
+    <div class="card-body collapse" :id="strUUID">
       <!-- Table (or grid) with two columns: Path | Support -->
       <div class="container">
         <table class="table">
@@ -39,6 +50,7 @@
 import sharedHelpers from "@/helpers/sharedHelpers";
 import Node from "@/components/Result/Node";
 import Path from "@/components/Result/Path";
+import UniqueID from "@/helpers/BasicHelpers";
 
 export default {
   components: {Path, Node},
@@ -85,6 +97,12 @@ export default {
       throw Error('Must provide at least one of source and target as props')
     }
   },
+  setup() {
+    const uuid = UniqueID().getID();
+    return {
+      uuid
+    }
+  },
   computed: {
     sourceExist() {
       return this.source !== null
@@ -97,6 +115,9 @@ export default {
     },
     edgeCount() {
       return this.pathNodeCountNum - 1
+    },
+    strUUID() {
+      return `collapse-${this.uuid}`
     }
   }
 }
