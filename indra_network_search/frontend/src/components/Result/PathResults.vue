@@ -1,7 +1,18 @@
 <template>
   <div class="card text-center">
-    <h2 class="card-header">Path Results</h2>
-    <div class="card-body">
+    <div class="card-header">
+      <h2>Path Results</h2>
+      <a
+        role="button"
+        data-bs-toggle="collapse"
+        :href="`#${strUUID}`"
+        :aria-expanded="false"
+        :aria-controls="strUUID"
+      >
+        <i title="Click to expand" class="bi-plus-circle"></i>
+      </a>
+    </div>
+    <div class="card-body collapse show" :id="strUUID">
       <div class="container">
         <template v-for="(pathArray, nodeCount, index) in paths" :key="index">
           <div class="row">
@@ -21,6 +32,7 @@
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
 import NPathResult from "@/components/Result/NPathResult";
+import UniqueID from "@/helpers/BasicHelpers";
 
 export default {
   components: {NPathResult},
@@ -50,6 +62,17 @@ export default {
       //  - that the listed objects in the Arrays are Path objects
       //  - that the keys correspond to node count in the list Paths in paths
     }
+  },
+  setup() {
+    const uuid = UniqueID().getID();
+    return {
+      uuid,
+    }
+  },
+  computed: {
+    strUUID() {
+      return `collapse-${this.uuid}`
+    },
   }
 }
 </script>
