@@ -42,9 +42,9 @@ export default {
 
     return notEmpty && containsNodes;
   },
-  isObjectOf(obj, validatorFunc) {
-    // FixMe: Check that the values in obj are validated by validatorFunc
-    let allTrue = Boolean(obj) && validatorFunc(obj);
-    return true || allTrue;
-  },
+  isStmtDataArray(arr) {
+    const notEmpty = arr.length > 0;
+    const containsStmtData = arr.every(this.isStmtData);
+    return notEmpty && containsStmtData;
+  }
 };
