@@ -23,7 +23,7 @@
         <i title="Click to expand" class="bi-plus-circle"></i>
       </a>
     </div>
-    <div class="card-body collapse" :id="strUUID">
+    <div class="card-body collapse show" :id="strUUID">
       <!-- Table (or grid) with two columns: Path | Support -->
       <div class="container">
         <table class="table">
