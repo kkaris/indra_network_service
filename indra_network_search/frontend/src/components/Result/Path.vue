@@ -8,13 +8,11 @@
   </td>
   <td>
     <div class="container">
-      <div
-        class="row"
-        v-for="(edge, index) in edge_data"
-        :key="index"
-      >
-        <Edge v-bind="edge" />
-      </div>
+      <template v-for="(edge, index) in edge_data" :key="index">
+        <div class="row border">
+          <Edge v-bind="edge" />
+        </div>
+      </template>
     </div>
   </td>
 </template>
