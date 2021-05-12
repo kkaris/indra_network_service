@@ -1,8 +1,9 @@
 <template>
-  <div class="form-group">
-    <label v-if="label">{{ label }}</label>
+  <div class="form-floating">
     <select
-      class="field form-control"
+      class="form-select"
+      :id="strUUID"
+      :aria-label="`${label} select`"
       :value="modelValue"
       v-bind="{
         ...$attrs,
@@ -16,10 +17,13 @@
         :selected="option.value === modelValue"
       >{{ option.label }}</option>
     </select>
+    <label :for="strUUID" class="form-label" v-if="label">{{ label }}</label>
   </div>
 </template>
 
 <script>
+import UniqueID from "@/helpers/BasicHelpers";
+
 export default {
   props: {
     label: {
@@ -34,6 +38,17 @@ export default {
       // Assumed to be an object with option.label and option.value
       type: Array,
       required: true
+    }
+  },
+  setup() {
+    const uuid = UniqueID().getID();
+    return {
+      uuid
+    }
+  },
+  computed: {
+    strUUID() {
+      return `select${this.uuid}`
     }
   }
 }
