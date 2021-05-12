@@ -57,7 +57,6 @@ export default {
       type: Array,
       required: true,
       validator: arr => {
-        // TodO: validate that array is not empty and contains stmtData
         const notEmpty = arr.length > 0;
         const containsStmts = sharedHelpers.isStmtDataArray(arr);
         return notEmpty && containsStmts;
