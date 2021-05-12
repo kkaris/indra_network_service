@@ -26,7 +26,9 @@
     <div class="card-body collapse show" :id="strUUID">
       <!-- Table (or grid) with two columns: Path | Support -->
       <div class="container">
-        <table class="table">
+        <table class="table" style="width: 100%">
+          <col style="width: 25%">
+          <col style="width: 75%">
           <thead>
           <tr>
             <th scope="col">Path</th>
