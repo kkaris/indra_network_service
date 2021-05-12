@@ -10,7 +10,7 @@
         X{{ n }}<i class="bi bi-arrow-right"></i>
       </template>
       <template v-if="targetExist"><Node v-bind="target" /></template>
-      <template v-else>X{{ pathNodeCount + 1 }}</template>
+      <template v-else>X{{ pathNodeCountNum + 1 }}</template>
     </h5>
     <div class="card-body">
       <!-- Table (or grid) with two columns: Path | Support -->
@@ -46,7 +46,7 @@ export default {
     // Follows one entry in
     // indra_network_search.data_models::PathResultData.paths: Dict[int, List[Path]]
     pathNodeCount: {
-      type: Number,
+      type: [Number, String],
       required: true,
     },
     source: {
@@ -92,8 +92,11 @@ export default {
     targetExist() {
       return this.target !== null
     },
+    pathNodeCountNum() {
+      return Number(this.pathNodeCount)
+    },
     edgeCount() {
-      return this.pathNodeCount - 1
+      return this.pathNodeCountNum - 1
     }
   }
 }
