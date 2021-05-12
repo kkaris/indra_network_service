@@ -12,14 +12,15 @@
         <span><a :href="db_url_edge"><i class="bi bi-box-arrow-up-right"></i></a></span>
       </div>
       <div class="col">
-        <button
-          type="button" data-bs-toggle="collapse"
-          :data-bs-target="`#${strUUID}`"
-          aria-expanded="false"
+        <a
+          role="button"
+          data-bs-toggle="collapse"
+          :href="`#${strUUID}`"
+          :aria-expanded="false"
           :aria-controls="strUUID"
         >
           <i title="Click to expand" class="bi-plus-circle"></i>
-        </button>
+        </a>
       </div>
     </div>
     <div class="row collapse" :id="strUUID">
