@@ -47,7 +47,7 @@ export default {
       type: Object,
       required: true,
       validator: obj => {
-        // FixMe: Check that obj is { stmt_type: [stmtData, ...] }
+        // The values, [stmtData, ...], is checked by child component SupportRow
         return !(sharedHelpers.isEmptyObject(obj));
       }
     }
