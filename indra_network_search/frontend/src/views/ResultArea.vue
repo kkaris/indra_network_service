@@ -55,6 +55,14 @@
         />
       </p>
     </div>
+    <div class="container border rounded">
+      <p>Testing PathResults</p>
+      <p>
+        <PathResults
+          v-bind="testPathResultData"
+        />
+      </p>
+    </div>
   </div>
 </template>
 
@@ -64,9 +72,10 @@ import StatementTitle from "@/components/Result/StatementTitle";
 import Edge from "@/components/Result/Edge";
 import Path from "@/components/Result/Path";
 import NPathResult from "@/components/Result/NPathResult";
+import PathResults from "@/components/Result/PathResults";
 
 export default {
-  components: {NPathResult, Path, Edge, StatementTitle, Node },
+  components: {PathResults, NPathResult, Path, Edge, StatementTitle, Node },
   /* To spread together two objects into another object for usage in a v-bind:
   * v-bind="{...this.testStmt111,
   *          subjNode: this.testNode1,
