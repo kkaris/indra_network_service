@@ -32,177 +32,253 @@
         </div>
       </div>
       <h2>Detailed Search Options</h2>
-      <h3>General Filter Options</h3>
-      <div class="row">
-        <div class="col">
-          <b>Statement Filter</b>
-          <div id="v-model-select-stmts">
-            <select v-model="stmt_filter" multiple>
-              <option
-                v-for="option in stmtFilterOptions"
-                :key="option.value"
-                :selected="stmt_filter"
-                :value="option.value"
-              >{{ option.label }}
-              </option>
-            </select>
-            <br/>
-            <span>Selected: {{ stmt_filter }}</span>
+      <div
+          class="accordion"
+          :id="accordionID"
+      >
+        <!-- Accordion 1: General Filter Options -->
+        <div class="accordion-item">
+          <h3
+              class="accordion-header"
+              :id="accordionIDObj.accordionHeader1ID"
+          >
+            <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                :data-bs-target="`#${accordionIDObj.accordionBody1ID}`"
+                aria-expanded="true"
+                :aria-controls="accordionIDObj.accordionBody1ID"
+            >
+              General Filter Options
+            </button>
+          </h3>
+          <div
+              :id="accordionIDObj.accordionBody1ID"
+              class="accordion-collapse collapse show"
+              :aria-labelledby="accordionIDObj.accordionHeader1ID"
+          >
+            <div class="accordion-body">
+                <div class="row">
+                  <div class="col">
+                    <b>Statement Filter</b>
+                    <div id="v-model-select-stmts">
+                      <select v-model="stmt_filter" multiple>
+                        <option
+                          v-for="option in stmtFilterOptions"
+                          :key="option.value"
+                          :selected="stmt_filter"
+                          :value="option.value"
+                        >{{ option.label }}
+                        </option>
+                      </select>
+                      <br/>
+                      <span>Selected: {{ stmt_filter }}</span>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <b>Node Namespace</b>
+                    <div id="v-model-select-namespace">
+                      <select v-model="allowed_ns" multiple>
+                        <option
+                          v-for="option in nodeNamespaceOptions"
+                          :key="option.value"
+                          :selected="allowed_ns"
+                          :value="option.value"
+                        >{{ option.label }}
+                        </option>
+                      </select>
+                      <br/>
+                      <span>Selected: {{ allowed_ns }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <BaseInputBS
+                      v-model="hash_blacklist_text"
+                      label="Hash Blacklist"
+                      type="text"
+                    />
+                  </div>
+                  <div class="col">
+                    <BaseInputBS
+                      v-model="node_blacklist_text"
+                      label="Node Blacklist"
+                      type="text"
+                    />
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <BaseInputBS
+                      v-model.number="path_length"
+                      :disabled="isAnyWeighted"
+                      :max="10"
+                      :min="1"
+                      label="Path length"
+                      type="number"
+                    />
+                  </div>
+                  <div class="col">
+                    <BaseSelectBS
+                      v-model.number="sign"
+                      :options="signOptions"
+                      label="Signed Search"
+                    />
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <BaseInputBS
+                      v-model.number="k_shortest"
+                      :max="50"
+                      :min="1"
+                      label="Max Paths"
+                      type="number"
+                    />
+                  </div>
+                  <div class="col">
+                    <BaseInputBS
+                      v-model.number="belief_cutoff"
+                      :max="1.0"
+                      :min="0.0"
+                      :step="0.01"
+                      label="Belief Cutoff"
+                      type="number"
+                    />
+                  </div>
+                </div>
+                <div class="row">
+                    <BaseCheckboxBS
+                        v-model="weighted"
+                        label="Weighted search"
+                    />
+                    <BaseCheckboxBS
+                        v-model="curated_db_only"
+                        label="Only Database Supported Sources"
+                    />
+                    <BaseCheckboxBS
+                        v-model="fplx_expand"
+                        label="Set source/target equivalent to their parents"
+                    />
+                    <BaseCheckboxBS
+                        v-model="two_way"
+                        label="Include Reverse Search"
+                    />
+                    <BaseCheckboxBS
+                        v-model="shared_regulators"
+                        :disabled="!isNotOpenSearch && !cannotSubmit"
+                        label="Include Search for shared regulators of source/target"
+                    />
+                  </div>
+            </div>
           </div>
         </div>
-        <div class="col">
-          <b>Node Namespace</b>
-          <div id="v-model-select-namespace">
-            <select v-model="allowed_ns" multiple>
-              <option
-                v-for="option in nodeNamespaceOptions"
-                :key="option.value"
-                :selected="allowed_ns"
-                :value="option.value"
-              >{{ option.label }}
-              </option>
-            </select>
-            <br/>
-            <span>Selected: {{ allowed_ns }}</span>
+        <!-- Accordion 2: Context Search Options -->
+        <div class="accordion-item">
+          <h3
+              class="accordion-header"
+              :id="accordionIDObj.accordionHeader2ID"
+          >
+            <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                :data-bs-target="`#${accordionIDObj.accordionBody2ID}`"
+                aria-expanded="true"
+                :aria-controls="accordionIDObj.accordionBody2ID"
+            >
+              Context Search Options
+            </button>
+          </h3>
+          <div
+              :id="accordionIDObj.accordionBody2ID"
+              class="accordion-collapse collapse show"
+              :aria-labelledby="accordionIDObj.accordionHeader2ID"
+          >
+            <div class="accordion-body">
+              <div class="row">
+                <div class="col">
+                  <BaseInputBS
+                      v-model="mesh_ids_text"
+                      :disabled="weighted"
+                      label="Mesh IDs (comma separated)"
+                      type="text"
+                  />
+                </div>
+                <div class="col">
+                  <BaseInputBS
+                      v-model.number="const_c"
+                      :disabled="weighted || strict_mesh_id_filtering"
+                      :max="100"
+                      :min="1"
+                      label="Constant C"
+                      type="number"
+                  />
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <BaseCheckboxBS
+                      v-model="strict_mesh_id_filtering"
+                      :disabled="weighted"
+                      label="Strict Mesh ID filtering"
+                  />
+                </div>
+                <div class="col">
+                  <BaseInputBS
+                      v-model.number="const_tk"
+                      :disabled="weighted || strict_mesh_id_filtering"
+                      :max="100"
+                      :min="1"
+                      label="Constant Tk"
+                      type="number"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="container">
-        <div class="row">
-          <div class="col">
-            <BaseInputBS
-              v-model="hash_blacklist_text"
-              label="Hash Blacklist"
-              type="text"
-            />
-          </div>
-          <div class="col">
-            <BaseInputBS
-              v-model="node_blacklist_text"
-              label="Node Blacklist"
-              type="text"
-            />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <BaseInputBS
-              v-model.number="path_length"
-              :disabled="isAnyWeighted"
-              :max="10"
-              :min="1"
-              label="Path length"
-              type="number"
-            />
-          </div>
-          <div class="col">
-            <BaseSelectBS
-              v-model.number="sign"
-              :options="signOptions"
-              label="Signed Search"
-            />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <BaseInputBS
-              v-model.number="k_shortest"
-              :max="50"
-              :min="1"
-              label="Max Paths"
-              type="number"
-            />
-          </div>
-          <div class="col">
-            <BaseInputBS
-              v-model.number="belief_cutoff"
-              :max="1.0"
-              :min="0.0"
-              :step="0.01"
-              label="Belief Cutoff"
-              type="number"
-            />
-          </div>
-        </div>
-      </div>
-      <BaseCheckboxBS
-        v-model="weighted"
-        label="Weighted search"
-      />
-      <BaseCheckboxBS
-        v-model="curated_db_only"
-        label="Only Database Supported Sources"
-      />
-      <BaseCheckboxBS
-        v-model="fplx_expand"
-        label="Set source/target equivalent to their parents"
-      />
-      <BaseCheckboxBS
-        v-model="two_way"
-        label="Include Reverse Search"
-      />
-      <BaseCheckboxBS
-        v-model="shared_regulators"
-        :disabled="!isNotOpenSearch && !cannotSubmit"
-        label="Include Search for shared regulators of source/target"
-      />
-      <h3>Context Search Options</h3>
-      <div class="row">
-        <div class="col">
-          <BaseInputBS
-            v-model="mesh_ids_text"
-            :disabled="weighted"
-            label="Mesh IDs (comma separated)"
-            type="text"
-          />
-        </div>
-        <div class="col">
-          <BaseInputBS
-            v-model.number="const_c"
-            :disabled="weighted || strict_mesh_id_filtering"
-            :max="100"
-            :min="1"
-            label="Constant C"
-            type="number"
-          />
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <BaseCheckboxBS
-            v-model="strict_mesh_id_filtering"
-            :disabled="weighted"
-            label="Strict Mesh ID filtering"
-          />
-        </div>
-        <div class="col">
-          <BaseInputBS
-            v-model.number="const_tk"
-            :disabled="weighted || strict_mesh_id_filtering"
-            :max="100"
-            :min="1"
-            label="Constant Tk"
-            type="number"
-          />
-        </div>
-      </div>
-      <h3>Open Search Options</h3>
-      <!-- Disable open search options if both source and target are set -->
-      <div class="row">
+        <!-- Accordion 3: Open Search Options -->
+        <div class="accordion-item">
+          <h3
+              class="accordion-header"
+              :id="accordionIDObj.accordionHeader3ID"
+          >
+            <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                :data-bs-target="`#${accordionIDObj.accordionBody3ID}`"
+                aria-expanded="true"
+                :aria-controls="accordionIDObj.accordionBody3ID"
+            >
+              Open Search Options
+            </button>
+          </h3>
+          <div
+              :id="accordionIDObj.accordionBody3ID"
+              class="accordion-collapse collapse show"
+              :aria-labelledby="accordionIDObj.accordionHeader3ID"
+          >
+            <div class="accordion-body">
+              <!-- Disable open search options if both source and target are set -->
+              <div class="row">
         <div class="col">
           <!-- Check: is terminal ns applied for strict Dijkstra and/or context search? -->
           <div id="v-model-select-terminal-ns">
             <p>Terminal NS</p>
             <select
-              v-model="terminal_ns"
-              :disabled="isContextSearch || isNotOpenSearch"
-              multiple
+                v-model="terminal_ns"
+                :disabled="isContextSearch || isNotOpenSearch"
+                multiple
             >
               <option
-                v-for="option in nodeNamespaceOptions"
-                :key="option.value"
-                :selected="terminal_ns"
-                :value="option.value"
+                  v-for="option in nodeNamespaceOptions"
+                  :key="option.value"
+                  :selected="terminal_ns"
+                  :value="option.value"
               >{{ option.label }}
               </option>
             </select>
@@ -213,34 +289,33 @@
         <div class="col">
           <!-- Disable max per node if weighted or context search -->
           <BaseInputBS
-            v-model="max_per_node"
-            :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
-            :min="1"
-            label="Maximum number of children per node in unweighted breadth first search"
-            type="number"
+              v-model="max_per_node"
+              :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
+              :min="1"
+              label="Maximum number of children per node in unweighted breadth first search"
+              type="number"
           />
           <BaseInputBS
-            v-model="depth_limit"
-            :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
-            :min="1"
-            label="Depth limit in unweighted search"
-            type="number"
+              v-model="depth_limit"
+              :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
+              :min="1"
+              label="Depth limit in unweighted search"
+              type="number"
           />
         </div>
       </div>
-      <div style="margin-top: 20px">
-        <div class="row">
-          <div class="col">
-            <button
+              <div class="row">
+        <div class="col">
+          <button
               :class="{ disabledButton: cannotSubmit }"
               :disabled="cannotSubmit"
               class="button btn btn-secondary btn-lg"
               type="submit"
-            >Submit
-            </button>
-          </div>
-          <div class="col">
-            <BaseInputBS
+          >Submit
+          </button>
+        </div>
+        <div class="col">
+          <BaseInputBS
               v-model.number="user_timeout"
               :max="120"
               :min="2"
@@ -248,7 +323,10 @@
               :style="{ maxWidth: '100px' }"
               label="Timeout"
               type="number"
-            />
+          />
+        </div>
+      </div>
+            </div>
           </div>
         </div>
       </div>
@@ -261,6 +339,7 @@ import BaseSelectBS from "@/components/Form/BaseSelectBS";
 import BaseCheckboxBS from "@/components/Form/BaseCheckboxBS";
 import BaseInputBS from "@/components/Form/BaseInputBS";
 import AxiosMethods from "@/services/AxiosMethods";
+import UniqueID from "@/helpers/BasicHelpers";
 
 export default {
   components: { BaseSelectBS, BaseCheckboxBS, BaseInputBS },
@@ -406,7 +485,23 @@ export default {
     },
     isAnyWeighted() {
       return this.isContextWeighted || this.weighted;
-    }
+    },
+    strUUID() {
+      return `form-id-${this.uuid}`
+    },
+    accordionID() {
+      return `accordion-${this.strUUID}`
+    },
+    accordionIDObj() {
+      return {
+        accordionHeader1ID: `header1-${this.accordionID}`,
+        accordionHeader2ID: `header2-${this.accordionID}`,
+        accordionHeader3ID: `header3-${this.accordionID}`,
+        accordionBody1ID: `body1-${this.accordionID}`,
+        accordionBody2ID: `body2-${this.accordionID}`,
+        accordionBody3ID: `body3-${this.accordionID}`,
+      }
+    },
   },
   methods: {
     sendForm() {
@@ -437,6 +532,12 @@ export default {
       return true;
       // Here go over all form parts and validate them
     },
+  },
+  setup() {
+    const uuid = UniqueID().getID();
+    return {
+      uuid
+    }
   },
 };
 </script>
