@@ -10,12 +10,14 @@
           + Check out https://github.com/vueform/multiselect, used in
             indra_db/benchmarker/view_app/benchmark.html
           +
-        - Organize context and signed search
         - Add hover or "?" text for help
-        - Put checkboxes in row-col setup: try col-auto class -
-          + https://getbootstrap.com/docs/5.0/forms/layout/#auto-sizing
-          or row-cols-auto -
-          + https://getbootstrap.com/docs/5.0/layout/grid/#row-columns
+        - Put checkboxes in row-col setup; Try
+          + col-auto class -
+            https://getbootstrap.com/docs/5.0/forms/layout/#auto-sizing
+          + or row-cols-auto -
+            https://getbootstrap.com/docs/5.0/layout/grid/#row-columns
+          or horizontal form -
+            https://getbootstrap.com/docs/5.0/forms/layout/#horizontal-form
         - See if it's possible to set form inputs to their defaults if the
           field/input is disabled
         - Consider datalists for autocomplete text inputs:
