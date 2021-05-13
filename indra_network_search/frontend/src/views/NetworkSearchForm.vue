@@ -6,11 +6,20 @@
         - Add border for form (use cards?)
         - Organize options according to type of search
         - Implement some basic styling that makes the form readable
-        - Make Multi-select prettier (find package)
+        - Make Multi-select prettier (find package):
+          + Check out https://github.com/vueform/multiselect, used in
+            indra_db/benchmarker/view_app/benchmark.html
+          +
         - Organize context and signed search
         - Add hover or "?" text for help
-        - Put checkboxes in row-col setup
-        -
+        - Put checkboxes in row-col setup: try col-auto class -
+          + https://getbootstrap.com/docs/5.0/forms/layout/#auto-sizing
+          or row-cols-auto -
+          + https://getbootstrap.com/docs/5.0/layout/grid/#row-columns
+        - See if it's possible to set form inputs to their defaults if the
+          field/input is disabled
+        - Consider datalists for autocomplete text inputs:
+          https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
     <form class="review-form" @submit.prevent="sendForm">
       <h1>The Network Search Form</h1>
