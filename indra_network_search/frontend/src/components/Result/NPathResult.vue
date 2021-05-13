@@ -1,27 +1,29 @@
 <template>
   <div class="card text-center">
     <div class="card-header">
-      <h5>
-        <!-- Header N-edge paths | Source -> {X_n} -> target | source badges | collapse toggle icon -->
-        {{ edgeCount }}-edge paths;
-        <template v-if="sourceExist"><Node v-bind="source" /></template>
-        <template v-else>X0</template>
-        <i class="bi bi-arrow-right"></i>
-        <template v-for="n in edgeCount - 1" :key="n">
-          X{{ n }}<i class="bi bi-arrow-right"></i>
-        </template>
-        <template v-if="targetExist"><Node v-bind="target" /></template>
-        <template v-else>X{{ pathNodeCountNum + 1 }}</template>
-      </h5>
-      <a
-        role="button"
-        data-bs-toggle="collapse"
-        :href="`#${strUUID}`"
-        :aria-expanded="false"
-        :aria-controls="strUUID"
-      >
-        <i title="Click to expand" class="bi-plus-circle"></i>
-      </a>
+      <div class="d-flex justify-content-between">
+        <h4>
+          <!-- Header N-edge paths | Source -> {X_n} -> target | source badges | collapse toggle icon -->
+          {{ edgeCount }}-edge paths;
+          <template v-if="sourceExist"><Node v-bind="source" /></template>
+          <template v-else>X0</template>
+          <i class="bi bi-arrow-right"></i>
+          <template v-for="n in edgeCount - 1" :key="n">
+            X{{ n }}<i class="bi bi-arrow-right"></i>
+          </template>
+          <template v-if="targetExist"><Node v-bind="target" /></template>
+          <template v-else>X{{ pathNodeCountNum + 1 }}</template>
+        </h4>
+        <a
+          role="button"
+          data-bs-toggle="collapse"
+          :href="`#${strUUID}`"
+          :aria-expanded="false"
+          :aria-controls="strUUID"
+        >
+          <i title="Click to expand" class="bi-plus-circle fs-4"></i>
+        </a>
+      </div>
     </div>
     <div class="card-body collapse show" :id="strUUID">
       <!-- Table (or grid) with two columns: Path | Support -->
