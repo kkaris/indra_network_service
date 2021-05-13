@@ -30,6 +30,7 @@
             v-model="source"
             label="Source node"
             type="text"
+            placeholder="e.g. 'MEK'"
           />
         </div>
         <div class="col">
@@ -37,6 +38,7 @@
             v-model="target"
             label="Target node"
             type="text"
+            placeholder="e.g. 'ACE2'"
           />
         </div>
       </div>
