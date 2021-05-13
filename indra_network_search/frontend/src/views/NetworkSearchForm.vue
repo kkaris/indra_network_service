@@ -24,22 +24,24 @@
     <form class="review-form" @submit.prevent="sendForm">
       <h1>The Network Search Form</h1>
       <h2>Basic Search Options</h2>
-      <div class="row">
-        <div class="col">
-          <BaseInputBS
-            v-model="source"
-            label="Source node"
-            type="text"
-            placeholder="e.g. 'MEK'"
-          />
-        </div>
-        <div class="col">
-          <BaseInputBS
-            v-model="target"
-            label="Target node"
-            type="text"
-            placeholder="e.g. 'ACE2'"
-          />
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <BaseInputBS
+                v-model="source"
+                label="Source node"
+                type="text"
+                placeholder="e.g. 'MEK'"
+            />
+          </div>
+          <div class="col">
+            <BaseInputBS
+                v-model="target"
+                label="Target node"
+                type="text"
+                placeholder="e.g. 'ACE2'"
+            />
+          </div>
         </div>
       </div>
       <h2>Detailed Search Options</h2>
@@ -70,16 +72,17 @@
               :aria-labelledby="accordionIDObj.accordionHeader1ID"
           >
             <div class="accordion-body">
+              <div class="container">
                 <div class="row">
                   <div class="col">
                     <b>Statement Filter</b>
                     <div id="v-model-select-stmts">
                       <select v-model="stmt_filter" multiple>
                         <option
-                          v-for="option in stmtFilterOptions"
-                          :key="option.value"
-                          :selected="stmt_filter"
-                          :value="option.value"
+                            v-for="option in stmtFilterOptions"
+                            :key="option.value"
+                            :selected="stmt_filter"
+                            :value="option.value"
                         >{{ option.label }}
                         </option>
                       </select>
@@ -92,10 +95,10 @@
                     <div id="v-model-select-namespace">
                       <select v-model="allowed_ns" multiple>
                         <option
-                          v-for="option in nodeNamespaceOptions"
-                          :key="option.value"
-                          :selected="allowed_ns"
-                          :value="option.value"
+                            v-for="option in nodeNamespaceOptions"
+                            :key="option.value"
+                            :selected="allowed_ns"
+                            :value="option.value"
                         >{{ option.label }}
                         </option>
                       </select>
@@ -107,60 +110,61 @@
                 <div class="row">
                   <div class="col">
                     <BaseInputBS
-                      v-model="hash_blacklist_text"
-                      label="Hash Blacklist"
-                      type="text"
+                        v-model="hash_blacklist_text"
+                        label="Hash Blacklist"
+                        type="text"
                     />
                   </div>
                   <div class="col">
                     <BaseInputBS
-                      v-model="node_blacklist_text"
-                      label="Node Blacklist"
-                      type="text"
+                        v-model="node_blacklist_text"
+                        label="Node Blacklist"
+                        type="text"
                     />
                   </div>
                 </div>
                 <div class="row">
                   <div class="col">
                     <BaseInputBS
-                      v-model.number="path_length"
-                      :disabled="isAnyWeighted"
-                      :max="10"
-                      :min="1"
-                      label="Path length"
-                      type="number"
+                        v-model.number="path_length"
+                        :disabled="isAnyWeighted"
+                        :max="10"
+                        :min="1"
+                        label="Path length"
+                        type="number"
                     />
                   </div>
                   <div class="col">
                     <BaseSelectBS
-                      v-model.number="sign"
-                      :options="signOptions"
-                      label="Signed Search"
+                        v-model.number="sign"
+                        :options="signOptions"
+                        label="Signed Search"
                     />
                   </div>
                 </div>
                 <div class="row">
                   <div class="col">
                     <BaseInputBS
-                      v-model.number="k_shortest"
-                      :max="50"
-                      :min="1"
-                      label="Max Paths"
-                      type="number"
+                        v-model.number="k_shortest"
+                        :max="50"
+                        :min="1"
+                        label="Max Paths"
+                        type="number"
                     />
                   </div>
                   <div class="col">
                     <BaseInputBS
-                      v-model.number="belief_cutoff"
-                      :max="1.0"
-                      :min="0.0"
-                      :step="0.01"
-                      label="Belief Cutoff"
-                      type="number"
+                        v-model.number="belief_cutoff"
+                        :max="1.0"
+                        :min="0.0"
+                        :step="0.01"
+                        label="Belief Cutoff"
+                        type="number"
                     />
                   </div>
                 </div>
                 <div class="row">
+                  <div class="col-md-auto">
                     <BaseCheckboxBS
                         v-model="weighted"
                         label="Weighted search"
@@ -183,6 +187,8 @@
                         label="Include Search for shared regulators of source/target"
                     />
                   </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -275,68 +281,70 @@
           >
             <div class="accordion-body">
               <!-- Disable open search options if both source and target are set -->
-              <div class="row">
-        <div class="col">
-          <!-- Check: is terminal ns applied for strict Dijkstra and/or context search? -->
-          <div id="v-model-select-terminal-ns">
-            <p>Terminal NS</p>
-            <select
-                v-model="terminal_ns"
-                :disabled="isContextSearch || isNotOpenSearch"
-                multiple
-            >
-              <option
-                  v-for="option in nodeNamespaceOptions"
-                  :key="option.value"
-                  :selected="terminal_ns"
-                  :value="option.value"
-              >{{ option.label }}
-              </option>
-            </select>
-            <br/>
-            <span>Selected: {{ terminal_ns }}</span>
-          </div>
-        </div>
-        <div class="col">
-          <!-- Disable max per node if weighted or context search -->
-          <BaseInputBS
-              v-model="max_per_node"
-              :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
-              :min="1"
-              label="Maximum number of children per node in unweighted breadth first search"
-              type="number"
-          />
-          <BaseInputBS
-              v-model="depth_limit"
-              :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
-              :min="1"
-              label="Depth limit in unweighted search"
-              type="number"
-          />
-        </div>
-      </div>
-              <div class="row">
-        <div class="col">
-          <button
-              :class="{ disabledButton: cannotSubmit }"
-              :disabled="cannotSubmit"
-              class="button btn btn-secondary btn-lg"
-              type="submit"
-          >Submit
-          </button>
-        </div>
-        <div class="col">
-          <BaseInputBS
-              v-model.number="user_timeout"
-              :max="120"
-              :min="2"
-              :step="1"
-              :style="{ maxWidth: '100px' }"
-              label="Timeout"
-              type="number"
-          />
-        </div>
-      </div>
+              <div class="container">
+                <div class="row">
+                  <div class="col">
+                    <!-- Check: is terminal ns applied for strict Dijkstra and/or context search? -->
+                    <div id="v-model-select-terminal-ns">
+                      <p>Terminal NS</p>
+                      <select
+                          v-model="terminal_ns"
+                          :disabled="isContextSearch || isNotOpenSearch"
+                          multiple
+                      >
+                        <option
+                            v-for="option in nodeNamespaceOptions"
+                            :key="option.value"
+                            :selected="terminal_ns"
+                            :value="option.value"
+                        >{{ option.label }}
+                        </option>
+                      </select>
+                      <br/>
+                      <span>Selected: {{ terminal_ns }}</span>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <!-- Disable max per node if weighted or context search -->
+                    <BaseInputBS
+                        v-model="max_per_node"
+                        :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
+                        :min="1"
+                        label="Maximum number of children per node in unweighted breadth first search"
+                        type="number"
+                    />
+                    <BaseInputBS
+                        v-model="depth_limit"
+                        :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
+                        :min="1"
+                        label="Depth limit in unweighted search"
+                        type="number"
+                    />
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <button
+                        :class="{ disabledButton: cannotSubmit }"
+                        :disabled="cannotSubmit"
+                        class="button btn btn-secondary btn-lg"
+                        type="submit"
+                    >Submit
+                    </button>
+                  </div>
+                  <div class="col">
+                    <BaseInputBS
+                        v-model.number="user_timeout"
+                        :max="120"
+                        :min="2"
+                        :step="1"
+                        :style="{ maxWidth: '100px' }"
+                        label="Timeout"
+                        type="number"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
