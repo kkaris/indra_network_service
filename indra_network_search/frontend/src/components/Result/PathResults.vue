@@ -1,16 +1,18 @@
 <template>
   <div class="card text-center">
     <div class="card-header">
-      <h2>Path Results</h2>
-      <a
-        role="button"
-        data-bs-toggle="collapse"
-        :href="`#${strUUID}`"
-        :aria-expanded="false"
-        :aria-controls="strUUID"
-      >
-        <i title="Click to expand" class="bi-plus-circle"></i>
-      </a>
+      <div class="d-flex justify-content-between">
+        <h2>Path Results</h2>
+        <a
+            role="button"
+            data-bs-toggle="collapse"
+            :href="`#${strUUID}`"
+            :aria-expanded="false"
+            :aria-controls="strUUID"
+        >
+          <i title="Click to expand" class="bi-plus-circle fs-2"></i>
+        </a>
+      </div>
     </div>
     <div class="card-body collapse show" :id="strUUID">
       <div class="container">
