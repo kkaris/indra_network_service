@@ -4,7 +4,7 @@
     <input
       v-bind="$attrs"
       :value="modelValue"
-      :placeholder="label"
+      :placeholder="ph"
       @input="$emit('update:modelValue', $event.target.value)"
       class="field form-control"
     >
@@ -21,6 +21,15 @@ export default {
     modelValue: {
       type: [String, Number],
       default: ''
+    },
+    placeholder: {
+      type: String,
+      default: ''
+    }
+  },
+  computed: {
+    ph() {
+      return this.placeholder || this.label
     }
   }
 }
