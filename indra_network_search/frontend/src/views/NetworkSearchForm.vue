@@ -52,11 +52,11 @@
               :id="accordionIDObj.accordionHeader1ID"
           >
             <button
-                class="accordion-button"
+                class="accordion-button collapsed"
                 type="button"
                 data-bs-toggle="collapse"
                 :data-bs-target="`#${accordionIDObj.accordionBody1ID}`"
-                aria-expanded="true"
+                aria-expanded="false"
                 :aria-controls="accordionIDObj.accordionBody1ID"
             >
               <strong>General Filter Options</strong>
@@ -64,7 +64,7 @@
           </h3>
           <div
               :id="accordionIDObj.accordionBody1ID"
-              class="accordion-collapse collapse show"
+              class="accordion-collapse collapse"
               :aria-labelledby="accordionIDObj.accordionHeader1ID"
           >
             <div class="accordion-body">
@@ -191,11 +191,11 @@
               :id="accordionIDObj.accordionHeader2ID"
           >
             <button
-                class="accordion-button"
+                class="accordion-button  collapsed"
                 type="button"
                 data-bs-toggle="collapse"
                 :data-bs-target="`#${accordionIDObj.accordionBody2ID}`"
-                aria-expanded="true"
+                aria-expanded="false"
                 :aria-controls="accordionIDObj.accordionBody2ID"
             >
               <strong>Context Search Options</strong>
@@ -203,7 +203,7 @@
           </h3>
           <div
               :id="accordionIDObj.accordionBody2ID"
-              class="accordion-collapse collapse show"
+              class="accordion-collapse collapse"
               :aria-labelledby="accordionIDObj.accordionHeader2ID"
           >
             <div class="accordion-body">
@@ -256,11 +256,11 @@
               :id="accordionIDObj.accordionHeader3ID"
           >
             <button
-                class="accordion-button"
+                class="accordion-button collapsed"
                 type="button"
                 data-bs-toggle="collapse"
                 :data-bs-target="`#${accordionIDObj.accordionBody3ID}`"
-                aria-expanded="true"
+                aria-expanded="false"
                 :aria-controls="accordionIDObj.accordionBody3ID"
             >
               <strong>Open Search Options</strong>
@@ -268,7 +268,7 @@
           </h3>
           <div
               :id="accordionIDObj.accordionBody3ID"
-              class="accordion-collapse collapse show"
+              class="accordion-collapse collapse"
               :aria-labelledby="accordionIDObj.accordionHeader3ID"
           >
             <div class="accordion-body">
