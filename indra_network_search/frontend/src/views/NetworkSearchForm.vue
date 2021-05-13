@@ -50,7 +50,7 @@
                 aria-expanded="true"
                 :aria-controls="accordionIDObj.accordionBody1ID"
             >
-              General Filter Options
+              <strong>General Filter Options</strong>
             </button>
           </h3>
           <div
@@ -189,7 +189,7 @@
                 aria-expanded="true"
                 :aria-controls="accordionIDObj.accordionBody2ID"
             >
-              Context Search Options
+              <strong>Context Search Options</strong>
             </button>
           </h3>
           <div
@@ -254,7 +254,7 @@
                 aria-expanded="true"
                 :aria-controls="accordionIDObj.accordionBody3ID"
             >
-              Open Search Options
+              <strong>Open Search Options</strong>
             </button>
           </h3>
           <div
