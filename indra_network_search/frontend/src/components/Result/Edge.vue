@@ -14,6 +14,7 @@
       <div class="col">
         <a
           role="button"
+          class="text-reset"
           data-bs-toggle="collapse"
           :href="`#${strUUID}`"
           :aria-expanded="false"
