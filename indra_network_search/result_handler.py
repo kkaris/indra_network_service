@@ -209,12 +209,12 @@ class PathResultManager(ResultManager):
                              'path results')
         if source:
             self.source: Node = source if isinstance(source, Node) else \
-                self._get_node(source)
+                self._get_node(source, apply_filter=False)
         else:
             self.source = None
         if target:
             self.target: Node = target if isinstance(target, Node) else \
-                self._get_node(target)
+                self._get_node(target, apply_filter=False)
         else:
             self.target = None
 
@@ -567,9 +567,9 @@ class OntologyResultManager(ResultManager):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options)
         self.source: Node = source if isinstance(source, Node) else \
-            self._get_node(source)
+            self._get_node(source, apply_filter=False)
         self.target: Node = target if isinstance(target, Node) else \
-            self._get_node(target)
+            self._get_node(target, apply_filter=False)
         self._parents: List[Node] = []
 
     @staticmethod
