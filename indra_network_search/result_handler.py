@@ -251,42 +251,28 @@ class UIResultManager(ResultManager):
         raise NotImplementedError
 
 
-class PathResultManager(ResultManager):
+class PathResultManager(UIResultManager):
     """Parent class for path results
 
     The only thing needed in the children is defining _pass_node,
     _pass_stmt, alg_name and _remove_used_filters
     """
     alg_name = NotImplemented
+    filter_input_node = False
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, str, Tuple[str, int]],
                  target: Union[Node, str, Tuple[str, int]], reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options)
+                         filter_options=filter_options, source=source,
+                         target=target)
 
         self.paths: Dict[int, List[Path]] = {}
         self.reverse: bool = reverse
 
-        # Set path source and/or target
-        if not source and not target:
-            raise ValueError('Must provide at least source or target for '
-                             'path results')
-        if source:
-            self.source: Node = source if isinstance(source, Node) else \
-                self._get_node(source, apply_filter=False)
-        else:
-            self.source = None
-        if target:
-            self.target: Node = target if isinstance(target, Node) else \
-                self._get_node(target, apply_filter=False)
-        else:
-            self.target = None
-
-        if self.source is None and self.target is None:
-            raise ValueError(f'Failed to set source ({source}) and/or target '
-                             f'({target})')
+    def _check_source_target(self):
+        raise NotImplementedError
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
