@@ -37,7 +37,7 @@ __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'Node', 'StmtData', 'EdgeData', 'EdgeDataByHash', 'Path',
            'PathResultData', 'OntologyResults', 'SharedInteractorsResults',
            'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults',
-           'DEFAULT_TIMEOUT', 'basemodels_equal', ]
+           'DEFAULT_TIMEOUT', 'basemodels_equal', 'basemodel_in_iterable']
 
 
 # Set defaults
