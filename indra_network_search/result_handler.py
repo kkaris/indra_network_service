@@ -426,6 +426,9 @@ class DijkstraResultManager(PathResultManager):
                          filter_options=filter_options, source=source,
                          target=target, reverse=reverse)
 
+    def _check_source_target(self):
+        self._check_source_or_target()
+
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         # Filters already done in algorithm
@@ -489,6 +492,9 @@ class BreadthFirstSearchResultManager(PathResultManager):
                          filter_options=filter_options, source=source,
                          target=target, reverse=reverse)
 
+    def _check_source_target(self):
+        self._check_source_or_target()
+
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         # Filters already done in algorithm
@@ -536,6 +542,9 @@ class ShortestSimplePathsResultManager(PathResultManager):
                          filter_options=filter_options, source=source,
                          target=target, reverse=reverse)
 
+    def _check_source_target(self):
+        self._check_source_and_target()
+
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         # Filters already done in algorithm
@@ -579,19 +588,26 @@ class ShortestSimplePathsResultManager(PathResultManager):
         return True
 
 
-class SharedInteractorsResultManager(ResultManager):
+class SharedInteractorsResultManager(UIResultManager):
     """Handles results from shared_interactors, both up and downstream
 
     downstream is True for shared targets and False for shared regulators
     """
     alg_name: str = shared_interactors.__name__
+    filter_input_node = False
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  filter_options: FilterOptions, graph: DiGraph,
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]],
                  is_targets_query: bool):
         super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options)
+                         filter_options=filter_options, source=source,
+                         target=target)
         self._downstream: bool = is_targets_query
+
+    def _check_source_target(self):
+        self._check_source_and_target()
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -631,21 +647,22 @@ class SharedInteractorsResultManager(ResultManager):
                                         downstream=self._downstream)
 
 
-class OntologyResultManager(ResultManager):
+class OntologyResultManager(UIResultManager):
     """Handles results from shared_parents"""
     alg_name: str = shared_parents.__name__
+    filter_input_node = False
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  graph: DiGraph, filter_options: FilterOptions,
                  source: Union[Node, str, Tuple[str, int]],
                  target: Union[Node, str, Tuple[str, int]]):
         super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options)
-        self.source: Node = source if isinstance(source, Node) else \
-            self._get_node(source, apply_filter=False)
-        self.target: Node = target if isinstance(target, Node) else \
-            self._get_node(target, apply_filter=False)
+                         filter_options=filter_options, source=source,
+                         target=target)
         self._parents: List[Node] = []
+
+    def _check_source_target(self):
+        self._check_source_and_target()
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
