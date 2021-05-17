@@ -189,6 +189,64 @@ class ResultManager:
         return self._get_results()
 
 
+class UIResultManager(ResultManager):
+    """Parent class for all results that go to the UI"""
+    filter_input_node = NotImplemented
+
+    def __init__(self, path_generator: Union[Generator, Iterator, Iterable],
+                 graph: DiGraph, filter_options: FilterOptions,
+                 source: Union[Node, str, Tuple[str, int]],
+                 target: Union[Node, str, Tuple[str, int]],
+                 timeout: Optional[float] = DEFAULT_TIMEOUT):
+        super().__init__(path_generator=path_generator, graph=graph,
+                         filter_options=filter_options,
+                         input_nodes=[], timeout=timeout)
+        # NOTE: input_nodes is set in _set_source_target in order to allow
+        # calling _check_source_target *after* super.__init__() is called
+        self._set_source_target(source=source, target=target)
+        self._check_source_target()
+
+    def _set_source_target(self,
+                           source: Union[Node, str, Tuple[str, int]],
+                           target: Union[Node, str, Tuple[str, int]],):
+        self.source = None
+        self.target = None
+
+        # Set source and/or target
+        if not source and not target:
+            raise ValueError('Must provide at least source or target for UI '
+                             'results')
+        if source:
+            sn: Node = source if isinstance(source, Node) else \
+                self._get_node(source, apply_filter=False)
+            self.source = sn
+            self.input_nodes.append(sn)
+
+        if target:
+            tn: Node = target if isinstance(target, Node) else \
+                self._get_node(target, apply_filter=False)
+            self.target = tn
+            self.input_nodes.append(tn)
+
+    def _check_source_target(self):
+        """Check that source and target are set properly, i.e. not missing"""
+        raise NotImplementedError
+
+    def _pass_node(self, node: Node) -> bool:
+        raise NotImplementedError
+
+    def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float,
+                                                    Dict[str, int]]]) -> bool:
+        raise NotImplementedError
+
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        raise NotImplementedError
+
+    def _get_results(self):
+        raise NotImplementedError
+
+
 class PathResultManager(ResultManager):
     """Parent class for path results
 
