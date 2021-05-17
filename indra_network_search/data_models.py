@@ -22,7 +22,7 @@ todo:
    context weighted. See here for more info:
    https://stackoverflow.com/q/54023782/10478812
 """
-from typing import Optional, List, Union, Callable, Tuple, Set, Dict
+from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
 
 from pydantic import BaseModel, validator, Extra, constr, conint
@@ -37,7 +37,7 @@ __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'Node', 'StmtData', 'EdgeData', 'EdgeDataByHash', 'Path',
            'PathResultData', 'OntologyResults', 'SharedInteractorsResults',
            'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults',
-           'DEFAULT_TIMEOUT']
+           'DEFAULT_TIMEOUT', 'basemodels_equal', ]
 
 
 # Set defaults
@@ -437,3 +437,51 @@ class SubgraphRestQuery(BaseModel):
 class SubgraphOptions(BaseModel):
     """Argument for indra_network_search.pathfinding.get_subgraph_edges"""
     nodes: List[Node]
+
+
+def basemodels_equal(
+        basemodel: BaseModel, other_basemodel: BaseModel, any_item: bool,
+        exclude: Optional[Set[str]] = None
+) -> bool:
+    """Wrapper to test two basemodels for equality, can exclude irrelevant keys
+
+    Parameters
+    ----------
+    basemodel :
+        BaseModel to test against other_basemodel
+    other_basemodel :
+        BaseModel to test against basemodel
+    any_item :
+        If True, use any() when testing collections for equality, otherwise
+        use all(), i.e. the collections must match exactly
+    exclude :
+        A set of field names to exclude from the basemodels
+
+    Returns
+    -------
+    bool
+    """
+    b1d = basemodel.dict(exclude=exclude)
+    b2d = other_basemodel.dict(exclude=exclude)
+    qual_func = any if any_item else all
+    return qual_func(_equals(b1d[k1], b2d[k2], any_item)
+                     for k1, k2 in zip(b1d, b2d))
+
+
+def _equals(d1: Union[str, int, float, List, Set, Tuple, Dict],
+            d2: Union[str, int, float, List, Set, Tuple, Dict],
+            any_item: bool) -> bool:
+    qual_func = any if any_item else all
+    if d1 is None:
+        return d2 is None
+    elif isinstance(d1, (str, int, float)):
+        return d1 == d2
+    elif isinstance(d1, (list, tuple)):
+        return qual_func(_equals(e1, e2, any_item) for e1, e2 in zip(d1, d2))
+    elif isinstance(d1, set):
+        return d1 == d2
+    elif isinstance(d1, dict):
+        return qual_func(_equals(d1[k1], d2[k2], False)
+                         for k1, k2 in zip(d1, d2))
+    else:
+        raise TypeError(f'Unable to do comparison of type {type(d1)}')

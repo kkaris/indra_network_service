@@ -2,14 +2,14 @@ from inspect import signature
 from typing import Dict, Set, Callable, Optional, Union, List, Tuple, Any
 
 from networkx import DiGraph, MultiDiGraph
-from pydantic import BaseModel
 
 from indra.assemblers.indranet.net import default_sign_dict
 from indra.explanation.model_checker.model_checker import \
     signed_edges_to_signed_nodes
 from indra.explanation.pathfinding import bfs_search, shortest_simple_paths, \
     open_dijkstra_search
-from indra_network_search.data_models import Node, EdgeData, StmtData, Path
+from indra_network_search.data_models import Node, EdgeData, StmtData, Path, \
+    basemodels_equal
 from indra_network_search.pathfinding import shared_parents, \
     shared_interactors, get_subgraph_edges
 from indra_network_search.query import MissingParametersError, \
@@ -163,53 +163,6 @@ def _edge_data_equals(edge_model: EdgeData,
                 zip(other_edge_model.statements[k], st_data_lst))
             for k, st_data_lst in edge_model.statements.items())
     return True
-
-
-def basemodels_equal(basemodel: BaseModel, other_basemodel: BaseModel,
-                     any_item: bool,
-                     exclude: Optional[Set[str]] = None) -> bool:
-    """Wrapper to test two basemodels for equality, can exclude irrelevant keys
-
-    Parameters
-    ----------
-    basemodel :
-        BaseModel to test against other_basemodel
-    other_basemodel :
-        BaseModel to test against basemodel
-    any_item :
-        If True, use any() when testing collections for equality, otherwise
-        use all(), i.e. the collections must match exactly
-    exclude :
-        A set of field names to exclude from testing
-
-    Returns
-    -------
-    bool
-    """
-    b1d = basemodel.dict(exclude=exclude)
-    b2d = other_basemodel.dict(exclude=exclude)
-    qual_func = any if any_item else all
-    return qual_func(_equals(b1d[k1], b2d[k2], any_item)
-                     for k1, k2 in zip(b1d, b2d))
-
-
-def _equals(d1: Union[str, int, float, List, Set, Tuple, Dict],
-            d2: Union[str, int, float, List, Set, Tuple, Dict],
-            any_item: bool) -> bool:
-    qual_func = any if any_item else all
-    if d1 is None:
-        return d2 is None
-    elif isinstance(d1, (str, int, float)):
-        return d1 == d2
-    elif isinstance(d1, (list, tuple)):
-        return qual_func(_equals(e1, e2, any_item) for e1, e2 in zip(d1, d2))
-    elif isinstance(d1, set):
-        return d1 == d2
-    elif isinstance(d1, dict):
-        return qual_func(_equals(d1[k1], d2[k2], False)
-                         for k1, k2 in zip(d1, d2))
-    else:
-        raise TypeError(f'Unable to do comparison of type {type(d1)}')
 
 
 def _get_node(name: Union[str, Tuple[str, int]],
