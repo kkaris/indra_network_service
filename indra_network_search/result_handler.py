@@ -24,7 +24,7 @@ from .util import StrNode
 from .pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions, PathResultData, Path, \
-    EdgeDataByHash, SubgraphResults, DEFAULT_TIMEOUT
+    EdgeDataByHash, SubgraphResults, DEFAULT_TIMEOUT, basemodel_in_iterable
 
 __all__ = ['ResultManager', 'DijkstraResultManager',
            'ShortestSimplePathsResultManager',
@@ -101,8 +101,12 @@ class ResultManager:
         # Create Node
         node = Node(**node_info)
 
-        # Check if we need to filter node
-        if not apply_filter:
+        # Check if we need to filter node; Skip by default if the node
+        if not apply_filter or \
+                (not self.filter_input_node and
+                 basemodel_in_iterable(basemodel=node,
+                                       iterable=self.input_nodes,
+                                       any_item=False, exclude={'lookup'})):
             lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
             node.lookup = lookup
             return node
