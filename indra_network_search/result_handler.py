@@ -20,6 +20,7 @@ from depmap_analysis.network_functions.famplex_functions import \
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from pydantic import ValidationError
+from .util import StrNode
 from .pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions, PathResultData, Path, \
@@ -47,9 +48,11 @@ class ResultManager:
     #  need a wrapper class that manages all the results, analogous to
     #  query vs query_handler
     alg_name: str = NotImplemented
+    filter_input_node: bool = NotImplemented
 
     def __init__(self, path_generator: Union[Generator, Iterator, Iterable],
                  graph: DiGraph, filter_options: FilterOptions,
+                 input_nodes: List[Union[StrNode, Node]],
                  timeout: Optional[float] = DEFAULT_TIMEOUT):
         self.path_gen: Union[Generator, Iterator, Iterable] = path_generator
         self.start_time: Optional[datetime] = None  # Start when looping paths
@@ -59,6 +62,7 @@ class ResultManager:
         self.filter_options: FilterOptions = \
             self._remove_used_filters(filter_options)
         self._graph: DiGraph = graph
+        self.input_nodes: List[Union[StrNode, Node]] = input_nodes
 
     def _pass_node(self, node: Node) -> bool:
         """Pass an individual node based on node data"""
