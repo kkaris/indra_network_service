@@ -629,15 +629,16 @@ def _get_cull_values(culled_nodes: Set[str],
 class SubgraphResultManager(ResultManager):
     """Handles results from get_subgraph_edges"""
     alg_name = get_subgraph_edges.__name__
+    filter_input_node = False
 
     def __init__(self, path_generator: Iterator[Tuple[str, str]],
                  graph: DiGraph,
                  filter_options: FilterOptions, original_nodes: List[Node],
                  nodes_in_graph: List[Node], not_in_graph: List[Node]):
         super().__init__(path_generator=path_generator,
-                         graph=graph, filter_options=filter_options)
+                         graph=graph, filter_options=filter_options,
+                         input_nodes=original_nodes)
         self.edge_dict: Dict[Tuple[str, str], EdgeDataByHash] = {}
-        self._orignal_nodes: List[Node] = original_nodes
         self._available_nodes: Dict[str, Node] = {n.name: n for n
                                                   in nodes_in_graph}
         self._not_in_graph: List[Node] = not_in_graph
@@ -739,7 +740,7 @@ class SubgraphResultManager(ResultManager):
 
         return SubgraphResults(
             available_nodes=list(self._available_nodes.values()),
-            edges=edges, input_nodes=self._orignal_nodes,
+            edges=edges, input_nodes=self.input_nodes,
             not_in_graph=self._not_in_graph
         )
 
