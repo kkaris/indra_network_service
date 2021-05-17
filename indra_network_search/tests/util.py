@@ -159,15 +159,33 @@ def _edge_data_equals(edge_model: EdgeData,
     assert edge_model.context_weight == other_edge_model.context_weight
     assert edge_model.weight == other_edge_model.weight
     assert \
-        all(all(_basemodels_equal(s1, s2, False) for s1, s2 in
+        all(all(basemodels_equal(s1, s2, False) for s1, s2 in
                 zip(other_edge_model.statements[k], st_data_lst))
             for k, st_data_lst in edge_model.statements.items())
     return True
 
 
-def _basemodels_equal(basemodel: BaseModel, other_basemodel: BaseModel,
-                      any_item: bool,
-                      exclude: Optional[Set[str]] = None) -> bool:
+def basemodels_equal(basemodel: BaseModel, other_basemodel: BaseModel,
+                     any_item: bool,
+                     exclude: Optional[Set[str]] = None) -> bool:
+    """Wrapper to test two basemodels for equality, can exclude irrelevant keys
+
+    Parameters
+    ----------
+    basemodel :
+        BaseModel to test against other_basemodel
+    other_basemodel :
+        BaseModel to test against basemodel
+    any_item :
+        If True, use any() when testing collections for equality, otherwise
+        use all(), i.e. the collections must match exactly
+    exclude :
+        A set of field names to exclude from testing
+
+    Returns
+    -------
+    bool
+    """
     b1d = basemodel.dict(exclude=exclude)
     b2d = other_basemodel.dict(exclude=exclude)
     qual_func = any if any_item else all
