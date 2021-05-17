@@ -204,7 +204,8 @@ class UIResultManager(ResultManager):
                  timeout: Optional[float] = DEFAULT_TIMEOUT):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options,
-                         input_nodes=[], timeout=timeout)
+                         input_nodes=[],  # Set in _set_source_target
+                         timeout=timeout)
         # NOTE: input_nodes is set in _set_source_target in order to allow
         # calling _check_source_target *after* super.__init__() is called
         self._set_source_target(source=source, target=target)
@@ -278,7 +279,7 @@ class PathResultManager(UIResultManager):
     """Parent class for path results
 
     The only thing needed in the children is defining _pass_node,
-    _pass_stmt, alg_name and _remove_used_filters
+    _pass_stmt, alg_name, _remove_used_filters and _check_source_target
     """
     alg_name = NotImplemented
     filter_input_node = False
