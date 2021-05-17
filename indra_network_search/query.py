@@ -11,11 +11,13 @@ from itertools import product
 
 from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
-    open_dijkstra_search
+    open_dijkstra_search, EdgeFilter
 from indra_db.client.readonly.mesh_ref_counts import get_mesh_ref_counts
+from .util import StrNode, StrEdge
 from .data_models import *
 from .pathfinding import *
 
+# Constants
 INT_PLUS = 0
 INT_MINUS = 1
 
@@ -213,6 +215,29 @@ class BreadthFirstSearchQuery(PathQuery):
     def __init__(self, query: NetworkSearchQuery):
         super().__init__(query)
 
+    def _get_edge_filter(self) -> Optional[EdgeFilter]:
+        # Get edge filter function:
+        # - belief (of statement)
+        # - statement type
+        # - hash: Only do hash blacklist, the mesh associated hashes are taken
+        #         care of in mesh options
+        # - curated
+        belief_cutoff = self.query.belief_cutoff
+        stmt_types = self.query.stmt_filter or None
+        hash_blacklist = self.query.edge_hash_blacklist or None
+        check_curated = self.query.curated_db_only
+
+        # Simplify function if no filters are applied
+        if belief_cutoff == 0 and not stmt_types and not hash_blacklist and \
+                not check_curated:
+            return None
+        else:
+            _edge_filter = _get_edge_filter_func(stmt_types=stmt_types,
+                                                 hash_blacklist=hash_blacklist,
+                                                 check_curated=check_curated,
+                                                 belief_cutoff=belief_cutoff)
+            return _edge_filter
+
     def alg_options(self) -> Dict[str, Any]:
         """Match arguments of bfs_search from query"""
         start_node, reverse = self._get_source_node()
@@ -227,6 +252,9 @@ class BreadthFirstSearchQuery(PathQuery):
             depth_limit = self.query.path_length - 1
         else:
             depth_limit = self.query.depth_limit
+
+        edge_filter_func = self._get_edge_filter()
+
         return {'source_node': start_node,
                 'reverse': reverse,
                 'depth_limit': depth_limit,
@@ -236,7 +264,8 @@ class BreadthFirstSearchQuery(PathQuery):
                 'node_blacklist': self._get_node_blacklist(),
                 'terminal_ns': self.query.terminal_ns,
                 'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
-                'max_memory': int(2**29)}  # Currently not set in UI
+                'max_memory': int(2**29),  # Currently not set in UI
+                'edge_filter': edge_filter_func}
 
     def mesh_options(self, graph: Optional[nx.DiGraph] = None) \
             -> Dict[str, Union[Set, bool, Callable]]:
@@ -249,11 +278,9 @@ class BreadthFirstSearchQuery(PathQuery):
                     f'mesh options.'
                 )
             hashes, _ = self._get_mesh_options(get_func=False)
-            allowed_edge = {graph.graph['edge_by_hash'][h] for h in
-                            hashes if h in graph.graph['edge_by_hash']}
-            def _allow_edge_func(u: Union[str, Tuple[str, int]],
-                                 v: Union[str, Tuple[str, int]]):
-                return (u, v) in allowed_edge
+            allowed_edges = {graph.graph['edge_by_hash'][h] for h in
+                             hashes if h in graph.graph['edge_by_hash']}
+            _allow_edge_func = _get_allowed_edges_func(allowed_edges)
         else:
             hashes, _allow_edge_func = None, lambda u, v: True
         return {
@@ -532,6 +559,76 @@ def _get_ref_counts_func(hash_mesh_dict: Dict):
         total: int = sum(d['total'] for d in dicts) or 1
         return ref_counts, total
     return _func
+
+
+def _get_allowed_edges_func(allowed_edges: Set[StrEdge]) -> \
+        Callable[[StrNode, StrNode], bool]:
+
+    def _allow_edge_func(u: StrNode, v: StrNode):
+        return (u, v) in allowed_edges
+
+    return _allow_edge_func
+
+
+def _get_edge_filter_func(stmt_types: Optional[List[str]] = None,
+                          hash_blacklist: Optional[List[int]] = None,
+                          check_curated: Optional[bool] = False,
+                          belief_cutoff: Optional[float] = 0.0) -> EdgeFilter:
+    def _edge_filter(g: nx.DiGraph, u: StrNode, v: StrNode) -> bool:
+        for edge_stmt in g.edges[(u, v)]['statements']:
+            if pass_stmt(stmt_dict=edge_stmt, stmt_types=stmt_types,
+                         hash_blacklist=hash_blacklist,
+                         check_curated=check_curated,
+                         belief_cutoff=belief_cutoff):
+                return True
+        return False
+    return _edge_filter
+
+
+def pass_stmt(stmt_dict: Dict[str, Any],
+              stmt_types: Optional[List[str]] = None,
+              hash_blacklist: Optional[List[int]] = None,
+              check_curated: bool = False,
+              belief_cutoff: float = 0) -> bool:
+    """Checks and edge statement dict against several filters
+
+    Parameters
+    ----------
+    stmt_dict : Dict[str, Any]
+        The statement dict to check
+    stmt_types : Optional[List[str]]
+        A list of statement types. If provided, specifies which types are
+        allowed. If no list is provided or the list is empty, all types are
+        allowed. Default: All statement types are allowed.
+    hash_blacklist : Optional[List[int]]
+        A list of hashes that are not allowed as supporting statements for
+        an edge. Default: all statements are allowed.
+    check_curated : bool
+        If True, check if the statement is curated
+    belief_cutoff : Optional[float]
+        The cutoff for belief scores
+
+    Returns
+    -------
+    bool
+    """
+    # Pass if type is in allowed types
+    if stmt_types and stmt_dict['stmt_type'].lower() not in stmt_types:
+        return False
+
+    # Pass if hash is not in blacklist
+    if hash_blacklist and stmt_dict['stmt_hash'] in hash_blacklist:
+        return False
+
+    # Pass if statement is curated
+    if check_curated and not stmt_dict['curated']:
+        return False
+
+    # Pass if belief score is above cutoff
+    if belief_cutoff > 0 and stmt_dict['belief'] < belief_cutoff:
+        return False
+
+    return True
 
 
 alg_name_query_mapping = {

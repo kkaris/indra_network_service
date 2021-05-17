@@ -23,10 +23,13 @@ todo:
    https://stackoverflow.com/q/54023782/10478812
 """
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict
+from networkx import DiGraph
 
 from pydantic import BaseModel, validator, Extra, constr, conint
 
-from .util import get_query_hash, is_weighted, is_context_weighted
+from indra.explanation.pathfinding.util import EdgeFilter
+
+from .util import get_query_hash, is_weighted, is_context_weighted, StrNode
 
 __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'ShortestSimplePathOptions', 'BreadthFirstSearchOptions',
@@ -91,9 +94,9 @@ class NetworkSearchQuery(BaseModel):
     """The query model for network searches"""
     source: str = ''
     target: str = ''
-    stmt_filter: List[str] = []
+    stmt_filter: List[constr(to_lower=True)] = []
     edge_hash_blacklist: List[int] = []
-    allowed_ns: List[str] = []
+    allowed_ns: List[constr(to_lower=True)] = []
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
     depth_limit: int = 2
@@ -226,7 +229,8 @@ class BreadthFirstSearchOptions(BaseModel):
     sign: Optional[int] = None
     max_memory: Optional[int] = int(2**29)
     hashes: Optional[List[int]] = None
-    allow_edge: Optional[Callable] = None
+    allow_edge: Optional[Callable[[DiGraph, StrNode, StrNode], bool]] = None
+    edge_filter: Optional[EdgeFilter] = None
     strict_mesh_id_filtering: Optional[bool] = False
 
 
