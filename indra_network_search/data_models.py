@@ -485,3 +485,30 @@ def _equals(d1: Union[str, int, float, List, Set, Tuple, Dict],
                          for k1, k2 in zip(d1, d2))
     else:
         raise TypeError(f'Unable to do comparison of type {type(d1)}')
+
+
+def basemodel_in_iterable(basemodel: BaseModel, iterable: Iterable,
+                          any_item: bool,
+                          exclude: Optional[Set[str]] = None) -> bool:
+    """Test if a basemodel object is part of a collection
+
+    Parameters
+    ----------
+    basemodel :
+        A BaseModel to test membership in iterable for
+    iterable :
+        An iterable that contains objects to test for equality with basemodel
+    any_item :
+        If True, use any() when testing collections for equality, otherwise
+        use all(), i.e. the collections must match exactly
+    exclude :
+        A set of field names to exclude from the basemodels
+
+    Returns
+    -------
+    bool
+    """
+    return any([basemodels_equal(basemodel=basemodel,
+                                 other_basemodel=ob,
+                                 any_item=any_item,
+                                 exclude=exclude) for ob in iterable])
