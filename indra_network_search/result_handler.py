@@ -232,6 +232,29 @@ class UIResultManager(ResultManager):
             self.target = tn
             self.input_nodes.append(tn)
 
+    def _check_source_or_target(self):
+        # Check that source and target are either of Node or None
+        try:
+            assert isinstance(self.source, Node) or self.source is None
+            assert isinstance(self.target, Node) or self.target is None
+        except AssertionError as err:
+            raise ValueError(f'Source and target must be None or instance of '
+                             f'Node for {self.alg_name}') from err
+
+        # Only one of source and target allowed
+        if not (bool(self.source is not None) ^ bool(self.target is not None)):
+            raise ValueError(f'Only one of source and target allowed for '
+                             f'{self.alg_name}')
+
+    def _check_source_and_target(self):
+        try:
+            assert isinstance(self.source, Node)
+            assert isinstance(self.target, Node)
+        except AssertionError as err:
+            raise ValueError(f'Both source and target must be provided and be '
+                             f'instance of Node for {self.alg_name}') \
+                from err
+
     def _check_source_target(self):
         """Check that source and target are set properly, i.e. not missing"""
         raise NotImplementedError
