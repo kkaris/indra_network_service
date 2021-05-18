@@ -167,8 +167,11 @@ class PathQuery(UIQuery):
             start, reverse = self._get_source_node()
             source = '' if reverse else start
             target = start if reverse else ''
-        return {'filter_options': self.query.get_filter_options(),
-                'source': source, 'target': target, 'reverse': reverse}
+        res_options = {'filter_options': self.query.get_filter_options(),
+                       'source': source, 'target': target}
+        if not self.alg_name == shortest_simple_paths.__name__:
+            res_options['reverse'] = reverse
+        return res_options
 
     # This method is specific for PathQuery classes
     def _get_mesh_options(self, get_func: bool = True) \
