@@ -654,13 +654,12 @@ def test_bfs_stmt_filter():
 def test_bfs_hash_blacklist():
     brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100',
                  lookup=get_identifiers_url(db_name='HGNC', db_id='1100'))
-    stmt_filter_query = NetworkSearchQuery(source=brca1.name,
-                                           edge_hash_blacklist=[
-                                               5603789525715921])
+    stmt_filter_query = NetworkSearchQuery(
+        source=brca1.name, edge_hash_blacklist=[5603789525715921]
+    )
     str_paths2 = [('BRCA1', n) for n in
                   ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
-    str_paths3 = [('BRCA1', n, 'CHEK1') for n in
-                  ['testosterone', 'NR2C2', 'MBD2', 'PATZ1']]
+    str_paths3 = [('BRCA1', 'testosterone', 'CHEK1')]
     paths = {2: _get_path_list(str_paths=str_paths2, graph=unsigned_graph,
                                large=False, signed=False),
              3: _get_path_list(str_paths=str_paths3, graph=unsigned_graph,
