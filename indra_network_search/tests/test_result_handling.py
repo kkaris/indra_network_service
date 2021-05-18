@@ -1,18 +1,11 @@
 from typing import Iterator, Tuple
 from networkx import DiGraph
 
-from indra.explanation.pathfinding import shortest_simple_paths
-from indra_network_search.query import OntologyQuery, SharedRegulatorsQuery, \
-    SharedTargetsQuery, ShortestSimplePathsQuery, SubgraphQuery
-from indra_network_search.result_handler import OntologyResultManager, \
-    SharedInteractorsResultManager, ShortestSimplePathsResultManager, \
-    SubgraphResultManager,  DB_URL_HASH, DB_URL_EDGE
-from indra_network_search.data_models import NetworkSearchQuery, Node, \
+from indra_network_search.query import SubgraphQuery
+from indra_network_search.result_handler import SubgraphResultManager,  DB_URL_HASH, DB_URL_EDGE
+from indra_network_search.data_models import Node, \
     SubgraphRestQuery, SubgraphResults
-from indra_network_search.pathfinding import shared_parents, \
-    shared_interactors, get_subgraph_edges
-from . import edge_data, nodes
-
+from indra_network_search.pathfinding import get_subgraph_edges
 
 mock_edge_dict = {'statements': [{'stmt_hash': 31955807459270625,
                                   'stmt_type': 'Inhibition',
@@ -27,54 +20,6 @@ mock_edge_dict = {'statements': [{'stmt_hash': 31955807459270625,
                                   'initial_sign': 1}],
                   'belief': 0.9999998555477862469,
                   'weight': 1.4445222418630995515e-07}
-
-
-def test_ontology_query():
-    g = DiGraph()
-    n1 = 'BRCA1'
-    n2 = 'BRCA2'
-    ns1 = 'HGNC'
-    ns2 = 'HGNC'
-    id1 = '1100'
-    id2 = '1101'
-    sd = {'statements': [{'stmt_hash': 31955807459270625,
-                          'stmt_type': 'Inhibition',
-                          'evidence_count': 1,
-                          'belief': 0.65,
-                          'source_counts': {'reach': 1},
-                          'english': 'AR inhibits testosterone.',
-                          'weight': 0.4307829160924542,
-                          'position': None,
-                          'curated': False,
-                          'residue': None,
-                          'initial_sign': 1}],
-          'belief': 0.9999998555477862469,
-          'weight': 1.4445222418630995515e-07}
-
-    g.add_node(n1, ns=ns1, id=id1)
-    g.add_node(n2, ns=ns2, id=id2)
-    g.add_edge(n1, n2, **sd)
-
-    query = NetworkSearchQuery(source=n1, target=n2)
-    oq = OntologyQuery(query=query)
-    oq_options = oq.run_options(graph=g)
-    path_gen = shared_parents(**oq_options)
-    ont_rh = OntologyResultManager(graph=g, path_generator=path_gen,
-                                   source=n1, target=n2,
-                                   filter_options=query.get_filter_options())
-    ont_res = ont_rh.get_results()
-    assert len(ont_res.parents) > 0
-
-    # # Filter out fplx
-    # query = NetworkSearchQuery(source=n1, target=n2, allowed_ns=['hgnc'])
-    # oq = OntologyQuery(query=query)
-    # oq_options = oq.run_options(graph=g)
-    # path_gen = shared_parents(**oq_options)
-    # ont_rh = OntologyResultManager(graph=g, path_generator=path_gen,
-    #                                source=n1, target=n2,
-    #                                filter_options=query.get_filter_options())
-    # ont_res = ont_rh.get_results()
-    # assert len(ont_res.parents) == 0
 
 
 def _setup_query_graph() -> DiGraph:
@@ -108,103 +53,6 @@ def _setup_query_graph() -> DiGraph:
 
     # Return graph and the instances that are shared between the two
     return g
-
-
-def test_shared_targets_result_handling():
-    g = _setup_query_graph()
-    rest_query = NetworkSearchQuery(source='n1', target='n2',
-                                    shared_regulators=False)
-    st_query = SharedTargetsQuery(query=rest_query)
-    st_options = st_query.run_options()
-    path_gen = shared_interactors(graph=g, **st_options)
-    st_rh = SharedInteractorsResultManager(
-        path_generator=path_gen,
-        filter_options=rest_query.get_filter_options(),
-        graph=g, source='n1', target='n2', is_targets_query=True
-    )
-    st_res = st_rh.get_results()
-    assert not st_res.is_empty()
-    assert st_res.downstream
-
-    # Check that target is the intended target and the same for both
-    assert st_res.target_data[0].edge[1].name == 'nst'
-    assert st_res.source_data[0].edge[1].name == \
-           st_res.target_data[0].edge[1].name
-
-
-def test_shared_regulators_result_handling():
-    g = _setup_query_graph()
-    rest_query = NetworkSearchQuery(source='n1', target='n2',
-                                    shared_regulators=True)
-    sr_query = SharedRegulatorsQuery(query=rest_query)
-    sr_options = sr_query.run_options()
-    path_gen = shared_interactors(graph=g, **sr_options)
-    sr_rh = SharedInteractorsResultManager(
-        path_generator=path_gen,
-        filter_options=rest_query.get_filter_options(),
-        graph=g, is_targets_query=False, source='n1', target='n2',
-    )
-    sr_res = sr_rh.get_results()
-    assert not sr_res.is_empty()
-    assert not sr_res.downstream
-
-    # Check that regulator is the intended regulator and the same for both
-    assert sr_res.target_data[0].edge[0].name == 'nsr'
-    assert sr_res.source_data[0].edge[0].name == \
-           sr_res.target_data[0].edge[0].name
-
-
-def test_shortest_simple_paths():
-    g = DiGraph()
-    for edge in edge_data:
-        # Add node data
-        if edge[0] not in g.nodes:
-            g.add_node(edge[0], **nodes[edge[0]])
-        if edge[1] not in g.nodes:
-            g.add_node(edge[1], **nodes[edge[1]])
-
-        # Add edge data
-        g.add_edge(*edge, **edge_data[edge])
-
-    query = NetworkSearchQuery(source='BRCA1', target='BRCA2')
-    shortest_query = ShortestSimplePathsQuery(query)
-    shortest_options = shortest_query.run_options(graph=g)
-    path_gen = shortest_simple_paths(G=g, **shortest_options)
-    shortest_mngr = ShortestSimplePathsResultManager(
-        path_generator=path_gen, graph=g,
-        filter_options=query.get_filter_options(), source='BRCA1',
-        target='BRCA2')
-    res = shortest_mngr.get_results()
-    assert not res.is_empty(), 'Results seem empty'
-    assert len(res.paths[4]) == 5, f'{len(res.paths[4])} paths found'
-
-    # Test reversing search (if this part of the test fails, make sure to
-    # check the query tests in tests.test_queries)
-    reverse_query = query.reverse_search()
-    shortest_query_rev = ShortestSimplePathsQuery(reverse_query)
-    shortest_options_rev = shortest_query_rev.run_options(graph=g)
-    path_gen_rev = shortest_simple_paths(G=g, **shortest_options_rev)
-    shortest_mngr_rev = ShortestSimplePathsResultManager(
-        path_generator=path_gen_rev, graph=g,
-        filter_options=reverse_query.get_filter_options(),
-        source=reverse_query.source, target=reverse_query.target)
-    res_rev = shortest_mngr_rev.get_results()
-    assert not res_rev.is_empty(), 'Results seem empty'
-    assert len(res_rev.paths[2]) == 1, f'{len(res.paths[2])} paths found'
-
-    # Test with culling every 3
-    query_cull = NetworkSearchQuery(source='BRCA1', target='BRCA2',
-                                    cull_best_node=4)
-    shortest_query_cull = ShortestSimplePathsQuery(query_cull)
-    shortest_options_cull = shortest_query_cull.run_options(graph=g)
-    path_gen_cull = shortest_simple_paths(G=g, **shortest_options_cull)
-    shortest_mngr_cull = ShortestSimplePathsResultManager(
-        path_generator=path_gen_cull, graph=g,
-        filter_options=query_cull.get_filter_options(), source='BRCA1',
-        target='BRCA2')
-    res_cull = shortest_mngr_cull.get_results()
-    assert not res_cull.is_empty(), 'Results seem empty'
-    assert len(res_cull.paths[4]) == 4, f'{len(res_cull.paths[4])} paths found'
 
 
 def test_subgraph():
