@@ -78,8 +78,8 @@ class ResultManager:
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         raise NotImplementedError
 
-    def _get_node(self, node_name: Union[str, Tuple[str, int]],
-                  apply_filter: bool = True) -> Optional[Node]:
+    def _get_node(self, node_name: StrNode, apply_filter: bool = True) -> \
+            Optional[Node]:
         # Check if node is signed
         if isinstance(node_name, tuple):
             name, sign = node_name
@@ -139,9 +139,7 @@ class ResultManager:
             )
             return None
 
-    def _get_edge_data(self,
-                       a: Union[str, Tuple[str, int], Node],
-                       b: Union[str, Tuple[str, int], Node]) \
+    def _get_edge_data(self, a: Union[StrNode, Node], b: Union[StrNode, Node])\
             -> Union[EdgeData, None]:
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
@@ -199,8 +197,7 @@ class UIResultManager(ResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterator, Iterable],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]],
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
                  timeout: Optional[float] = DEFAULT_TIMEOUT):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options,
@@ -211,9 +208,8 @@ class UIResultManager(ResultManager):
         self._set_source_target(source=source, target=target)
         self._check_source_target()
 
-    def _set_source_target(self,
-                           source: Union[Node, str, Tuple[str, int]],
-                           target: Union[Node, str, Tuple[str, int]],):
+    def _set_source_target(self, source: Union[Node, StrNode],
+                           target: Union[Node, StrNode]):
         self.source = None
         self.target = None
 
@@ -286,8 +282,8 @@ class PathResultManager(UIResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
+                 reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target)
@@ -421,8 +417,8 @@ class DijkstraResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
+                 reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target, reverse=reverse)
@@ -487,8 +483,8 @@ class BreadthFirstSearchResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
+                 reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target, reverse=reverse)
@@ -537,8 +533,8 @@ class ShortestSimplePathsResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
+                 reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target, reverse=reverse)
@@ -599,8 +595,7 @@ class SharedInteractorsResultManager(UIResultManager):
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  filter_options: FilterOptions, graph: DiGraph,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]],
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
                  is_targets_query: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
@@ -655,8 +650,7 @@ class OntologyResultManager(UIResultManager):
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]]):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target)
