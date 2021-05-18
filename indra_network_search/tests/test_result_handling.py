@@ -333,12 +333,12 @@ def test_subgraph():
     subgrap_rest_query = SubgraphRestQuery(nodes=[input_node])
     subgraph_query = SubgraphQuery(query=subgrap_rest_query)
     options = subgraph_query.run_options(graph=g)
-    edge_iter = list(get_subgraph_edges(graph=g, **options))
+    edge_iter_list = list(get_subgraph_edges(graph=g, **options))
 
-    assert len(edge_iter) == 0
+    assert len(edge_iter_list) == 0
 
     # Get result manager
-    res_mngr = SubgraphResultManager(path_generator=edge_iter, graph=g,
+    res_mngr = SubgraphResultManager(path_generator=edge_iter_list, graph=g,
                                      **subgraph_query.result_options())
     results: SubgraphResults = res_mngr.get_results()
     assert len(results.edges) == 0
