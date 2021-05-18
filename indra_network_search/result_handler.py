@@ -102,6 +102,7 @@ class ResultManager:
         node = Node(**node_info)
 
         # Check if we need to filter node; Skip by default if the node
+        # belongs to the input nodes
         if not apply_filter or \
                 (not self.filter_input_node and
                  basemodel_in_iterable(basemodel=node,
