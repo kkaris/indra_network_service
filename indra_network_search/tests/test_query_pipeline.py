@@ -376,6 +376,22 @@ def test_shortest_simple_paths():
                                rest_query=ns_query,
                                expected_res=expected_paths)
 
+    # Only allow CHEBI, start on BRCA1, end on CHEK1: source and target node
+    # should always be allowed but any forbidden NS in between should be
+    # filtered out
+    chek1 = Node(name='CHEK1', namespace='HGNC', identifier='1925')
+    ns_query2 = NetworkSearchQuery(source='BRCA1', target='CHEK1',
+                                   allowed_ns=['CHEBI'])
+    ns_paths2 = [('BRCA1', 'testosterone', 'CHEK1')]
+    paths = {3: _get_path_list(str_paths=ns_paths2, graph=unsigned_graph,
+                               large=False, signed=False)}
+    expected_paths2: PathResultData = \
+        PathResultData(source=brca1, target=chek1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph,
+                               QueryCls=ShortestSimplePathsQuery,
+                               rest_query=ns_query2,
+                               expected_res=expected_paths2)
+
     # node_blacklist
     # Blacklist testosterone
     node_bl_query = NetworkSearchQuery(source='BRCA1', target='BRCA2',
