@@ -57,9 +57,9 @@ class ApiOptions(BaseModel):
 
 class FilterOptions(BaseModel):
     """Options for filtering out nodes or edges"""
-    exclude_stmts: List[str] = []
+    exclude_stmts: List[constr(to_lower=True)] = []
     hash_blacklist: List[int] = []
-    allowed_ns: List[str] = []
+    allowed_ns: List[constr(to_lower=True)] = []
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
     belief_cutoff: float = 0.0
