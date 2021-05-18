@@ -120,7 +120,7 @@ def test_shared_targets_result_handling():
     st_rh = SharedInteractorsResultManager(
         path_generator=path_gen,
         filter_options=rest_query.get_filter_options(),
-        graph=g, is_targets_query=True
+        graph=g, source='n1', target='n2', is_targets_query=True
     )
     st_res = st_rh.get_results()
     assert not st_res.is_empty()
@@ -142,7 +142,7 @@ def test_shared_regulators_result_handling():
     sr_rh = SharedInteractorsResultManager(
         path_generator=path_gen,
         filter_options=rest_query.get_filter_options(),
-        graph=g, is_targets_query=False
+        graph=g, is_targets_query=False, source='n1', target='n2',
     )
     sr_res = sr_rh.get_results()
     assert not sr_res.is_empty()
