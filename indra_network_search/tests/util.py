@@ -281,7 +281,7 @@ def _get_edge_data(edge: Tuple[StrNode, ...], graph: DiGraph, large: bool,
     return edge_data
 
 
-def _get_path_list(str_paths: List[Tuple[Union[str, Tuple[str, int]], ...]],
+def _get_path_list(str_paths: List[Tuple[StrNode, ...]],
                    graph: DiGraph, large: bool, signed: bool) -> List[Path]:
     paths: List[Path] = []
     for spath in str_paths:
