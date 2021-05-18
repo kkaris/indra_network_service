@@ -6,7 +6,6 @@ from depmap_analysis.tests import *
 from indra_network_search.data_models import Node, SubgraphRestQuery, \
     SubgraphResults
 from indra_network_search.pathfinding import *
-from indra_network_search.pathfinding import get_subgraph_edges
 from indra_network_search.query import SubgraphQuery
 from indra_network_search.result_handler import SubgraphResultManager, \
     DB_URL_EDGE, DB_URL_HASH
