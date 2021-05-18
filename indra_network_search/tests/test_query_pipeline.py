@@ -879,7 +879,7 @@ def test_shared_interactors():
     rest_query = NetworkSearchQuery(source=chek1.name, target=h2az1.name,
                                     shared_regulators=True)
     source_edges = [(('AR', 0), chek1_up.signed_node_tuple())]
-    target_edges = [(('AR', 0), h2az1_up.get_unsigned_node())]
+    target_edges = [(('AR', 0), h2az1_up.signed_node_tuple())]
     srq = SharedRegulatorsQuery(query=rest_query)
     expected_results = SharedInteractorsResults(
         source_data=_get_edge_data_list(edge_list=source_edges,
