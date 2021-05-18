@@ -94,14 +94,24 @@ class Query:
         raise NotImplementedError
 
 
-class PathQuery(Query):
-    """Parent Class for ShortestSimplePaths, Dijkstra and BreadthFirstSearch"""
-    def __init__(self, query: NetworkSearchQuery):
-        super().__init__(query)
+class UIQuery(Query):
+    """Parent Class for all possible queries that come from the web UI"""
 
-    def _get_source_target(self) -> Tuple[Union[str, Tuple[str, int]],
-                                          Union[str, Tuple[str, int]]]:
-        """Use for source-target path searches"""
+    def alg_options(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def run_options(self, graph: Optional[nx.DiGraph] = None) \
+            -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def result_options(self) -> Dict:
+        raise NotImplementedError
+
+    def __init__(self, query: NetworkSearchQuery):
+        super().__init__(query=query)
+
+    def _get_source_target(self) -> Tuple[StrNode, StrNode]:
+        """Use for source-target searches"""
         if self.query.sign is not None:
             if SIGNS_TO_INT_SIGN[self.query.sign] == 0:
                 return (self.query.source, 0), (self.query.target, 0)
@@ -111,6 +121,12 @@ class PathQuery(Query):
                 raise ValueError(f'Unknown sign {self.query.sign}')
         else:
             return self.query.source, self.query.target
+
+
+class PathQuery(UIQuery):
+    """Parent Class for ShortestSimplePaths, Dijkstra and BreadthFirstSearch"""
+    def __init__(self, query: NetworkSearchQuery):
+        super().__init__(query)
 
     def _get_source_node(self) -> Tuple[Union[str, Tuple[str, int]], bool]:
         """Use for open ended path searches"""
