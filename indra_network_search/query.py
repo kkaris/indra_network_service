@@ -342,7 +342,7 @@ class DijkstraQuery(PathQuery):
                 'const_tk': self.query.const_tk}
 
 
-class SharedInteractorsQuery(Query):
+class SharedInteractorsQuery(UIQuery):
     """Parent class for shared target and shared regulator search"""
     alg_name: str = NotImplemented
     alg_alt_name: str = shared_interactors.__name__
@@ -379,8 +379,10 @@ class SharedInteractorsQuery(Query):
 
     def result_options(self) -> Dict:
         """Provide args to SharedInteractorsResultManager in result_handler"""
+        source, target = self._get_source_target()
         return {'filter_options': self.query.get_filter_options(),
-                'is_targets_query': not self.reverse}
+                'is_targets_query': not self.reverse,
+                'source': source, 'target': target}
 
 
 class SharedRegulatorsQuery(SharedInteractorsQuery):
@@ -406,7 +408,7 @@ class SharedTargetsQuery(SharedInteractorsQuery):
     reverse = False
 
 
-class OntologyQuery(Query):
+class OntologyQuery(UIQuery):
     """Check queries that will use shared_parents"""
     alg_name = shared_parents.__name__
     options: OntologyOptions = OntologyOptions
@@ -442,8 +444,9 @@ class OntologyQuery(Query):
 
     def result_options(self) -> Dict:
         """Provide args to OntologyResultManager in result_handler"""
+        source, target = self._get_source_target()
         return {'filter_options': self.query.get_filter_options(),
-                'source': self.query.source, 'target': self.query.target}
+                'source': source, 'target': target}
 
 
 class SubgraphQuery:
