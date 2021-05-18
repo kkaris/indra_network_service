@@ -534,11 +534,10 @@ class ShortestSimplePathsResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, StrNode], target: Union[Node, StrNode],
-                 reverse: bool):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, reverse=reverse)
+                         target=target, reverse=False)
 
     def _check_source_target(self):
         self._check_source_and_target()
