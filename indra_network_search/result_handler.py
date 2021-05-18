@@ -446,7 +446,7 @@ class DijkstraResultManager(PathResultManager):
         # Still need to check:
         # allowed_ns
 
-        if node.namespace not in self.filter_options.allowed_ns:
+        if node.namespace.lower() not in self.filter_options.allowed_ns:
             return False
 
         return True
@@ -461,7 +461,8 @@ class DijkstraResultManager(PathResultManager):
         # - curated db
         # Order the checks by likelihood of being applied
         if self.filter_options.exclude_stmts and \
-                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+                stmt_dict['stmt_type'].lower() in \
+                self.filter_options.exclude_stmts:
             return False
 
         if self.filter_options.belief_cutoff > 0.0 and \
@@ -554,7 +555,7 @@ class ShortestSimplePathsResultManager(PathResultManager):
     def _pass_node(self, node: Node) -> bool:
         # Check:
         # - allowed_ns
-        if node.namespace not in self.filter_options.allowed_ns:
+        if node.namespace.lower() not in self.filter_options.allowed_ns:
             return False
 
         return True
@@ -568,7 +569,8 @@ class ShortestSimplePathsResultManager(PathResultManager):
         # - belief
         # - curated
         if self.filter_options.exclude_stmts and \
-                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+                stmt_dict['stmt_type'].lower() in \
+                self.filter_options.exclude_stmts:
             return False
 
         if self.filter_options.belief_cutoff > 0.0 and \
@@ -735,7 +737,8 @@ class SubgraphResultManager(ResultManager):
         # Check:
         # - stmt_type
         if self.filter_options.exclude_stmts and \
-                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+                stmt_dict['stmt_type'].lower() in \
+                self.filter_options.exclude_stmts:
             return False
 
         return True
