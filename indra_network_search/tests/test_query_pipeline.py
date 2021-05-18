@@ -27,7 +27,8 @@ from depmap_analysis.network_functions.famplex_functions import \
 from indra_network_search.data_models import *
 from indra_network_search.query import SharedTargetsQuery, Query, \
     SharedRegulatorsQuery, ShortestSimplePathsQuery, \
-    BreadthFirstSearchQuery, alg_func_mapping, alg_name_query_mapping
+    BreadthFirstSearchQuery, alg_func_mapping, alg_name_query_mapping, \
+    DijkstraQuery
 from indra_network_search.result_handler import ResultManager, \
     alg_manager_mapping
 from .util import _match_args, _node_equals, _edge_data_equals, \
@@ -476,7 +477,30 @@ def test_shortest_simple_paths():
 def test_dijkstra():
     # Test weighted searches with all applicable options
     # Test signed weighted searches
-    pass
+
+    # Test belief weight
+    brca1 = Node(name='BRCA1', namespace='HGNC', identifier='1100')
+    rest_query = NetworkSearchQuery(source=brca1.name, weighted=True)
+    interm = ['AR', 'testosterone', 'NR2C2', 'MBD2', 'PATZ1']
+
+    str_paths2 = [('BRCA1', n) for n in interm]
+    str_paths3 = [('BRCA1', 'AR', 'CHEK1')]
+    str_paths4 = [('BRCA1', 'AR', 'CHEK1', 'BRCA2'),
+                  ('BRCA1', 'AR', 'CHEK1', 'NCOA')]
+    kwargs = dict(graph=unsigned_graph, large=False, signed=False)
+    paths = {2: _get_path_list(str_paths2, **kwargs),
+             3: _get_path_list(str_paths3, **kwargs),
+             4: _get_path_list(str_paths4, **kwargs)}
+    pr = PathResultData(source=brca1, paths=paths)
+    assert _check_path_queries(graph=unsigned_graph, QueryCls=DijkstraQuery,
+                               rest_query=rest_query, expected_res=pr)
+
+    # Test context weight
+    # rest_query = NetworkSearchQuery(source='A', mesh_ids=['D000544'],
+    #                            strict_mesh_id_filtering=False)
+    # dijq = DijkstraQuery(rest_query)
+    # options = set(dijq.run_options().keys())
+    # _match_args(run_options=options, alg_fun=alg_func_mapping[dijq.alg_name])
 
 
 def test_bfs_default():
