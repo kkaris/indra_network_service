@@ -4,16 +4,27 @@
     <p>Click on titles to expand results</p>
     <!--Source/Target info???-->
     <!--Ontology Results-->
+    <div v-if="hasOntRes" class="container">
+      <p>Ontology Results</p>
+      <pre>
+        {{ ontology_results }}
+      </pre>
+    </div>
     <!--Path Results-->
     <!--Reverse Path Results-->
     <!--Shared Targets-->
-    <!--Shared Regulators-->
-    <h1>Test Space</h1>
-    <div class="container border rounded-lg">
-      <p>testNode1: <Node v-bind="testNode1" /></p>
+    <div v-if="hasSharedTargets" class="container">
+      <p>Shared Targets</p>
+      <pre>
+        {{ shared_target_results }}
+      </pre>
     </div>
-    <div class="container border rounded-lg">
-      <p>testNode2: <Node v-bind="testNode2" /></p>
+    <!--Shared Regulators-->
+    <div v-if="hasSharedRegs" class="container">
+      <p>Shared Regulators</p>
+      <pre>
+        {{ shared_regulators_results }}
+      </pre>
     </div>
   </div>
 </template>
