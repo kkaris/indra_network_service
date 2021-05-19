@@ -1,5 +1,5 @@
 <template>
-  <div class="container border rounded-lg">
+  <div class="container">
     <h1>Results</h1>
     <p>Click on titles to expand results</p>
     <!--Source/Target info???-->
@@ -11,7 +11,15 @@
       </pre>
     </div>
     <!--Path Results-->
+    <PathResults
+        v-if="hasPathRes"
+        v-bind="{...path_results, title: 'Path Results'}"
+    />
     <!--Reverse Path Results-->
+    <PathResults
+        v-if="hasRevPathRes"
+        v-bind="{ ...reverse_path_results, title: 'Reverse Path Results' }"
+    />
     <!--Shared Targets-->
     <div v-if="hasSharedTargets" class="container">
       <p>Shared Targets</p>
