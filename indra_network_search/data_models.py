@@ -28,6 +28,7 @@ from networkx import DiGraph
 from pydantic import BaseModel, validator, Extra, constr, conint
 
 from indra.explanation.pathfinding.util import EdgeFilter
+from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 
 from .util import get_query_hash, is_weighted, is_context_weighted, StrNode
 
@@ -164,6 +165,10 @@ class NetworkSearchQuery(BaseModel):
         source = self.target
         target = self.source
         return self.__class__(source=source, target=target, **model_copy)
+
+    def get_int_sign(self) -> Optional[int]:
+        """Return the integer representation of the sign"""
+        return SIGNS_TO_INT_SIGN.get(self.sign)
 
     def get_filter_options(self) -> FilterOptions:
         """Returns the filter options"""
