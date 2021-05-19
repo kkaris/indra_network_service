@@ -2,18 +2,35 @@
 The IndraNetworkSearch REST API
 """
 import logging
+import networkx as nx
 from os import environ
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from .util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
     SubgraphResults
 from .search_api import IndraNetworkSearchAPI
+from depmap_analysis.network_functions.net_functions import bio_ontology
+
+DEBUG = environ.get('API_DEBUG') == "1"
 
 app = FastAPI()
+
+origins = [
+    'http://localhost',
+    'http://localhost:8080',
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +50,7 @@ async def root_redirect():
 
     This is a temporary solution until the Vue frontend is in place
     """
-    return RedirectResponse('/redoc')
+    return RedirectResponse(app.root_path + '/redoc')
 
 
 @app.get('/health', response_model=Health)
@@ -85,12 +102,26 @@ def sub_graph(search_query: SubgraphRestQuery):
     return subgraph_results
 
 
-dir_graph, _, sign_node_graph, _ = \
-    load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
-                     sign_node_graph=True, sign_edge_graph=False,
-                     use_cache=USE_CACHE)
+if DEBUG:
+    network_search_api = IndraNetworkSearchAPI(
+        unsigned_graph=nx.DiGraph(),
+        signed_node_graph=nx.DiGraph()
+    )
+else:
+    # dir_graph, _, sign_node_graph, _ = \
+    #     load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
+    #                      sign_node_graph=True, sign_edge_graph=False,
+    #                      use_cache=USE_CACHE)
+    #
+    # network_search_api = IndraNetworkSearchAPI(
+    #     unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
+    # )
+    from depmap_analysis.util.io_functions import file_opener
+    dir_graph = file_opener('s3://depmap-analysis/graphs/stmts/'
+                            'indranet_dir_subgraph_latest.pkl')
 
-network_search_api = IndraNetworkSearchAPI(unsigned_graph=dir_graph,
-                                           signed_node_graph=sign_node_graph)
-
+    network_search_api = IndraNetworkSearchAPI(
+        unsigned_graph=dir_graph, signed_node_graph=nx.DiGraph()
+    )
+    bio_ontology.initialize()
 HEALTH.status = 'available'
