@@ -378,7 +378,7 @@ export default {
       node_blacklist_text: "",
       path_length: null,
       depth_limit: 2,
-      sign: "",
+      sign: null,
       weighted: false,
       belief_cutoff: 0.0,
       curated_db_only: false,
