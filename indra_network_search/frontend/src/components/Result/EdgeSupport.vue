@@ -1,6 +1,6 @@
 <template>
 <!-- Organize table with one row per statement type -->
-  <table class="table table-sm table-borderless">
+  <table class="table table-sm table-borderless table-hover">
     <thead>
       <tr>
         <th scope="col">Type</th>
