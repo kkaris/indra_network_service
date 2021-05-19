@@ -19,7 +19,9 @@
           or horizontal form -
             https://getbootstrap.com/docs/5.0/forms/layout/#horizontal-form
         - See if it's possible to set form inputs to their defaults if the
-          field/input is disabled
+          field/input is disabled. This could be done by checking
+          $attrs.disabled, which will be Boolean if defined, otherwise
+          undefined
         - Consider datalists for autocomplete text inputs:
           https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
@@ -324,35 +326,38 @@
                     />
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col">
-                    <button
-                        :class="{ disabledButton: cannotSubmit }"
-                        :disabled="cannotSubmit"
-                        class="button btn btn-secondary btn-lg"
-                        type="submit"
-                    >Submit
-                    </button>
-                  </div>
-                  <div class="col">
-                    <BaseInputBS
-                        v-model.number="user_timeout"
-                        :max="120"
-                        :min="2"
-                        :step="1"
-                        :style="{ maxWidth: '100px' }"
-                        label="Timeout"
-                        type="number"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
+      </div> <!-- end accordion -->
+      <div class="row">
+        <div class="col-2">
+          <button
+              :class="{ disabledButton: cannotSubmit }"
+              :disabled="cannotSubmit"
+              class="button btn btn-secondary btn-lg"
+              type="submit"
+          >Submit
+          </button>
+        </div>
+        <div class="col-2">
+          <BaseInputBS
+              v-model.number="user_timeout"
+              :max="120"
+              :min="2"
+              :step="1"
+              :style="{ maxWidth: '100px' }"
+              label="Timeout"
+              type="number"
+          />
+        </div>
       </div>
     </form>
   </div>
+  <ResultArea
+      v-bind="results"
+  />
 </template>
 
 <script>
@@ -361,9 +366,10 @@ import BaseCheckboxBS from "@/components/Form/BaseCheckboxBS";
 import BaseInputBS from "@/components/Form/BaseInputBS";
 import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
+import ResultArea from "@/views/ResultArea";
 
 export default {
-  components: { BaseSelectBS, BaseCheckboxBS, BaseInputBS },
+  components: {ResultArea, BaseSelectBS, BaseCheckboxBS, BaseInputBS },
   data() {
     return {
       source: "",
@@ -374,7 +380,7 @@ export default {
       node_blacklist_text: "",
       path_length: null,
       depth_limit: 2,
-      sign: "",
+      sign: null,
       weighted: false,
       belief_cutoff: 0.0,
       curated_db_only: false,
@@ -453,7 +459,19 @@ export default {
         { label: "DOID", value: "doid" },
         { label: "HP", value: "hp" },
         { label: "EFO", value:"efo" },
-      ]
+      ],
+      // Follows indra_network_search.data_models::Results
+      results: {
+        query_hash: '',
+        time_limit: 30.0,
+        timed_out: false,
+        hashes: [],
+        path_results: {},
+        reverse_path_results: {},
+        ontology_results: {},
+        shared_target_results: {},
+        shared_regulators_results: {},
+      }
     };
   },
   computed: {
@@ -532,7 +550,9 @@ export default {
       }
       AxiosMethods.submitForm(this.networkSearchQuery)
       .then(response => {
-        console.log(response)
+        console.log('Query resolved!');
+        console.log(response);
+        this.results = response.data
       })
       .catch(error => {
         console.log(error)

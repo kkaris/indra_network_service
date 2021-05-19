@@ -11,6 +11,6 @@ const apiClient = axios.create({
 
 export default {
   submitForm(networkSearchQuery) {
-    return apiClient.post("/post_test", networkSearchQuery);
+    return apiClient.post("/query", networkSearchQuery);
   },
 };

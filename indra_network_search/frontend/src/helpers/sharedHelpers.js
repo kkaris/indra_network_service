@@ -11,9 +11,14 @@ const isNode = function (obj) {
   return obj.name && obj.identifier && obj.namespace;
 };
 
+const isStr = function (str) {
+  return typeof str === 'string';
+};
+
 export default {
   isEmptyObject,
   isNode,
+  isStr,
   isOptionalNode(obj) {
     const notProvided = Boolean(obj);
     const isNodeObj = isNode(obj);

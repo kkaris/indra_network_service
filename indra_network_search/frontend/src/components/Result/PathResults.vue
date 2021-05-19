@@ -2,7 +2,7 @@
   <div class="card text-center">
     <div class="card-header">
       <div class="d-flex justify-content-between">
-        <h2>Path Results</h2>
+        <h2>{{ title }}</h2>
         <a
             role="button"
             data-bs-toggle="collapse"
@@ -41,6 +41,10 @@ export default {
   props: {
     // Corresponds to indra_network_search/data_models::PathResultData
     // source and target are Node objects
+    title: {
+      type: String,
+      required: true
+    },
     source: {
       type: Object,
       default: null,
