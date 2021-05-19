@@ -532,8 +532,8 @@ class SubgraphQuery:
                 'not_in_graph': self._not_in_graph}
 
 
-def get_open_signed_node(node: str, reverse: bool, sign: Optional[int] = None)\
-        -> Union[str, Tuple[str, int]]:
+def get_open_signed_node(node: str, reverse: bool,
+                         sign: Optional[int] = None) -> StrNode:
     """Given sign and direction, return a node
 
     Assign the correct sign to the source node:
@@ -565,7 +565,7 @@ def get_open_signed_node(node: str, reverse: bool, sign: Optional[int] = None)\
     else:
         # Upstream: return asked sign
         if reverse:
-            return node, sign
+            return node, SIGNS_TO_INT_SIGN.get(sign)
         # Downstream: return positive node
         else:
             return node, INT_PLUS
