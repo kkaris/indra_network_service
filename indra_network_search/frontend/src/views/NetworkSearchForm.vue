@@ -324,31 +324,31 @@
                     />
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col">
-                    <button
-                        :class="{ disabledButton: cannotSubmit }"
-                        :disabled="cannotSubmit"
-                        class="button btn btn-secondary btn-lg"
-                        type="submit"
-                    >Submit
-                    </button>
-                  </div>
-                  <div class="col">
-                    <BaseInputBS
-                        v-model.number="user_timeout"
-                        :max="120"
-                        :min="2"
-                        :step="1"
-                        :style="{ maxWidth: '100px' }"
-                        label="Timeout"
-                        type="number"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
+        </div>
+      </div> <!-- end accordion -->
+      <div class="row">
+        <div class="col-2">
+          <button
+              :class="{ disabledButton: cannotSubmit }"
+              :disabled="cannotSubmit"
+              class="button btn btn-secondary btn-lg"
+              type="submit"
+          >Submit
+          </button>
+        </div>
+        <div class="col-2">
+          <BaseInputBS
+              v-model.number="user_timeout"
+              :max="120"
+              :min="2"
+              :step="1"
+              :style="{ maxWidth: '100px' }"
+              label="Timeout"
+              type="number"
+          />
         </div>
       </div>
     </form>
