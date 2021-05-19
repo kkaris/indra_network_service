@@ -856,7 +856,7 @@ def test_shared_interactors():
                                      graph=expanded_unsigned_graph,
                                      expected_res=expected_results)
 
-    # - sign
+    # Sign: +
     # Check shared targets
     rest_query = NetworkSearchQuery(source=brca1.name, target=hdac3.name,
                                     sign='+')
@@ -875,9 +875,10 @@ def test_shared_interactors():
                                      graph=exp_signed_node_graph,
                                      expected_res=expected_results)
 
-    # Check shared regulators
+    # Sign: +
+    # Check shared regulators, what upregulates both CHEK1 and H2AZ1
     rest_query = NetworkSearchQuery(source=chek1.name, target=h2az1.name,
-                                    shared_regulators=True)
+                                    shared_regulators=True, sign='+')
     source_edges = [(('AR', 0), chek1_up.signed_node_tuple())]
     target_edges = [(('AR', 0), h2az1_up.signed_node_tuple())]
     srq = SharedRegulatorsQuery(query=rest_query)
