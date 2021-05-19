@@ -382,7 +382,12 @@ class SharedInteractorsQuery(UIQuery):
 
     def result_options(self) -> Dict:
         """Provide args to SharedInteractorsResultManager in result_handler"""
-        source, target = self._get_source_target()
+        source = get_open_signed_node(node=self.query.source,
+                                      reverse=self.reverse,
+                                      sign=self.query.get_int_sign())
+        target = get_open_signed_node(node=self.query.target,
+                                      reverse=self.reverse,
+                                      sign=self.query.get_int_sign())
         return {'filter_options': self.query.get_filter_options(),
                 'is_targets_query': not self.reverse,
                 'source': source, 'target': target}
