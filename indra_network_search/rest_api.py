@@ -7,6 +7,7 @@ from typing import List
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from indra.databases import get_identifiers_url
@@ -19,6 +20,18 @@ from depmap_analysis.network_functions.net_functions import bio_ontology
 DEBUG = environ.get('API_DEBUG') == "1"
 
 app = FastAPI()
+
+origins = [
+    'http://localhost',
+    'http://localhost:8080',
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 logger = logging.getLogger(__name__)
 
@@ -109,13 +122,21 @@ if DEBUG:
         unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
     )
 else:
-    dir_graph, _, sign_node_graph, _ = \
-        load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
-                         sign_node_graph=True, sign_edge_graph=False,
-                         use_cache=USE_CACHE)
+    # dir_graph, _, sign_node_graph, _ = \
+    #     load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
+    #                      sign_node_graph=True, sign_edge_graph=False,
+    #                      use_cache=USE_CACHE)
+    #
+    # network_search_api = IndraNetworkSearchAPI(
+    #     unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
+    # )
+    import networkx as nx
+    from depmap_analysis.util.io_functions import file_opener
+    dir_graph = file_opener('s3://depmap-analysis/graphs/stmts/'
+                            'indranet_dir_subgraph_latest.pkl')
 
     network_search_api = IndraNetworkSearchAPI(
-        unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
+        unsigned_graph=dir_graph, signed_node_graph=nx.DiGraph()
     )
     bio_ontology.initialize()
 HEALTH.status = 'available'
