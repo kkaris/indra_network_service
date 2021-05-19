@@ -453,7 +453,19 @@ export default {
         { label: "DOID", value: "doid" },
         { label: "HP", value: "hp" },
         { label: "EFO", value:"efo" },
-      ]
+      ],
+      // Follows indra_network_search.data_models::Results
+      results: {
+        query_hash: '',
+        time_limit: 30.0,
+        timed_out: false,
+        hashes: [],
+        path_results: {},
+        reverse_path_results: {},
+        ontology_results: {},
+        shared_target_results: {},
+        shared_regulators_results: {},
+      }
     };
   },
   computed: {
@@ -532,7 +544,9 @@ export default {
       }
       AxiosMethods.submitForm(this.networkSearchQuery)
       .then(response => {
-        console.log(response)
+        console.log('Query resolved!');
+        console.log(response);
+        this.results = response.data
       })
       .catch(error => {
         console.log(error)
