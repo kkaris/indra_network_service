@@ -2,14 +2,14 @@ from inspect import signature
 from typing import Dict, Set, Callable, Optional, Union, List, Tuple, Any
 
 from networkx import DiGraph, MultiDiGraph
-from pydantic import BaseModel
 
 from indra.assemblers.indranet.net import default_sign_dict
 from indra.explanation.model_checker.model_checker import \
     signed_edges_to_signed_nodes
 from indra.explanation.pathfinding import bfs_search, shortest_simple_paths, \
     open_dijkstra_search
-from indra_network_search.data_models import Node, EdgeData, StmtData, Path
+from indra_network_search.data_models import Node, EdgeData, StmtData, Path, \
+    basemodels_equal
 from indra_network_search.pathfinding import shared_parents, \
     shared_interactors, get_subgraph_edges
 from indra_network_search.query import MissingParametersError, \
@@ -159,39 +159,10 @@ def _edge_data_equals(edge_model: EdgeData,
     assert edge_model.context_weight == other_edge_model.context_weight
     assert edge_model.weight == other_edge_model.weight
     assert \
-        all(all(_basemodels_equal(s1, s2, False) for s1, s2 in
+        all(all(basemodels_equal(s1, s2, False) for s1, s2 in
                 zip(other_edge_model.statements[k], st_data_lst))
             for k, st_data_lst in edge_model.statements.items())
     return True
-
-
-def _basemodels_equal(basemodel: BaseModel, other_basemodel: BaseModel,
-                      any_item: bool,
-                      exclude: Optional[Set[str]] = None) -> bool:
-    b1d = basemodel.dict(exclude=exclude)
-    b2d = other_basemodel.dict(exclude=exclude)
-    qual_func = any if any_item else all
-    return qual_func(_equals(b1d[k1], b2d[k2], any_item)
-                     for k1, k2 in zip(b1d, b2d))
-
-
-def _equals(d1: Union[str, int, float, List, Set, Tuple, Dict],
-            d2: Union[str, int, float, List, Set, Tuple, Dict],
-            any_item: bool) -> bool:
-    qual_func = any if any_item else all
-    if d1 is None:
-        return d2 is None
-    elif isinstance(d1, (str, int, float)):
-        return d1 == d2
-    elif isinstance(d1, (list, tuple)):
-        return qual_func(_equals(e1, e2, any_item) for e1, e2 in zip(d1, d2))
-    elif isinstance(d1, set):
-        return d1 == d2
-    elif isinstance(d1, dict):
-        return qual_func(_equals(d1[k1], d2[k2], False)
-                         for k1, k2 in zip(d1, d2))
-    else:
-        raise TypeError(f'Unable to do comparison of type {type(d1)}')
 
 
 def _get_node(name: Union[str, Tuple[str, int]],
@@ -266,8 +237,7 @@ def _get_api_res(query: Query, is_signed: bool, large: bool) -> ResultManager:
         raise ValueError(f'Unrecognized Query class {type(query)}')
 
 
-def _get_edge_data_list(edge_list: List[Tuple[Union[str, Tuple[str, int]],
-                                              Union[str, Tuple[str, int]]]],
+def _get_edge_data_list(edge_list: List[Tuple[StrNode, StrNode]],
                         graph: DiGraph, large: bool, signed: bool) \
         -> List[EdgeData]:
     edges: List[EdgeData] = []
@@ -278,8 +248,8 @@ def _get_edge_data_list(edge_list: List[Tuple[Union[str, Tuple[str, int]],
     return edges
 
 
-def _get_edge_data(edge: Tuple[Union[str, Tuple[str, int]], ...],
-                   graph: DiGraph, large: bool, signed: bool) -> EdgeData:
+def _get_edge_data(edge: Tuple[StrNode, ...], graph: DiGraph, large: bool,
+                   signed: bool) -> EdgeData:
     edge_data = _get_edge_data_dict(large=large, signed=signed)
     ed = edge_data[edge]
     stmt_dict = {}

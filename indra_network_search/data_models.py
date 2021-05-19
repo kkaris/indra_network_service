@@ -22,12 +22,13 @@ todo:
    context weighted. See here for more info:
    https://stackoverflow.com/q/54023782/10478812
 """
-from typing import Optional, List, Union, Callable, Tuple, Set, Dict
+from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
 
 from pydantic import BaseModel, validator, Extra, constr, conint
 
 from indra.explanation.pathfinding.util import EdgeFilter
+from depmap_analysis.network_functions.net_functions import SIGNS_TO_INT_SIGN
 
 from .util import get_query_hash, is_weighted, is_context_weighted, StrNode
 
@@ -37,7 +38,7 @@ __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'Node', 'StmtData', 'EdgeData', 'EdgeDataByHash', 'Path',
            'PathResultData', 'OntologyResults', 'SharedInteractorsResults',
            'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults',
-           'DEFAULT_TIMEOUT']
+           'DEFAULT_TIMEOUT', 'basemodels_equal', 'basemodel_in_iterable']
 
 
 # Set defaults
@@ -57,9 +58,9 @@ class ApiOptions(BaseModel):
 
 class FilterOptions(BaseModel):
     """Options for filtering out nodes or edges"""
-    exclude_stmts: List[str] = []
+    exclude_stmts: List[constr(to_lower=True)] = []
     hash_blacklist: List[int] = []
-    allowed_ns: List[str] = []
+    allowed_ns: List[constr(to_lower=True)] = []
     node_blacklist: List[str] = []
     path_length: Optional[int] = None
     belief_cutoff: float = 0.0
@@ -165,6 +166,10 @@ class NetworkSearchQuery(BaseModel):
         target = self.source
         return self.__class__(source=source, target=target, **model_copy)
 
+    def get_int_sign(self) -> Optional[int]:
+        """Return the integer representation of the sign"""
+        return SIGNS_TO_INT_SIGN.get(self.sign)
+
     def get_filter_options(self) -> FilterOptions:
         """Returns the filter options"""
         return FilterOptions(exclude_stmts=self.stmt_filter,
@@ -252,8 +257,8 @@ class DijkstraOptions(BaseModel):
 
 class SharedInteractorsOptions(BaseModel):
     """Arguments for indra_network_search.pathfinding.shared_interactors"""
-    source: Union[str, Tuple[str, int]]
-    target: Union[str, Tuple[str, int]]
+    source: StrNode
+    target: StrNode
     allowed_ns: Optional[List[str]] = None
     stmt_types: Optional[List[str]] = None
     source_filter: Optional[List[str]] = None
@@ -437,3 +442,78 @@ class SubgraphRestQuery(BaseModel):
 class SubgraphOptions(BaseModel):
     """Argument for indra_network_search.pathfinding.get_subgraph_edges"""
     nodes: List[Node]
+
+
+def basemodels_equal(
+        basemodel: BaseModel, other_basemodel: BaseModel, any_item: bool,
+        exclude: Optional[Set[str]] = None
+) -> bool:
+    """Wrapper to test two basemodels for equality, can exclude irrelevant keys
+
+    Parameters
+    ----------
+    basemodel :
+        BaseModel to test against other_basemodel
+    other_basemodel :
+        BaseModel to test against basemodel
+    any_item :
+        If True, use any() when testing collections for equality, otherwise
+        use all(), i.e. the collections must match exactly
+    exclude :
+        A set of field names to exclude from the basemodels
+
+    Returns
+    -------
+    bool
+    """
+    b1d = basemodel.dict(exclude=exclude)
+    b2d = other_basemodel.dict(exclude=exclude)
+    qual_func = any if any_item else all
+    return qual_func(_equals(b1d[k1], b2d[k2], any_item)
+                     for k1, k2 in zip(b1d, b2d))
+
+
+def _equals(d1: Union[str, int, float, List, Set, Tuple, Dict],
+            d2: Union[str, int, float, List, Set, Tuple, Dict],
+            any_item: bool) -> bool:
+    qual_func = any if any_item else all
+    if d1 is None:
+        return d2 is None
+    elif isinstance(d1, (str, int, float)):
+        return d1 == d2
+    elif isinstance(d1, (list, tuple)):
+        return qual_func(_equals(e1, e2, any_item) for e1, e2 in zip(d1, d2))
+    elif isinstance(d1, set):
+        return d1 == d2
+    elif isinstance(d1, dict):
+        return qual_func(_equals(d1[k1], d2[k2], False)
+                         for k1, k2 in zip(d1, d2))
+    else:
+        raise TypeError(f'Unable to do comparison of type {type(d1)}')
+
+
+def basemodel_in_iterable(basemodel: BaseModel, iterable: Iterable,
+                          any_item: bool,
+                          exclude: Optional[Set[str]] = None) -> bool:
+    """Test if a basemodel object is part of a collection
+
+    Parameters
+    ----------
+    basemodel :
+        A BaseModel to test membership in iterable for
+    iterable :
+        An iterable that contains objects to test for equality with basemodel
+    any_item :
+        If True, use any() when testing collections for equality, otherwise
+        use all(), i.e. the collections must match exactly
+    exclude :
+        A set of field names to exclude from the basemodels
+
+    Returns
+    -------
+    bool
+    """
+    return any([basemodels_equal(basemodel=basemodel,
+                                 other_basemodel=ob,
+                                 any_item=any_item,
+                                 exclude=exclude) for ob in iterable])

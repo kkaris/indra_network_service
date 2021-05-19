@@ -20,10 +20,11 @@ from depmap_analysis.network_functions.famplex_functions import \
 from indra.explanation.pathfinding import shortest_simple_paths, bfs_search, \
     open_dijkstra_search
 from pydantic import ValidationError
+from .util import StrNode
 from .pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions, PathResultData, Path, \
-    EdgeDataByHash, SubgraphResults, DEFAULT_TIMEOUT
+    EdgeDataByHash, SubgraphResults, DEFAULT_TIMEOUT, basemodel_in_iterable
 
 __all__ = ['ResultManager', 'DijkstraResultManager',
            'ShortestSimplePathsResultManager',
@@ -47,9 +48,11 @@ class ResultManager:
     #  need a wrapper class that manages all the results, analogous to
     #  query vs query_handler
     alg_name: str = NotImplemented
+    filter_input_node: bool = NotImplemented
 
     def __init__(self, path_generator: Union[Generator, Iterator, Iterable],
                  graph: DiGraph, filter_options: FilterOptions,
+                 input_nodes: List[Union[StrNode, Node]],
                  timeout: Optional[float] = DEFAULT_TIMEOUT):
         self.path_gen: Union[Generator, Iterator, Iterable] = path_generator
         self.start_time: Optional[datetime] = None  # Start when looping paths
@@ -59,6 +62,7 @@ class ResultManager:
         self.filter_options: FilterOptions = \
             self._remove_used_filters(filter_options)
         self._graph: DiGraph = graph
+        self.input_nodes: List[Union[StrNode, Node]] = input_nodes
 
     def _pass_node(self, node: Node) -> bool:
         """Pass an individual node based on node data"""
@@ -74,8 +78,8 @@ class ResultManager:
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
         raise NotImplementedError
 
-    def _get_node(self, node_name: Union[str, Tuple[str, int]],
-                  apply_filter: bool = True) -> Optional[Node]:
+    def _get_node(self, node_name: StrNode, apply_filter: bool = True) -> \
+            Optional[Node]:
         # Check if node is signed
         if isinstance(node_name, tuple):
             name, sign = node_name
@@ -97,8 +101,13 @@ class ResultManager:
         # Create Node
         node = Node(**node_info)
 
-        # Check if we need to filter node
-        if not apply_filter:
+        # Check if we need to filter node; Skip by default if the node
+        # belongs to the input nodes
+        if not apply_filter or \
+                (not self.filter_input_node and
+                 basemodel_in_iterable(basemodel=node,
+                                       iterable=self.input_nodes,
+                                       any_item=False, exclude={'lookup'})):
             lookup = get_identifiers_url(db_name=db_ns, db_id=db_id) or ''
             node.lookup = lookup
             return node
@@ -131,9 +140,7 @@ class ResultManager:
             )
             return None
 
-    def _get_edge_data(self,
-                       a: Union[str, Tuple[str, int], Node],
-                       b: Union[str, Tuple[str, int], Node]) \
+    def _get_edge_data(self, a: Union[StrNode, Node], b: Union[StrNode, Node])\
             -> Union[EdgeData, None]:
         a_node = a if isinstance(a, Node) else self._get_node(a)
         b_node = b if isinstance(b, Node) else self._get_node(b)
@@ -185,42 +192,108 @@ class ResultManager:
         return self._get_results()
 
 
-class PathResultManager(ResultManager):
+class UIResultManager(ResultManager):
+    """Parent class for all results that go to the UI"""
+    filter_input_node = NotImplemented
+
+    def __init__(self, path_generator: Union[Generator, Iterator, Iterable],
+                 graph: DiGraph, filter_options: FilterOptions,
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
+                 timeout: Optional[float] = DEFAULT_TIMEOUT):
+        super().__init__(path_generator=path_generator, graph=graph,
+                         filter_options=filter_options,
+                         input_nodes=[],  # Set in _set_source_target
+                         timeout=timeout)
+        # NOTE: input_nodes is set in _set_source_target in order to allow
+        # calling _check_source_target *after* super.__init__() is called
+        self._set_source_target(source=source, target=target)
+        self._check_source_target()
+
+    def _set_source_target(self, source: Union[Node, StrNode],
+                           target: Union[Node, StrNode]):
+        self.source = None
+        self.target = None
+
+        # Set source and/or target
+        if not source and not target:
+            raise ValueError('Must provide at least source or target for UI '
+                             'results')
+        if source:
+            sn: Node = source if isinstance(source, Node) else \
+                self._get_node(source, apply_filter=False)
+            self.source = sn
+            self.input_nodes.append(sn)
+
+        if target:
+            tn: Node = target if isinstance(target, Node) else \
+                self._get_node(target, apply_filter=False)
+            self.target = tn
+            self.input_nodes.append(tn)
+
+    def _check_source_or_target(self):
+        # Check that source and target are either of Node or None
+        try:
+            assert isinstance(self.source, Node) or self.source is None
+            assert isinstance(self.target, Node) or self.target is None
+        except AssertionError as err:
+            raise ValueError(f'Source and target must be None or instance of '
+                             f'Node for {self.alg_name}') from err
+
+        # Only one of source and target allowed
+        if not (bool(self.source is not None) ^ bool(self.target is not None)):
+            raise ValueError(f'Only one of source and target allowed for '
+                             f'{self.alg_name}')
+
+    def _check_source_and_target(self):
+        try:
+            assert isinstance(self.source, Node)
+            assert isinstance(self.target, Node)
+        except AssertionError as err:
+            raise ValueError(f'Both source and target must be provided and be '
+                             f'instance of Node for {self.alg_name}') \
+                from err
+
+    def _check_source_target(self):
+        """Check that source and target are set properly, i.e. not missing"""
+        raise NotImplementedError
+
+    def _pass_node(self, node: Node) -> bool:
+        raise NotImplementedError
+
+    def _pass_stmt(self, stmt_dict: Dict[str, Union[str, int, float,
+                                                    Dict[str, int]]]) -> bool:
+        raise NotImplementedError
+
+    @staticmethod
+    def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
+        raise NotImplementedError
+
+    def _get_results(self):
+        raise NotImplementedError
+
+
+class PathResultManager(UIResultManager):
     """Parent class for path results
 
     The only thing needed in the children is defining _pass_node,
-    _pass_stmt, alg_name and _remove_used_filters
+    _pass_stmt, alg_name, _remove_used_filters and _check_source_target
     """
     alg_name = NotImplemented
+    filter_input_node = False
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
+                 reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options)
+                         filter_options=filter_options, source=source,
+                         target=target)
 
         self.paths: Dict[int, List[Path]] = {}
         self.reverse: bool = reverse
 
-        # Set path source and/or target
-        if not source and not target:
-            raise ValueError('Must provide at least source or target for '
-                             'path results')
-        if source:
-            self.source: Node = source if isinstance(source, Node) else \
-                self._get_node(source)
-        else:
-            self.source = None
-        if target:
-            self.target: Node = target if isinstance(target, Node) else \
-                self._get_node(target)
-        else:
-            self.target = None
-
-        if self.source is None and self.target is None:
-            raise ValueError(f'Failed to set source ({source}) and/or target '
-                             f'({target})')
+    def _check_source_target(self):
+        raise NotImplementedError
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -345,11 +418,14 @@ class DijkstraResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
+                 reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target, reverse=reverse)
+
+    def _check_source_target(self):
+        self._check_source_or_target()
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -370,7 +446,7 @@ class DijkstraResultManager(PathResultManager):
         # Still need to check:
         # allowed_ns
 
-        if node.namespace not in self.filter_options.allowed_ns:
+        if node.namespace.lower() not in self.filter_options.allowed_ns:
             return False
 
         return True
@@ -385,7 +461,8 @@ class DijkstraResultManager(PathResultManager):
         # - curated db
         # Order the checks by likelihood of being applied
         if self.filter_options.exclude_stmts and \
-                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+                stmt_dict['stmt_type'].lower() in \
+                self.filter_options.exclude_stmts:
             return False
 
         if self.filter_options.belief_cutoff > 0.0 and \
@@ -408,11 +485,14 @@ class BreadthFirstSearchResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
+                 reverse: bool):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
                          target=target, reverse=reverse)
+
+    def _check_source_target(self):
+        self._check_source_or_target()
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -455,11 +535,13 @@ class ShortestSimplePathsResultManager(PathResultManager):
 
     def __init__(self, path_generator: Union[Generator, Iterable, Iterator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]], reverse: bool):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode]):
         super().__init__(path_generator=path_generator, graph=graph,
                          filter_options=filter_options, source=source,
-                         target=target, reverse=reverse)
+                         target=target, reverse=False)
+
+    def _check_source_target(self):
+        self._check_source_and_target()
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -473,7 +555,7 @@ class ShortestSimplePathsResultManager(PathResultManager):
     def _pass_node(self, node: Node) -> bool:
         # Check:
         # - allowed_ns
-        if node.namespace not in self.filter_options.allowed_ns:
+        if node.namespace.lower() not in self.filter_options.allowed_ns:
             return False
 
         return True
@@ -487,7 +569,8 @@ class ShortestSimplePathsResultManager(PathResultManager):
         # - belief
         # - curated
         if self.filter_options.exclude_stmts and \
-                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+                stmt_dict['stmt_type'].lower() in \
+                self.filter_options.exclude_stmts:
             return False
 
         if self.filter_options.belief_cutoff > 0.0 and \
@@ -504,19 +587,25 @@ class ShortestSimplePathsResultManager(PathResultManager):
         return True
 
 
-class SharedInteractorsResultManager(ResultManager):
+class SharedInteractorsResultManager(UIResultManager):
     """Handles results from shared_interactors, both up and downstream
 
     downstream is True for shared targets and False for shared regulators
     """
     alg_name: str = shared_interactors.__name__
+    filter_input_node = False
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  filter_options: FilterOptions, graph: DiGraph,
+                 source: Union[Node, StrNode], target: Union[Node, StrNode],
                  is_targets_query: bool):
         super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options)
+                         filter_options=filter_options, source=source,
+                         target=target)
         self._downstream: bool = is_targets_query
+
+    def _check_source_target(self):
+        self._check_source_and_target()
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -556,21 +645,21 @@ class SharedInteractorsResultManager(ResultManager):
                                         downstream=self._downstream)
 
 
-class OntologyResultManager(ResultManager):
+class OntologyResultManager(UIResultManager):
     """Handles results from shared_parents"""
     alg_name: str = shared_parents.__name__
+    filter_input_node = False
 
     def __init__(self, path_generator: Union[Iterable, Iterator, Generator],
                  graph: DiGraph, filter_options: FilterOptions,
-                 source: Union[Node, str, Tuple[str, int]],
-                 target: Union[Node, str, Tuple[str, int]]):
+                 source: Union[Node, StrNode], target: Union[Node, StrNode]):
         super().__init__(path_generator=path_generator, graph=graph,
-                         filter_options=filter_options)
-        self.source: Node = source if isinstance(source, Node) else \
-            self._get_node(source)
-        self.target: Node = target if isinstance(target, Node) else \
-            self._get_node(target)
+                         filter_options=filter_options, source=source,
+                         target=target)
         self._parents: List[Node] = []
+
+    def _check_source_target(self):
+        self._check_source_and_target()
 
     @staticmethod
     def _remove_used_filters(filter_options: FilterOptions) -> FilterOptions:
@@ -625,15 +714,16 @@ def _get_cull_values(culled_nodes: Set[str],
 class SubgraphResultManager(ResultManager):
     """Handles results from get_subgraph_edges"""
     alg_name = get_subgraph_edges.__name__
+    filter_input_node = False
 
     def __init__(self, path_generator: Iterator[Tuple[str, str]],
                  graph: DiGraph,
                  filter_options: FilterOptions, original_nodes: List[Node],
                  nodes_in_graph: List[Node], not_in_graph: List[Node]):
         super().__init__(path_generator=path_generator,
-                         graph=graph, filter_options=filter_options)
+                         graph=graph, filter_options=filter_options,
+                         input_nodes=original_nodes)
         self.edge_dict: Dict[Tuple[str, str], EdgeDataByHash] = {}
-        self._orignal_nodes: List[Node] = original_nodes
         self._available_nodes: Dict[str, Node] = {n.name: n for n
                                                   in nodes_in_graph}
         self._not_in_graph: List[Node] = not_in_graph
@@ -647,7 +737,8 @@ class SubgraphResultManager(ResultManager):
         # Check:
         # - stmt_type
         if self.filter_options.exclude_stmts and \
-                stmt_dict['stmt_type'] in self.filter_options.exclude_stmts:
+                stmt_dict['stmt_type'].lower() in \
+                self.filter_options.exclude_stmts:
             return False
 
         return True
@@ -735,7 +826,7 @@ class SubgraphResultManager(ResultManager):
 
         return SubgraphResults(
             available_nodes=list(self._available_nodes.values()),
-            edges=edges, input_nodes=self._orignal_nodes,
+            edges=edges, input_nodes=self.input_nodes,
             not_in_graph=self._not_in_graph
         )
 

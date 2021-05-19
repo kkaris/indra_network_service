@@ -73,7 +73,7 @@ class Query:
         The options here impact decisions on which extra search algorithms
         to include and which graph to pick
         """
-        return ApiOptions(sign=SIGNS_TO_INT_SIGN.get(self.query.sign),
+        return ApiOptions(sign=self.query.get_int_sign(),
                           fplx_expand=self.query.fplx_expand,
                           user_timout=self.query.user_timeout,
                           two_way=self.query.two_way,
@@ -94,23 +94,39 @@ class Query:
         raise NotImplementedError
 
 
-class PathQuery(Query):
-    """Parent Class for ShortestSimplePaths, Dijkstra and BreadthFirstSearch"""
-    def __init__(self, query: NetworkSearchQuery):
-        super().__init__(query)
+class UIQuery(Query):
+    """Parent Class for all possible queries that come from the web UI"""
 
-    def _get_source_target(self) -> Tuple[Union[str, Tuple[str, int]],
-                                          Union[str, Tuple[str, int]]]:
-        """Use for source-target path searches"""
+    def alg_options(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def run_options(self, graph: Optional[nx.DiGraph] = None) \
+            -> Dict[str, Any]:
+        raise NotImplementedError
+
+    def result_options(self) -> Dict:
+        raise NotImplementedError
+
+    def __init__(self, query: NetworkSearchQuery):
+        super().__init__(query=query)
+
+    def _get_source_target(self) -> Tuple[StrNode, StrNode]:
+        """Use for source-target searches"""
         if self.query.sign is not None:
-            if SIGNS_TO_INT_SIGN[self.query.sign] == 0:
+            if self.query.get_int_sign() == 0:
                 return (self.query.source, 0), (self.query.target, 0)
-            elif SIGNS_TO_INT_SIGN[self.query.sign] == 1:
+            elif self.query.get_int_sign() == 1:
                 return (self.query.source, 0), (self.query.target, 1)
             else:
                 raise ValueError(f'Unknown sign {self.query.sign}')
         else:
             return self.query.source, self.query.target
+
+
+class PathQuery(UIQuery):
+    """Parent Class for ShortestSimplePaths, Dijkstra and BreadthFirstSearch"""
+    def __init__(self, query: NetworkSearchQuery):
+        super().__init__(query)
 
     def _get_source_node(self) -> Tuple[Union[str, Tuple[str, int]], bool]:
         """Use for open ended path searches"""
@@ -124,7 +140,7 @@ class PathQuery(Query):
                 f'set.'
             )
         signed_node = get_open_signed_node(node=start_node, reverse=reverse,
-                                           sign=self.query.sign)
+                                           sign=self.query.get_int_sign())
         return signed_node, reverse
 
     def alg_options(self) -> Dict[str, Any]:
@@ -151,8 +167,11 @@ class PathQuery(Query):
             start, reverse = self._get_source_node()
             source = '' if reverse else start
             target = start if reverse else ''
-        return {'filter_options': self.query.get_filter_options(),
-                'source': source, 'target': target, 'reverse': reverse}
+        res_options = {'filter_options': self.query.get_filter_options(),
+                       'source': source, 'target': target}
+        if not self.alg_name == shortest_simple_paths.__name__:
+            res_options['reverse'] = reverse
+        return res_options
 
     # This method is specific for PathQuery classes
     def _get_mesh_options(self, get_func: bool = True) \
@@ -263,7 +282,7 @@ class BreadthFirstSearchQuery(PathQuery):
                 'node_filter': self.query.allowed_ns,
                 'node_blacklist': self._get_node_blacklist(),
                 'terminal_ns': self.query.terminal_ns,
-                'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
+                'sign': self.query.get_int_sign(),
                 'max_memory': int(2**29),  # Currently not set in UI
                 'edge_filter': edge_filter_func}
 
@@ -326,7 +345,7 @@ class DijkstraQuery(PathQuery):
                 'const_tk': self.query.const_tk}
 
 
-class SharedInteractorsQuery(Query):
+class SharedInteractorsQuery(UIQuery):
     """Parent class for shared target and shared regulator search"""
     alg_name: str = NotImplemented
     alg_alt_name: str = shared_interactors.__name__
@@ -340,17 +359,17 @@ class SharedInteractorsQuery(Query):
         """Match arguments of shared_interactors from query"""
         source = get_open_signed_node(node=self.query.source,
                                       reverse=self.reverse,
-                                      sign=self.query.sign)
+                                      sign=self.query.get_int_sign())
         target = get_open_signed_node(node=self.query.target,
                                       reverse=self.reverse,
-                                      sign=self.query.sign)
+                                      sign=self.query.get_int_sign())
         return {'source': source, 'target': target,
                 'allowed_ns': self.query.allowed_ns,
                 'stmt_types': self.query.stmt_filter,
                 'source_filter': None,  # Not implemented in UI
                 'max_results': self.query.k_shortest,
                 'regulators': self.reverse,
-                'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
+                'sign': self.query.get_int_sign(),
                 'hash_blacklist': self.query.edge_hash_blacklist,
                 'node_blacklist': self._get_node_blacklist(),
                 'belief_cutoff': self.query.belief_cutoff,
@@ -363,8 +382,15 @@ class SharedInteractorsQuery(Query):
 
     def result_options(self) -> Dict:
         """Provide args to SharedInteractorsResultManager in result_handler"""
+        source = get_open_signed_node(node=self.query.source,
+                                      reverse=self.reverse,
+                                      sign=self.query.get_int_sign())
+        target = get_open_signed_node(node=self.query.target,
+                                      reverse=self.reverse,
+                                      sign=self.query.get_int_sign())
         return {'filter_options': self.query.get_filter_options(),
-                'is_targets_query': not self.reverse}
+                'is_targets_query': not self.reverse,
+                'source': source, 'target': target}
 
 
 class SharedRegulatorsQuery(SharedInteractorsQuery):
@@ -390,7 +416,7 @@ class SharedTargetsQuery(SharedInteractorsQuery):
     reverse = False
 
 
-class OntologyQuery(Query):
+class OntologyQuery(UIQuery):
     """Check queries that will use shared_parents"""
     alg_name = shared_parents.__name__
     options: OntologyOptions = OntologyOptions
@@ -426,8 +452,9 @@ class OntologyQuery(Query):
 
     def result_options(self) -> Dict:
         """Provide args to OntologyResultManager in result_handler"""
+        source, target = self._get_source_target()
         return {'filter_options': self.query.get_filter_options(),
-                'source': self.query.source, 'target': self.query.target}
+                'source': source, 'target': target}
 
 
 class SubgraphQuery:
@@ -505,8 +532,8 @@ class SubgraphQuery:
                 'not_in_graph': self._not_in_graph}
 
 
-def get_open_signed_node(node: str, reverse: bool, sign: Optional[int] = None)\
-        -> Union[str, Tuple[str, int]]:
+def get_open_signed_node(node: str, reverse: bool,
+                         sign: Optional[int] = None) -> StrNode:
     """Given sign and direction, return a node
 
     Assign the correct sign to the source node:
@@ -538,7 +565,7 @@ def get_open_signed_node(node: str, reverse: bool, sign: Optional[int] = None)\
     else:
         # Upstream: return asked sign
         if reverse:
-            return node, sign
+            return node, SIGNS_TO_INT_SIGN.get(sign)
         # Downstream: return positive node
         else:
             return node, INT_PLUS
