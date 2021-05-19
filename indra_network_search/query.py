@@ -73,7 +73,7 @@ class Query:
         The options here impact decisions on which extra search algorithms
         to include and which graph to pick
         """
-        return ApiOptions(sign=SIGNS_TO_INT_SIGN.get(self.query.sign),
+        return ApiOptions(sign=self.query.get_int_sign(),
                           fplx_expand=self.query.fplx_expand,
                           user_timout=self.query.user_timeout,
                           two_way=self.query.two_way,
@@ -113,9 +113,9 @@ class UIQuery(Query):
     def _get_source_target(self) -> Tuple[StrNode, StrNode]:
         """Use for source-target searches"""
         if self.query.sign is not None:
-            if SIGNS_TO_INT_SIGN[self.query.sign] == 0:
+            if self.query.get_int_sign() == 0:
                 return (self.query.source, 0), (self.query.target, 0)
-            elif SIGNS_TO_INT_SIGN[self.query.sign] == 1:
+            elif self.query.get_int_sign() == 1:
                 return (self.query.source, 0), (self.query.target, 1)
             else:
                 raise ValueError(f'Unknown sign {self.query.sign}')
@@ -140,7 +140,7 @@ class PathQuery(UIQuery):
                 f'set.'
             )
         signed_node = get_open_signed_node(node=start_node, reverse=reverse,
-                                           sign=self.query.sign)
+                                           sign=self.query.get_int_sign())
         return signed_node, reverse
 
     def alg_options(self) -> Dict[str, Any]:
@@ -282,7 +282,7 @@ class BreadthFirstSearchQuery(PathQuery):
                 'node_filter': self.query.allowed_ns,
                 'node_blacklist': self._get_node_blacklist(),
                 'terminal_ns': self.query.terminal_ns,
-                'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
+                'sign': self.query.get_int_sign(),
                 'max_memory': int(2**29),  # Currently not set in UI
                 'edge_filter': edge_filter_func}
 
@@ -359,17 +359,17 @@ class SharedInteractorsQuery(UIQuery):
         """Match arguments of shared_interactors from query"""
         source = get_open_signed_node(node=self.query.source,
                                       reverse=self.reverse,
-                                      sign=self.query.sign)
+                                      sign=self.query.get_int_sign())
         target = get_open_signed_node(node=self.query.target,
                                       reverse=self.reverse,
-                                      sign=self.query.sign)
+                                      sign=self.query.get_int_sign())
         return {'source': source, 'target': target,
                 'allowed_ns': self.query.allowed_ns,
                 'stmt_types': self.query.stmt_filter,
                 'source_filter': None,  # Not implemented in UI
                 'max_results': self.query.k_shortest,
                 'regulators': self.reverse,
-                'sign': SIGNS_TO_INT_SIGN.get(self.query.sign),
+                'sign': self.query.get_int_sign(),
                 'hash_blacklist': self.query.edge_hash_blacklist,
                 'node_blacklist': self._get_node_blacklist(),
                 'belief_cutoff': self.query.belief_cutoff,
