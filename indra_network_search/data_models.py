@@ -257,8 +257,8 @@ class DijkstraOptions(BaseModel):
 
 class SharedInteractorsOptions(BaseModel):
     """Arguments for indra_network_search.pathfinding.shared_interactors"""
-    source: Union[str, Tuple[str, int]]
-    target: Union[str, Tuple[str, int]]
+    source: StrNode
+    target: StrNode
     allowed_ns: Optional[List[str]] = None
     stmt_types: Optional[List[str]] = None
     source_filter: Optional[List[str]] = None
