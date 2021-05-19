@@ -353,6 +353,9 @@
       </div>
     </form>
   </div>
+  <ResultArea
+      v-bind="results"
+  />
 </template>
 
 <script>
@@ -361,9 +364,10 @@ import BaseCheckboxBS from "@/components/Form/BaseCheckboxBS";
 import BaseInputBS from "@/components/Form/BaseInputBS";
 import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
+import ResultArea from "@/views/ResultArea";
 
 export default {
-  components: { BaseSelectBS, BaseCheckboxBS, BaseInputBS },
+  components: {ResultArea, BaseSelectBS, BaseCheckboxBS, BaseInputBS },
   data() {
     return {
       source: "",
