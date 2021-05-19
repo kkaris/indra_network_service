@@ -19,7 +19,9 @@
           or horizontal form -
             https://getbootstrap.com/docs/5.0/forms/layout/#horizontal-form
         - See if it's possible to set form inputs to their defaults if the
-          field/input is disabled
+          field/input is disabled. This could be done by checking
+          $attrs.disabled, which will be Boolean if defined, otherwise
+          undefined
         - Consider datalists for autocomplete text inputs:
           https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
