@@ -3,8 +3,8 @@
 TodO for future:
  - Add expandable area with nav components like:
    https://getbootstrap.com/docs/5.0/components/card/#navigation
-   The main tab summarizing the individual statements (at this level they
-   are of the same type and are only distinguished by hash)
+   The main tab could summarize the individual statements (at this level
+   they are of the same type and are only distinguished by hash)
  - The other tabs are per statement hash and loads a INDRA DB like view of
    the statement
   -->
