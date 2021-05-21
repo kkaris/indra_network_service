@@ -51,5 +51,27 @@ export default {
     const notEmpty = arr.length > 0;
     const containsStmtData = arr.every(this.isStmtData);
     return notEmpty && containsStmtData;
+  },
+  mergeSourceCounts(srcObjArr) {
+    // Source: https://dev.to/ramonak/javascript-how-to-merge-multiple-objects-with-sum-of-values-43fd
+    // An array of source counts [{sparser: 5, isi: 1}, {sparser: 2}]
+    const result = srcObjArr.reduce((srcObj, src) => {
+      for (const [source, count] of Object.entries(src)) {
+        if (!srcObj[source]) {
+          srcObj[source] = 0;
+        }
+        srcObj[source] += count;
+      }
+      return srcObj;
+      }, {});
+    return result;
+  },
+  getSourceCounts(stmtDataArr) {
+    // Array of stmtData -> array of source counts
+    let srcObjArray = [];
+    for (let stmtDataObj of stmtDataArr) {
+      srcObjArray.push(stmtDataObj.source_counts);
+    }
+    return this.mergeSourceCounts(srcObjArray);
   }
 };
