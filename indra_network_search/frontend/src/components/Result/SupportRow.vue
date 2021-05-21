@@ -81,6 +81,9 @@ export default {
       }
       let sd = this.stmtArr[0];
       return sd.english
+    },
+    sourceCount() {
+      return sharedHelpers.getSourceCounts(this.stmtArr);
     }
   },
 }
