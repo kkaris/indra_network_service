@@ -24,16 +24,20 @@ TodO for future:
     />
   </td>
   <td>{{ evidenceCount }}</td>
-  <!-- ToDo: v-for over all sources and create badges -->
-  <td><span class="badge rounded-pill bg-secondary">sparser</span></td>
+  <td>
+    <SourceDisplay
+        :source_counts="sourceCount"
+    />
+  </td>
   <td><a :href="linkToDB"><i class="bi bi-box-arrow-up-right"></i></a></td>
 </template>
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
 import StatementTitle from "@/components/Result/StatementTitle";
+import SourceDisplay from "@/components/Result/SourceDisplay";
 
 export default {
-  components: {StatementTitle},
+  components: {SourceDisplay, StatementTitle},
   props: {
     objNode: {
       type: Object,
