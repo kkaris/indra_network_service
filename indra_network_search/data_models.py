@@ -22,6 +22,7 @@ todo:
    context weighted. See here for more info:
    https://stackoverflow.com/q/54023782/10478812
 """
+from collections import Counter
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
 
@@ -38,7 +39,8 @@ __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'Node', 'StmtData', 'EdgeData', 'EdgeDataByHash', 'Path',
            'PathResultData', 'OntologyResults', 'SharedInteractorsResults',
            'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults',
-           'DEFAULT_TIMEOUT', 'basemodels_equal', 'basemodel_in_iterable']
+           'DEFAULT_TIMEOUT', 'basemodels_equal', 'basemodel_in_iterable',
+           'StmtTypeSupport']
 
 
 # Set defaults
@@ -326,10 +328,24 @@ class StmtData(BaseModel):
     db_url_hash: str  # Linkout to hash-level
 
 
+class StmtTypeSupport(BaseModel):
+    """Data per statement type"""
+    stmt_type: str
+    source_counts: Dict[str, int] = {}
+    statements: List[StmtData]
+
+    def set_source_counts(self):
+        """Updates the source count field from the set statement data"""
+        self.source_counts = sum(
+            [Counter(**sd.source_counts) for sd in self.statements],
+            Counter()
+        )
+
+
 class EdgeData(BaseModel):
     """Data for one single edge"""
     edge: List[Node]  # Edge supported by statements
-    statements: Dict[str, List[StmtData]]  # key by stmt_type
+    statements: Dict[str, StmtTypeSupport]  # key by stmt_type
     belief: float  # Aggregated belief
     weight: float  # Weight corresponding to aggregated weight
     sign: Optional[int]  # Used for signed paths
