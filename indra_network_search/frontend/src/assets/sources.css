@@ -1,143 +1,135 @@
-
-
 .source-psp {
-    background-color: #bebada;
+    background-color: #a6cee3;
     color: black;
 }
 
 .source-cbn {
-    background-color: #fdb462;
+    background-color: #2daaff;
     color: black;
 }
 
 .source-pc {
-    background-color: #b3de69;
+    background-color: #fb8072;
     color: black;
 }
 
 .source-bel_lc {
-    background-color: #80b1d3;
+    background-color: #33a02c;
     color: black;
 }
 
 .source-signor {
-    background-color: #bc80bd;
+    background-color: #fb9a99;
     color: black;
 }
 
 .source-biogrid {
-    background-color: #fccde5;
-    color: black;
-}
-
-.source-lincs_drug {
-    background-color: #fb8072;
+    background-color: #ff595b;
     color: black;
 }
 
 .source-tas {
-    background-color: #d9d9d9;
+    background-color: #fdbf6f;
     color: black;
 }
 
 .source-hprd {
-    background-color: #8dd3c7;
+    background-color: #ff7f00;
     color: black;
 }
 
 .source-trrust {
-    background-color: #ffed6f;
+    background-color: #cab2d6;
     color: black;
 }
 
 .source-ctd {
-    background-color: #ccebc5;
+    background-color: #8cde09;
     color: black;
 }
 
 .source-vhn {
-    background-color: #e0e03d;
+    background-color: #4daf4a;
     color: black;
 }
 
 .source-pe {
-    background-color: #ffe8f4;
+    background-color: #ea5eff;
     color: black;
 }
 
 .source-drugbank {
-    background-color: #acfcfc;
+    background-color: #a656289e;
     color: black;
 }
 
 .source-omnipath {
-    background-color: #dd99ff;
+    background-color: #f781bf;
     color: black;
 }
 
 .source-conib {
-    background-color: #00d4a6;
+    background-color: #999999;
     color: black;
 }
 
 .source-crog {
-    background-color: #bebada;
+    background-color: #8dd3c7;
     color: black;
 }
 
 .source-dgi {
-    background-color: #fdb462;
+    background-color: #bebada;
     color: black;
 }
 
+.source-minerva {
+    background-color: #80b1d3;
+    color: black;
+}
 
-
-.source-rlimsp {
-    background-color: #8dd3c7;
+.source-geneways {
+    background-color: #a6cee3;
     color: white;
 }
 
 .source-isi {
-    background-color: #d9d9d9;
+    background-color: #2daaff;
+    color: white;
+}
+
+.source-rlimsp {
+    background-color: #b2df8a;
     color: white;
 }
 
 .source-tees {
-    background-color: #fb8072;
-    color: white;
-}
-
-.source-geneways {
-    background-color: #fccde5;
+    background-color: #33a02c;
     color: white;
 }
 
 .source-eidos {
-    background-color: #bc80bd;
+    background-color: #ff595b;
     color: white;
 }
 
 .source-trips {
-    background-color: #80b1d3;
+    background-color: #fb9a99;
     color: white;
 }
 
 .source-medscan {
-    background-color: #b3de69;
+    background-color: #fdbf6f;
     color: white;
 }
 
 .source-sparser {
-    background-color: #fdb462;
+    background-color: #ff7f00;
     color: white;
 }
 
 .source-reach {
-    background-color: #bebada;
+    background-color: #cab2d6;
     color: white;
 }
 
-.badge-source {
-      font-size: 8pt;
-      margin: 0;
-    }
