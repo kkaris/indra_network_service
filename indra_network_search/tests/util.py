@@ -9,7 +9,7 @@ from indra.explanation.model_checker.model_checker import \
 from indra.explanation.pathfinding import bfs_search, shortest_simple_paths, \
     open_dijkstra_search
 from indra_network_search.data_models import Node, EdgeData, StmtData, Path, \
-    basemodels_equal
+    basemodels_equal, StmtTypeSupport
 from indra_network_search.pathfinding import shared_parents, \
     shared_interactors, get_subgraph_edges
 from indra_network_search.query import MissingParametersError, \
@@ -21,7 +21,7 @@ from indra_network_search.result_handler import ResultManager, DB_URL_HASH, \
     DB_URL_EDGE
 from indra_network_search.search_api import IndraNetworkSearchAPI
 from indra_network_search.tests import nodes
-from indra_network_search.util import get_mandatory_args
+from indra_network_search.util import get_mandatory_args, StrNode
 
 
 def _setup_graph() -> DiGraph:
@@ -252,15 +252,21 @@ def _get_edge_data(edge: Tuple[StrNode, ...], graph: DiGraph, large: bool,
                    signed: bool) -> EdgeData:
     edge_data = _get_edge_data_dict(large=large, signed=signed)
     ed = edge_data[edge]
-    stmt_dict = {}
+    stmt_dict: Dict[str, StmtTypeSupport] = {}
 
     for sd in ed['statements']:
         url = DB_URL_HASH.format(stmt_hash=sd['stmt_hash'])
         stmt_data = StmtData(db_url_hash=url, **sd)
         try:
-            stmt_dict[stmt_data.stmt_type].append(stmt_data)
+            stmt_dict[stmt_data.stmt_type].statements.append(stmt_data)
         except KeyError:
-            stmt_dict[stmt_data.stmt_type] = [stmt_data]
+            stmt_dict[stmt_data.stmt_type] = \
+                StmtTypeSupport(stmt_type=stmt_data.stmt_type,
+                                statements=[stmt_data])
+
+    # Set source counts
+    for sts in stmt_dict.values():
+        sts.set_source_counts()
 
     node_edge = [_get_node(edge[0], graph), _get_node(edge[1], graph)]
     edge_url = DB_URL_EDGE.format(subj_id=node_edge[0].identifier,
