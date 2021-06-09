@@ -11,7 +11,7 @@ TodO for future:
 <!-- Parent table has:
   <tr>
     <th scope="col">Type</th>
-    <th scope="col">Evidence: 5</th>
+    <th scope="col">Evidence: 5</th>  <-- FixMe: probably unnecessary now
     <th scope="col">Sources</th>
     <th scope="col">Link to DB</th>
   </tr>
@@ -25,9 +25,7 @@ TodO for future:
   </td>
   <td>{{ evidenceCount }}</td>
   <td>
-    <SourceDisplay
-        :source_counts="sourceCount"
-    />
+    <SourceDisplay :source_counts="stmtTypeSupport.source_counts" />
   </td>
   <td><a :href="linkToDB"><i class="bi bi-box-arrow-up-right"></i></a></td>
 </template>
@@ -57,20 +55,20 @@ export default {
       type: String,
       required: true
     },
-    stmtArr: {
-      type: Array,
+    stmtTypeSupport: {
+      // Follows StmtTypeSupport
+      type: Object,
       required: true,
-      validator: arr => {
-        const notEmpty = arr.length > 0;
-        const containsStmts = sharedHelpers.isStmtDataArray(arr);
-        return notEmpty && containsStmts;
+      validator: obj => {
+        const notEmpty = !sharedHelpers.isEmptyObject(obj);
+        const isStmtTypeSupport = sharedHelpers.isStmtTypeSupport(obj);
+        return notEmpty && isStmtTypeSupport;
       }
     }
   },
   computed: {
     stmtCount() {
-      // FixMe: sum up all statements (or statement types?)
-      return 5
+      return this.stmtTypeSupport.statements.length;
     },
     evidenceCount() {
       // FixMe: sum up all evidences
@@ -80,14 +78,15 @@ export default {
       return `https://db.indra.bio/statements/from_agents?subject=${this.subjNode.name}&object=${this.objNode.name}&stmt_type=${this.stmtType}&format=html`;
     },
     english() {
-      if (!this.stmtArr) {
-        return '';
+      if (!this.stmtTypeSupport.statements ||
+          !this.stmtTypeSupport.statements.length) {
+        return 'No statements in data!';
       }
-      let sd = this.stmtArr[0];
+      let sd = this.stmtTypeSupport.statements[0];
       return sd.english
     },
     sourceCount() {
-      return sharedHelpers.getSourceCounts(this.stmtArr);
+      return sharedHelpers.getSourceCounts(this.stmtTypeSupport);
     }
   },
 }

@@ -10,11 +10,11 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(stmtDataArr, type, index) in stmtDataObj" :key="index">
+      <tr v-for="(stmtTypeSupport, type, index) in stmtDataObj" :key="index">
         <SupportRow
           :subj-node="subjNode"
           :obj-node="objNode"
-          :stmt-arr="stmtDataArr"
+          :stmt-type-support="stmtTypeSupport"
           :stmt-type="type"
         />
       </tr>
@@ -44,6 +44,7 @@ export default {
       }
     },
     stmtDataObj: {
+      // Follows EdgeData.statements: Dict[str, StmtTypeSupport]
       type: Object,
       required: true,
       validator: obj => {

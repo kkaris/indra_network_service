@@ -44,6 +44,7 @@ export default {
   props: {
     // Follows BaseModel indra_network_search.data_models::EdgeData
     edge: {
+      // List[Node] - Edge supported by statements
       type: Array,
       required: true,
       validator: arr => {
@@ -54,14 +55,11 @@ export default {
       }
     },
     statements: {
+      // Dict[str, StmtTypeSupport] - key by stmt_type
       type: Object,
       required: true,
       validator: obj => {
-        const hasEl = Object.keys(obj).length > 0;
-        // const containsStmtData = sharedHelpers.isObjectOf(obj, )
-        const containsStmtData = true;
-
-        return hasEl && containsStmtData
+        return Object.keys(obj).length > 0;
       }
     },
     belief: {
