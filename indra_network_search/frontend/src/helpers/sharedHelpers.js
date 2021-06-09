@@ -1,3 +1,5 @@
+// noinspection OverlyComplexBooleanExpressionJS
+
 const isEmptyObject = function (obj) {
   for (let i in obj) {
     if (i) {
@@ -24,6 +26,18 @@ export default {
     const isNodeObj = isNode(obj);
     return isNodeObj || notProvided;
   },
+  isSourceCount(obj) {
+    // Test if key is str and value is integer/number
+    for (const [key, value] of Object.entries(obj)) {
+      const isStr = this.isStr(key);
+      const isNum = typeof value === 'number';
+      const geqZero = value >= 0;
+      if (!(isStr && isNum && geqZero)) {
+        return false;
+      }
+    }
+    return true;
+  },
   isStmtData(obj) {
     // Using Boolean for the simple properties that are expected to have a
     // value that does not evaluate to False
@@ -38,7 +52,6 @@ export default {
     const en = Boolean(obj.english);
     const ur = Boolean(obj.db_url_hash);
 
-    // noinspection OverlyComplexBooleanExpressionJS
     return st && ec && sh && sc && bl && cr && en && ur;
   },
   isNodeArray(arr) {
@@ -51,6 +64,15 @@ export default {
     const notEmpty = arr.length > 0;
     const containsStmtData = arr.every(this.isStmtData);
     return notEmpty && containsStmtData;
+  },
+  isStmtTypeSupport(obj) {
+    const stIsStr = this.isStr(obj.stmt_type); // str
+    const stStr = Boolean(obj.stmt_type); // str
+    const srcCount = this.isSourceCount(obj.source_counts);
+    const isStmtArr = typeof obj.statements === 'object' &&
+      this.isStmtDataArray(obj.statements); // List[StmtData]
+
+    return stIsStr && stStr && srcCount && isStmtArr;
   },
   mergeSourceCounts(srcObjArr) {
     // Source: https://dev.to/ramonak/javascript-how-to-merge-multiple-objects-with-sum-of-values-43fd
