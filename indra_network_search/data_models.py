@@ -351,10 +351,19 @@ class EdgeData(BaseModel):
     sign: Optional[int]  # Used for signed paths
     context_weight: Union[str, float] = 'N/A'  # Set for context
     db_url_edge: str  # Linkout to subj-obj level
+    source_counts: Dict[str, int]
 
     def is_empty(self) -> bool:
         """Return True if len(statements) == 0"""
         return len(self.statements) == 0
+
+    def set_source_counts(self):
+        """Updates the source count from the contained data in self.statements
+        """
+        self.source_counts = sum(
+            [Counter(**sts.source_counts) for sts in self.statements.values()],
+            Counter()
+        )
 
 
 class EdgeDataByHash(BaseModel):
