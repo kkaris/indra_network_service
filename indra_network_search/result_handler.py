@@ -187,9 +187,11 @@ class ResultManager:
                                       subj_ns=a_node.namespace,
                                       obj_id=b_node.identifier,
                                       obj_ns=b_node.namespace)
-        return EdgeData(edge=edge, statements=stmt_dict, belief=edge_belief,
-                        weight=edge_weight, db_url_edge=url,
-                        **extra_dict).set_source_counts()
+        edge_data = EdgeData(edge=edge, statements=stmt_dict,
+                             belief=edge_belief, weight=edge_weight,
+                             db_url_edge=url, **extra_dict)
+        edge_data.set_source_counts()
+        return edge_data
 
     def _get_results(self):
         # Main method for looping the path finding and results assembly

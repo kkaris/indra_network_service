@@ -274,9 +274,11 @@ def _get_edge_data(edge: Tuple[StrNode, ...], graph: DiGraph, large: bool,
                                   obj_id=node_edge[1].identifier,
                                   obj_ns=node_edge[1].namespace)
 
-    return EdgeData(edge=node_edge, statements=stmt_dict,
-                    belief=ed['belief'], weight=ed['weight'],
-                    db_url_edge=edge_url).set_source_counts()
+    edge_data = EdgeData(edge=node_edge, statements=stmt_dict,
+                         belief=ed['belief'], weight=ed['weight'],
+                         db_url_edge=edge_url)
+    edge_data.set_source_counts()
+    return edge_data
 
 
 def _get_path_list(str_paths: List[Tuple[Union[str, Tuple[str, int]], ...]],
