@@ -100,6 +100,32 @@ async def health():
     return HEALTH
 
 
+@app.get('/ground', response_model=List[GildaResponse])
+async def ground(text: str, context: Optional[str] = None):
+    """Ground entity names
+
+    Parameters
+    ----------
+    text :
+        Entity to ground
+    context :
+        Provide optional context for grounding
+
+    Returns
+    -------
+    :
+        The response from GILDA
+    """
+    jd = {'text': text}
+    if context:
+        jd['context'] = context
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url='http://grounding.indra.bio/ground',
+                                json=jd) as resp:
+            resp_json = await resp.json()
+            return [GildaResponse(**gr) for gr in resp_json]
+
+
 @app.post('/query', response_model=Results)
 def query(search_query: NetworkSearchQuery):
     """Interface with IndraNetworkSearchAPI.handle_query
