@@ -9,7 +9,7 @@ from indra.explanation.model_checker.model_checker import \
 from indra.explanation.pathfinding import bfs_search, shortest_simple_paths, \
     open_dijkstra_search
 from indra_network_search.data_models import Node, EdgeData, StmtData, Path, \
-    basemodels_equal, StmtTypeSupport
+    basemodels_equal, StmtTypeSupport, StrNode
 from indra_network_search.pathfinding import shared_parents, \
     shared_interactors, get_subgraph_edges
 from indra_network_search.query import MissingParametersError, \
