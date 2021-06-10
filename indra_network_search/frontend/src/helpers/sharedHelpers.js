@@ -27,6 +27,11 @@ export default {
     return isNodeObj || notProvided;
   },
   isSourceCount(obj) {
+    // Empty objects are not allowed
+    if (this.isEmptyObject(obj)) {
+      return false;
+    }
+
     // Test if key is str and value is integer/number
     for (const [key, value] of Object.entries(obj)) {
       const isStr = this.isStr(key);
