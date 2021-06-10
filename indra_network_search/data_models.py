@@ -17,7 +17,6 @@ todo:
    creation to allow different checks, e.g. allow either of:
          1) source XOR target
          2) source AND target
-
  - In FilterOptions, set overall weighted based on values of weighted
    context weighted. See here for more info:
    https://stackoverflow.com/q/54023782/10478812
@@ -299,7 +298,8 @@ class Node(BaseModel):
 
         Returns
         -------
-        Tuple[str, int]
+        :
+            A name, sign tuple
 
         Raises
         ------
@@ -489,7 +489,8 @@ def basemodels_equal(
 
     Returns
     -------
-    bool
+    :
+        True if the two models are equal
     """
     b1d = basemodel.dict(exclude=exclude)
     b2d = other_basemodel.dict(exclude=exclude)
@@ -536,7 +537,8 @@ def basemodel_in_iterable(basemodel: BaseModel, iterable: Iterable,
 
     Returns
     -------
-    bool
+    :
+        True if basemodel is found in the collection
     """
     return any([basemodels_equal(basemodel=basemodel,
                                  other_basemodel=ob,
