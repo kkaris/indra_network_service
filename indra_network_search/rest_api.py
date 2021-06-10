@@ -3,6 +3,9 @@ The IndraNetworkSearch REST API
 """
 import logging
 from os import environ
+from typing import List, Optional
+
+import aiohttp
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
@@ -24,6 +27,52 @@ logger = logging.getLogger(__name__)
 class Health(BaseModel):
     """Health status"""
     status: str
+
+
+class GildaMatch(BaseModel):
+    """A Gilda sub model
+
+    {'cap_combos': [['mixed', 'all_caps']],
+     'dash_mismatches': ['query'],
+     'exact': True,
+     'query': 'M-eK',
+     'ref': 'MEK',
+     'space_mismatch': False}
+    """
+    cap_combos: List[List[str]]
+    dash_mismatches: List[str]
+    exact: bool
+    query: str
+    ref: str
+    space_mismatch: bool
+
+
+class GildaTerm(BaseModel):
+    """A Gilda sub model
+
+    {'db': 'FPLX',
+     'entry_name': 'MEK',
+     'id': 'MEK',
+     'norm_text': 'mek',
+     'source': 'famplex',
+     'status': 'assertion',
+     'text': 'MEK'}
+    """
+    db: str  # e.g. 'FPLX'
+    entry_name: str  # e.g. 'MEK'
+    id: str  # e.g. 'MEK'
+    norm_text: str  # e.g. 'mek'
+    source: str  # e.g. 'famplex'
+    status: str  # e.g. 'assertion'
+    text: str  # e.g. 'MEK'
+
+
+class GildaResponse(BaseModel):
+    """Gilda Response"""
+    match: GildaMatch
+    score: float  # Constrain to [0, 1.0]
+    term: GildaTerm
+    url: str
 
 
 USE_CACHE = bool(environ.get('USE_CACHE', False))
