@@ -5,10 +5,7 @@
     <!--Source/Target info???-->
     <!--Ontology Results-->
     <div v-if="hasOntRes" class="container">
-      <p>Ontology Results</p>
-      <pre>
-        {{ ontology_results }}
-      </pre>
+      <CommonParents v-bind="ontology_results" />
     </div>
     <!--Path Results-->
     <PathResults
@@ -40,9 +37,10 @@
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
 import PathResults from "@/components/Result/PathResults";
+import CommonParents from "@/components/Result/CommonParents";
 
 export default {
-  components: {PathResults},
+  components: {CommonParents, PathResults},
   /* To spread together two objects into another object for usage in a v-bind:
   * v-bind="{...this.testStmt111,
   *          subjNode: this.testNode1,
