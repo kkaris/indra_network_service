@@ -2,9 +2,7 @@
   <div class="card text-center">
     <div class="card-header">
       <div class="d-flex justify-content-between">
-        <h2>
-          Common Parents of <Node v-bind="source" /> and <Node v-bind="target" />
-        </h2>
+        <h2>Common Parents</h2>
         <a
             role="button"
             data-bs-toggle="collapse"
@@ -16,7 +14,7 @@
         </a>
       </div>
     </div>
-    <div class="card-body collapse show" id="assign UUID here">
+    <div class="card-body collapse show" :id="strUUID">
       <div class="container">
         <template v-for="(pnode, key, index) in parents" :key="index">
           <div class="row">
@@ -36,10 +34,8 @@
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
 import UniqueID from "@/helpers/BasicHelpers";
-import Node from "@/components/Result/Node";
 
 export default {
-  components: {Node},
   props: {
     source: {
       type: Object,
