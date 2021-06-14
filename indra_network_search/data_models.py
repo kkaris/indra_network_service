@@ -17,11 +17,11 @@ todo:
    creation to allow different checks, e.g. allow either of:
          1) source XOR target
          2) source AND target
-
  - In FilterOptions, set overall weighted based on values of weighted
    context weighted. See here for more info:
    https://stackoverflow.com/q/54023782/10478812
 """
+from collections import Counter
 from typing import Optional, List, Union, Callable, Tuple, Set, Dict, Iterable
 from networkx import DiGraph
 
@@ -38,7 +38,8 @@ __all__ = ['NetworkSearchQuery', 'SubgraphRestQuery', 'ApiOptions',
            'Node', 'StmtData', 'EdgeData', 'EdgeDataByHash', 'Path',
            'PathResultData', 'OntologyResults', 'SharedInteractorsResults',
            'Results', 'FilterOptions', 'SubgraphOptions', 'SubgraphResults',
-           'DEFAULT_TIMEOUT', 'basemodels_equal', 'basemodel_in_iterable']
+           'DEFAULT_TIMEOUT', 'basemodels_equal', 'basemodel_in_iterable',
+           'StmtTypeSupport']
 
 
 # Set defaults
@@ -297,7 +298,8 @@ class Node(BaseModel):
 
         Returns
         -------
-        Tuple[str, int]
+        :
+            A name, sign tuple
 
         Raises
         ------
@@ -326,19 +328,42 @@ class StmtData(BaseModel):
     db_url_hash: str  # Linkout to hash-level
 
 
+class StmtTypeSupport(BaseModel):
+    """Data per statement type"""
+    stmt_type: str
+    source_counts: Dict[str, int] = {}
+    statements: List[StmtData]
+
+    def set_source_counts(self):
+        """Updates the source count field from the set statement data"""
+        self.source_counts = sum(
+            [Counter(**sd.source_counts) for sd in self.statements],
+            Counter()
+        )
+
+
 class EdgeData(BaseModel):
     """Data for one single edge"""
     edge: List[Node]  # Edge supported by statements
-    statements: Dict[str, List[StmtData]]  # key by stmt_type
+    statements: Dict[str, StmtTypeSupport]  # key by stmt_type
     belief: float  # Aggregated belief
     weight: float  # Weight corresponding to aggregated weight
     sign: Optional[int]  # Used for signed paths
     context_weight: Union[str, float] = 'N/A'  # Set for context
     db_url_edge: str  # Linkout to subj-obj level
+    source_counts: Dict[str, int] = {}
 
     def is_empty(self) -> bool:
         """Return True if len(statements) == 0"""
         return len(self.statements) == 0
+
+    def set_source_counts(self):
+        """Updates the source count from the contained data in self.statements
+        """
+        self.source_counts = sum(
+            [Counter(**sts.source_counts) for sts in self.statements.values()],
+            Counter()
+        )
 
 
 class EdgeDataByHash(BaseModel):
@@ -464,7 +489,8 @@ def basemodels_equal(
 
     Returns
     -------
-    bool
+    :
+        True if the two models are equal
     """
     b1d = basemodel.dict(exclude=exclude)
     b2d = other_basemodel.dict(exclude=exclude)
@@ -511,7 +537,8 @@ def basemodel_in_iterable(basemodel: BaseModel, iterable: Iterable,
 
     Returns
     -------
-    bool
+    :
+        True if basemodel is found in the collection
     """
     return any([basemodels_equal(basemodel=basemodel,
                                  other_basemodel=ob,

@@ -24,7 +24,8 @@ from .util import StrNode
 from .pathfinding import *
 from .data_models import OntologyResults, SharedInteractorsResults, \
     EdgeData, StmtData, Node, FilterOptions, PathResultData, Path, \
-    EdgeDataByHash, SubgraphResults, DEFAULT_TIMEOUT, basemodel_in_iterable
+    EdgeDataByHash, SubgraphResults, DEFAULT_TIMEOUT, basemodel_in_iterable,\
+    StmtTypeSupport
 
 __all__ = ['ResultManager', 'DijkstraResultManager',
            'ShortestSimplePathsResultManager',
@@ -150,18 +151,26 @@ class ResultManager:
         str_edge = (a_node.name, b_node.name) if a_node.sign is None else \
             (a_node.signed_node_tuple(), b_node.signed_node_tuple())
         ed: Dict[str, Any] = self._graph.edges[str_edge]
-        stmt_dict: Dict[str, List[StmtData]] = {}
+
+        # Create a StmtTypeSupport model
+        stmt_dict: Dict[str, StmtTypeSupport] = {}
         for sd in ed['statements']:
             stmt_data = self._get_stmt_data(stmt_dict=sd)
             if stmt_data:
                 try:
-                    stmt_dict[stmt_data.stmt_type].append(stmt_data)
+                    stmt_dict[stmt_data.stmt_type].statements.append(stmt_data)
                 except KeyError:
-                    stmt_dict[stmt_data.stmt_type] = [stmt_data]
+                    stmt_dict[stmt_data.stmt_type] = \
+                        StmtTypeSupport(stmt_type=stmt_data.stmt_type,
+                                        statements=[stmt_data])
 
         # If all support was filtered out
         if not stmt_dict:
             return None
+
+        # Set the source_count field for each StmtTypeSupport
+        for sts in stmt_dict.values():
+            sts.set_source_counts()
 
         edge_belief = ed['belief']
         edge_weight = ed['weight']
@@ -178,8 +187,11 @@ class ResultManager:
                                       subj_ns=a_node.namespace,
                                       obj_id=b_node.identifier,
                                       obj_ns=b_node.namespace)
-        return EdgeData(edge=edge, statements=stmt_dict, belief=edge_belief,
-                        weight=edge_weight, db_url_edge=url, **extra_dict)
+        edge_data = EdgeData(edge=edge, statements=stmt_dict,
+                             belief=edge_belief, weight=edge_weight,
+                             db_url_edge=url, **extra_dict)
+        edge_data.set_source_counts()
+        return edge_data
 
     def _get_results(self):
         # Main method for looping the path finding and results assembly
@@ -387,7 +399,7 @@ class PathResultManager(UIResultManager):
                 # Add subject node of edge
                 node_path.append(edge_data.edge[0])
 
-            # If inner loop was broken or never run
+            # If inner loop was broken or never ran
             if filtered_out or edge_data is None:
                 continue
 
