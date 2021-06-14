@@ -1,6 +1,6 @@
 """Handles the aggregation of results from the IndraNetworkSearchAPI
 
-The results handler deals with things like:
+The result manager deals with things like:
 - Sorting paths
 - Calculating weights
 - Stopping path iteration when timeout is reached
