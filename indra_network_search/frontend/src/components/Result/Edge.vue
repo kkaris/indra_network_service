@@ -1,12 +1,11 @@
 <template>
   <div class="container">
     <div class="row d-flex justify-content-center">
-      <div class="col-6">
+      <div class="col-5">
         <Node v-bind="subjNode" /><i class="bi bi-arrow-right"></i><Node v-bind="objNode" />
       </div>
-      <div class="col">
-        <span class="badge bg-primary">{{ stmtCount }}</span>
-        <span class="badge rounded-pill bg-secondary">{{ evidenceCount }}</span>
+      <div class="col-5">
+        <SourceDisplay :source_counts="source_counts" />
       </div>
       <div class="col">
         <span><a :href="db_url_edge"><i class="bi bi-box-arrow-up-right"></i></a></span>
@@ -39,11 +38,13 @@ import Node from "@/components/Result/Node";
 import EdgeSupport from "@/components/Result/EdgeSupport";
 import sharedHelpers from "@/helpers/sharedHelpers";
 import UniqueID from "@/helpers/BasicHelpers";
+import SourceDisplay from "@/components/Result/SourceDisplay";
 export default {
-  components: {EdgeSupport, Node},
+  components: {SourceDisplay, EdgeSupport, Node},
   props: {
     // Follows BaseModel indra_network_search.data_models::EdgeData
     edge: {
+      // List[Node] - Edge supported by statements
       type: Array,
       required: true,
       validator: arr => {
@@ -54,14 +55,11 @@ export default {
       }
     },
     statements: {
+      // Dict[str, StmtTypeSupport] - key by stmt_type
       type: Object,
       required: true,
       validator: obj => {
-        const hasEl = Object.keys(obj).length > 0;
-        // const containsStmtData = sharedHelpers.isObjectOf(obj, )
-        const containsStmtData = true;
-
-        return hasEl && containsStmtData
+        return Object.keys(obj).length > 0;
       }
     },
     belief: {
@@ -83,6 +81,13 @@ export default {
     db_url_edge: {
       type: String,
       required: true
+    },
+    source_counts: {
+      type: Object,
+      required: true,
+      validator: obj => {
+        return sharedHelpers.isSourceCount(obj)
+      }
     }
   },
   setup() {
@@ -92,14 +97,6 @@ export default {
     }
   },
   computed: {
-    stmtCount() {
-      // FixMe: sum up all statements (or statement types?)
-      return 5
-    },
-    evidenceCount() {
-      // FixMe: sum up all evidences
-      return 10
-    },
     subjNode() {
       return this.edge[0]
     },

@@ -13,6 +13,12 @@
           </template>
           <template v-if="targetExist"><Node v-bind="target" /></template>
           <template v-else>X{{ pathNodeCountNum + 1 }}</template>
+          <span
+              style="margin-left: 10px"
+              class="badge rounded-pill bg-primary"
+              :title="`${pathArray.length} paths found`"
+          >{{ pathArray.length }}</span>
+
         </h4>
         <a
           role="button"
