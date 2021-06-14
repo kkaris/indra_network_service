@@ -4,9 +4,7 @@
     <p>Click on titles to expand results</p>
     <!--Source/Target info???-->
     <!--Ontology Results-->
-    <div v-if="hasOntRes" class="container">
-      <CommonParents v-bind="ontology_results" />
-    </div>
+    <CommonParents v-if="hasOntRes" v-bind="ontology_results" />
     <!--Path Results-->
     <PathResults
         v-if="hasPathRes"
