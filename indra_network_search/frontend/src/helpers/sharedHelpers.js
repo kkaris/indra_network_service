@@ -81,6 +81,17 @@ export default {
 
     return stIsStr && stStr && srcCount && isStmtArr;
   },
+  isStmtTypeSupportDict(obj) {
+    for (const [key, value] of Object.entries(obj)) {
+      // Key should be string, value should be StmtTypeSupport
+      const keyIsStr = this.isStr(key);
+      const isStmtTypeSupp = this.isStmtTypeSupport(value);
+      if (!(keyIsStr && isStmtTypeSupp)) {
+        return false;
+      }
+    }
+    return true;
+  },
   mergeSourceCounts(srcObjArr) {
     // Source: https://dev.to/ramonak/javascript-how-to-merge-multiple-objects-with-sum-of-values-43fd
     // An array of source counts [{sparser: 5, isi: 1}, {sparser: 2}]
