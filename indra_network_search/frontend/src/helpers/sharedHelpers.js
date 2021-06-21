@@ -37,9 +37,9 @@ export default {
     // Test if key is str and value is integer/number
     for (const [key, value] of Object.entries(obj)) {
       const isStr = this.isStr(key);
-      const isNum = typeof value === 'number';
+      const isInt = Number.isInteger(value);
       const geqZero = value >= 0;
-      if (!(isStr && isNum && geqZero)) {
+      if (!(isStr && isInt && geqZero)) {
         return false;
       }
     }
