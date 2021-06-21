@@ -13,8 +13,10 @@ const isNode = function (obj) {
   return obj.name && obj.identifier && obj.namespace;
 };
 
-const isStr = function (str) {
-  return typeof str === 'string';
+const isStr = function (str, emptyOK = false) {
+  const isType = typeof str === 'string';
+  const nonEmtpy = emptyOK || str.length > 0; // Check length if not emptyOK
+  return isType && nonEmtpy;
 };
 
 export default {
