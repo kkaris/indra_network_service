@@ -19,10 +19,17 @@ const isStr = function (str, emptyOK = false) {
   return isType && nonEmtpy;
 };
 
+const isPosNum = function (num) {
+  const isNum = typeof num === 'number';
+  const geqZero = num >= 0;
+  return isNum && geqZero;
+};
+
 export default {
   isEmptyObject,
   isNode,
   isStr,
+  isPosNum,
   isOptionalNode(obj) {
     const notProvided = Boolean(obj);
     const isNodeObj = isNode(obj);
