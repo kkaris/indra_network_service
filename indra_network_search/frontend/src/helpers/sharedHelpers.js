@@ -68,6 +68,29 @@ export default {
 
     return st && ec && sh && sc && bl && cr && en && ur;
   },
+  isEdgeData(obj) {
+    // Check that object conforms to indra_network_search.data_models::EdgeData
+
+    // List[Node]  # Edge supported by statements
+    const isEdge = this.isNodeArray(obj.edge);
+    // Dict[str, StmtTypeSupport]  # key by stmt_type
+    const isStTpSp = this.isStmtTypeSupportDict(obj.statements);
+    // float  # Aggregated belief
+    const blf = this.isPosNum(obj.belief);
+    // float  # Weight corresponding to aggregated weight
+    const wgt = this.isPosNum(obj.weight);
+    // Optional[int]  # Used for signed paths
+    // const XX = obj.sign;
+    // Union[str, float] = 'N/A'  # Set for context
+    const cw = obj.context_weight;
+    const ctxWgt = (this.isStr(cw) && cw === 'N/A') || isPosNum(cw);
+    // str  # Linkout to subj-obj level
+    const url = this.isStr(obj.db_url_edge);
+    // Dict[str, int] = {}
+    const sc = this.isSourceCount(obj.source_counts);
+
+    return isEdge && isStTpSp && blf && wgt && ctxWgt && url && sc;
+  },
   isNodeArray(arr) {
       const notEmpty = arr.length > 0;
       const containsNodes = arr.every(isNode);
