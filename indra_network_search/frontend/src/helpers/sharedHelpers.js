@@ -122,6 +122,9 @@ export default {
     }
     return true;
   },
+  zipEqualArrays(arr1, arr2) {
+    return arr1.map((e, i) => [e, arr2[i]]);
+  },
   mergeSourceCounts(srcObjArr) {
     // Source: https://dev.to/ramonak/javascript-how-to-merge-multiple-objects-with-sum-of-values-43fd
     // An array of source counts [{sparser: 5, isi: 1}, {sparser: 2}]
