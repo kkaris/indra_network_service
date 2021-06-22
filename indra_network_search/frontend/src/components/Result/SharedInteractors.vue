@@ -16,7 +16,7 @@
     </div>
     <div class="card-body collapse show" :id="strUUID">
       <div class="container">
-        <table class="table table-borderless table-hover">
+        <table class="table table-hover">
           <thead>
             <tr>
               <th>Node</th>
