@@ -11,7 +11,6 @@ TodO for future:
 <!-- Parent table has:
   <tr>
     <th scope="col">Type</th>
-    <th scope="col">Evidence: 5</th>  <-- FixMe: probably unnecessary now
     <th scope="col">Sources</th>
     <th scope="col">Link to DB</th>
   </tr>
@@ -23,7 +22,6 @@ TodO for future:
       :sentence="english"
     />
   </td>
-  <td>{{ evidenceCount }}</td>
   <td>
     <SourceDisplay :source_counts="stmtTypeSupport.source_counts" />
   </td>
@@ -69,10 +67,6 @@ export default {
   computed: {
     stmtCount() {
       return this.stmtTypeSupport.statements.length;
-    },
-    evidenceCount() {
-      // FixMe: sum up all evidences
-      return 10
     },
     linkToDB() {
       return `https://db.indra.bio/statements/from_agents?subject=${this.subjNode.name}&object=${this.objNode.name}&stmt_type=${this.stmtType}&format=html`;

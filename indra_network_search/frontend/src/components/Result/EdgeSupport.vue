@@ -4,7 +4,6 @@
     <thead>
       <tr>
         <th scope="col">Type</th>
-        <th scope="col">Evidence</th>
         <th scope="col">Sources</th>
         <th scope="col">Link to DB</th>
       </tr>
