@@ -19,16 +19,18 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>Node</th>
+              <th>{{ `Shared ${sharedNode}` }}</th>
               <th>Support</th>
             </tr>
           </thead>
           <tbody>
             <template v-for="(stArr, index) in coOrderedEdges" :key="index">
               <tr>
+                <!-- If shared targets -->
                 <template v-if="downstream">
                   <td><Node v-bind="stArr[0].edge[1]"/></td>
                 </template>
+                <!-- If shared regulators -->
                 <template v-else>
                   <td><Node v-bind="stArr[0].edge[0]"/></td>
                 </template>
@@ -92,6 +94,9 @@ export default {
     },
     title() {
       return this.downstream ? 'Shared Targets' : 'Shared Regulators'
+    },
+    sharedNode() {
+      return this.downstream ? 'target' : 'regulator'
     }
   }
 }
