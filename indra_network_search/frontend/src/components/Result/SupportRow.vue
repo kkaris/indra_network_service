@@ -15,13 +15,7 @@ TodO for future:
     <th scope="col">Link to DB</th>
   </tr>
  -->
-  <td>
-    <StatementTitle
-      :subj-node="subjNode"
-      :obj-node="objNode"
-      :sentence="english"
-    />
-  </td>
+  <td>{{ stmtType }}</td>
   <td>
     <SourceDisplay :source_counts="stmtTypeSupport.source_counts" />
   </td>
@@ -29,11 +23,10 @@ TodO for future:
 </template>
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
-import StatementTitle from "@/components/Result/StatementTitle";
 import SourceDisplay from "@/components/Result/SourceDisplay";
 
 export default {
-  components: {SourceDisplay, StatementTitle},
+  components: {SourceDisplay},
   props: {
     objNode: {
       type: Object,

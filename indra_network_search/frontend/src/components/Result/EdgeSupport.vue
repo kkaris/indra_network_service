@@ -3,7 +3,7 @@
   <table class="table table-sm table-borderless table-hover">
     <thead>
       <tr>
-        <th scope="col">Type</th>
+        <th scope="col">Statement Type</th>
         <th scope="col">Sources</th>
         <th scope="col">Link to DB</th>
       </tr>
