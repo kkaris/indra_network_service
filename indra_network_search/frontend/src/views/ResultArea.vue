@@ -52,15 +52,19 @@ export default {
       return !(sharedHelpers.isEmptyObject(this.reverse_path_results))
     },
     hasOntRes() {
-      return !(sharedHelpers.isEmptyObject(this.ontology_results))
+      return !sharedHelpers.isEmptyObject(this.ontology_results) &&
+          this.ontology_results.parents &&
+          this.ontology_results.parents.length > 0
     },
     hasSharedTargets() {
       return !(sharedHelpers.isEmptyObject(this.shared_target_results)) &&
           this.shared_target_results.source_data.length &&
-          this.shared_target_results.target_data.lenght;
+          this.shared_target_results.target_data.length;
     },
     hasSharedRegs() {
-      return !(sharedHelpers.isEmptyObject(this.shared_regulators_results))
+      return !(sharedHelpers.isEmptyObject(this.shared_regulators_results)) &&
+          this.shared_regulators_results.source_data.length &&
+          this.shared_regulators_results.target_data.length;
     },
   },
   props: {
