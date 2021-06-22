@@ -24,7 +24,7 @@
             </tr>
           </thead>
           <tbody>
-            <template v-for="(stArr, index) in coOrderedEdges">
+            <template v-for="(stArr, index) in coOrderedEdges" :key="index">
               <tr>
                 <template v-if="downstream">
                   <td><Node v-bind="stArr[0].edge[1]"/></td>
