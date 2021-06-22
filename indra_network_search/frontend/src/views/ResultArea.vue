@@ -4,7 +4,10 @@
     <p>Click on titles to expand results</p>
     <!--Source/Target info???-->
     <!--Ontology Results-->
-    <CommonParents v-if="hasOntRes" v-bind="ontology_results" />
+    <CommonParents
+        v-if="hasOntRes"
+        v-bind="ontology_results"
+    />
     <!--Path Results-->
     <PathResults
         v-if="hasPathRes"
@@ -16,19 +19,15 @@
         v-bind="{ ...reverse_path_results, title: 'Reverse Path Results' }"
     />
     <!--Shared Targets-->
-    <div v-if="hasSharedTargets" class="container">
-      <p>Shared Targets</p>
-      <pre>
-        {{ shared_target_results }}
-      </pre>
-    </div>
+    <SharedInteractors
+        v-if="hasSharedTargets"
+        v-bind="shared_target_results"
+    />
     <!--Shared Regulators-->
-    <div v-if="hasSharedRegs" class="container">
-      <p>Shared Regulators</p>
-      <pre>
-        {{ shared_regulators_results }}
-      </pre>
-    </div>
+    <SharedInteractors
+        v-if="hasSharedRegs"
+        v-bind="shared_regulators_results"
+    />
   </div>
 </template>
 
@@ -36,9 +35,10 @@
 import sharedHelpers from "@/helpers/sharedHelpers";
 import PathResults from "@/components/Result/PathResults";
 import CommonParents from "@/components/Result/CommonParents";
+import SharedInteractors from "@/components/Result/SharedInteractors";
 
 export default {
-  components: {CommonParents, PathResults},
+  components: {SharedInteractors, CommonParents, PathResults},
   /* To spread together two objects into another object for usage in a v-bind:
   * v-bind="{...this.testStmt111,
   *          subjNode: this.testNode1,
