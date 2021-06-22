@@ -14,13 +14,13 @@ const isNode = function (obj) {
 };
 
 const isStr = function (str, emptyOK = false) {
-  const isType = typeof str === 'string';
+  const isType = typeof str === "string";
   const nonEmtpy = emptyOK || str.length > 0; // Check length if not emptyOK
   return isType && nonEmtpy;
 };
 
 const isPosNum = function (num) {
-  const isNum = typeof num === 'number';
+  const isNum = typeof num === "number";
   const geqZero = num >= 0;
   return isNum && geqZero;
 };
@@ -62,11 +62,11 @@ const isStmtData = function (obj) {
   const st = Boolean(obj.stmt_type); // String !== ''
   const ec = Boolean(obj.evidence_count); // Number > 0
   const sh = Boolean(obj.stmt_hash); //
-  const sco = typeof obj.source_counts === 'object';
-  const scn = !(isEmptyObject(obj.source_counts));
+  const sco = typeof obj.source_counts === "object";
+  const scn = !isEmptyObject(obj.source_counts);
   const sc = sco && scn;
-  const bl = typeof obj.belief === 'number';
-  const cr = typeof obj.curated === 'boolean';
+  const bl = typeof obj.belief === "number";
+  const cr = typeof obj.curated === "boolean";
   const en = Boolean(obj.english);
   const ur = Boolean(obj.db_url_hash);
 
@@ -83,7 +83,8 @@ const isStmtTypeSupport = function (obj) {
   const stIsStr = isStr(obj.stmt_type); // str
   const stStr = Boolean(obj.stmt_type); // str
   const srcCount = isSourceCount(obj.source_counts);
-  const isStmtArr = typeof obj.statements === 'object' &&
+  const isStmtArr =
+    typeof obj.statements === "object" &&
     isStmtDataArray(obj.statements); // List[StmtData]
 
   return stIsStr && stStr && srcCount && isStmtArr;
@@ -116,7 +117,7 @@ const isEdgeData = function (obj) {
   // const XX = obj.sign;
   // Union[str, float] = 'N/A'  # Set for context
   const cw = obj.context_weight;
-  const ctxWgt = (isStr(cw) && cw === 'N/A') || isPosNum(cw);
+  const ctxWgt = (isStr(cw) && cw === "N/A") || isPosNum(cw);
   // str  # Linkout to subj-obj level
   const url = isStr(obj.db_url_edge);
   // Dict[str, int] = {}
@@ -140,18 +141,19 @@ const mergeSourceCounts = function (srcObjArr) {
       srcObj[source] += count;
     }
     return srcObj;
-    }, {});
+  }, {});
+
   return result;
 };
 
 const getSourceCounts = function (stmtDataArr) {
-    // Array of stmtData -> array of source counts
-    let srcObjArray = [];
-    for (let stmtDataObj of stmtDataArr) {
-      srcObjArray.push(stmtDataObj.source_counts);
-    }
-    return mergeSourceCounts(srcObjArray);
-  };
+  // Array of stmtData -> array of source counts
+  let srcObjArray = [];
+  for (let stmtDataObj of stmtDataArr) {
+    srcObjArray.push(stmtDataObj.source_counts);
+  }
+  return mergeSourceCounts(srcObjArray);
+};
 
 export default {
   isEmptyObject,
@@ -168,5 +170,5 @@ export default {
   isEdgeData,
   zipEqualArrays,
   mergeSourceCounts,
-  getSourceCounts
+  getSourceCounts,
 };
