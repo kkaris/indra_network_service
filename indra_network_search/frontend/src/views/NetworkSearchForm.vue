@@ -79,40 +79,6 @@
               <div class="container">
                 <div class="row">
                   <div class="col">
-                    <b>Statement Filter</b>
-                    <div id="v-model-select-stmts">
-                      <select v-model="stmt_filter" multiple>
-                        <option
-                            v-for="option in stmtFilterOptions"
-                            :key="option.value"
-                            :selected="stmt_filter"
-                            :value="option.value"
-                        >{{ option.label }}
-                        </option>
-                      </select>
-                      <br/>
-                      <span>Selected: {{ stmt_filter }}</span>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <b>Node Namespace</b>
-                    <div id="v-model-select-namespace">
-                      <select v-model="allowed_ns" multiple>
-                        <option
-                            v-for="option in nodeNamespaceOptions"
-                            :key="option.value"
-                            :selected="allowed_ns"
-                            :value="option.value"
-                        >{{ option.label }}
-                        </option>
-                      </select>
-                      <br/>
-                      <span>Selected: {{ allowed_ns }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
                     <BaseInputBS
                         v-model="hash_blacklist_text"
                         label="Hash Blacklist"
@@ -164,6 +130,30 @@
                         :step="0.01"
                         label="Belief Cutoff"
                         type="number"
+                    />
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <Multiselect
+                        v-model="stmt_filter"
+                        mode="tags"
+                        placeholder="Allowed Statement Types"
+                        title="All types are allowed if no types are selected"
+                        :searchable="true"
+                        :createTag="false"
+                        :options="stmtFilterOptions"
+                    />
+                  </div>
+                  <div class="col">
+                    <Multiselect
+                        v-model="allowed_ns"
+                        mode="tags"
+                        placeholder="Allowed Node Namespaces"
+                        title="All namespaces are allowed if no namespaces are selected"
+                        :searchable="true"
+                        :createTag="false"
+                        :options="nodeNamespaceOptions"
                     />
                   </div>
                 </div>
@@ -289,24 +279,16 @@
                 <div class="row">
                   <div class="col">
                     <!-- Check: is terminal ns applied for strict Dijkstra and/or context search? -->
-                    <div id="v-model-select-terminal-ns">
-                      <p>Terminal NS</p>
-                      <select
-                          v-model="terminal_ns"
-                          :disabled="isContextSearch || isNotOpenSearch"
-                          multiple
-                      >
-                        <option
-                            v-for="option in nodeNamespaceOptions"
-                            :key="option.value"
-                            :selected="terminal_ns"
-                            :value="option.value"
-                        >{{ option.label }}
-                        </option>
-                      </select>
-                      <br/>
-                      <span>Selected: {{ terminal_ns }}</span>
-                    </div>
+                    <Multiselect
+                        v-model="terminal_ns"
+                        mode="tags"
+                        placeholder="Terminal Namespaces"
+                        title="Select the namespaces for which open searches must end on"
+                        :disabled="isContextSearch || isNotOpenSearch"
+                        :searchable="true"
+                        :createTag="false"
+                        :options="nodeNamespaceOptions"
+                    />
                   </div>
                   <div class="col">
                     <!-- Disable max per node if weighted or context search -->
@@ -367,9 +349,12 @@ import BaseInputBS from "@/components/Form/BaseInputBS";
 import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/views/ResultArea";
+import Multiselect from "@vueform/multiselect"
 
 export default {
-  components: {ResultArea, BaseSelectBS, BaseCheckboxBS, BaseInputBS },
+  components: {
+    ResultArea, BaseSelectBS, BaseCheckboxBS, BaseInputBS, Multiselect
+  },
   data() {
     return {
       source: "",
