@@ -111,8 +111,8 @@ class IndraNetworkSearchAPI:
 
             if res_man.timed_out:
                 results.timed_out = True
-                logger.warning(f'Search timed out')
-            break
+                logger.warning('Search timed out')
+                break
 
         if not results.timed_out:
             results.path_results = path_result_manager.get_results()

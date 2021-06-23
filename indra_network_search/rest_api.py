@@ -12,6 +12,7 @@ from .util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
     SubgraphResults
 from .search_api import IndraNetworkSearchAPI
+from depmap_analysis.network_functions.net_functions import bio_ontology
 
 DEBUG = environ.get('API_DEBUG') == "1"
 
@@ -103,5 +104,5 @@ else:
     network_search_api = IndraNetworkSearchAPI(
         unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
     )
-
+    bio_ontology.initialize()
 HEALTH.status = 'available'
