@@ -1,5 +1,6 @@
 import "@popperjs/core/dist/cjs/popper";
 import "bootstrap/dist/js/bootstrap.min";
+import "@vueform/multiselect/themes/default.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./assets/sources.css";
