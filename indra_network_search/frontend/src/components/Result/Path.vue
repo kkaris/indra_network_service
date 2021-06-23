@@ -9,7 +9,7 @@
   <td>
     <div class="container">
       <template v-for="(edge, index) in edge_data" :key="index">
-        <div class="row border">
+        <div class="row">
           <Edge v-bind="edge" />
         </div>
       </template>

@@ -9,7 +9,11 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(stmtTypeSupport, type, index) in stmtDataObj" :key="index">
+      <tr
+          class="border-bottom"
+          v-for="(stmtTypeSupport, type, index) in stmtDataObj"
+          :key="index"
+      >
         <SupportRow
           :subj-node="subjNode"
           :obj-node="objNode"
