@@ -26,21 +26,18 @@
           <tbody>
             <template v-for="(stArr, index) in coOrderedEdges" :key="index">
               <tr>
-                <!-- If shared targets -->
-                <template v-if="downstream">
-                  <td><Node v-bind="stArr[0].edge[1]"/></td>
-                </template>
-                <!-- If shared regulators -->
-                <template v-else>
-                  <td><Node v-bind="stArr[0].edge[0]"/></td>
-                </template>
-                  <td>
-                    <InteractorRow
-                        :source-edge-data="stArr[0]"
-                        :target-edge-data="stArr[1]"
-                    />
-                  </td>
-
+                <td class="align-middle">
+                  <!-- If shared targets -->
+                  <template v-if="downstream"><Node v-bind="stArr[0].edge[1]"/></template>
+                  <!-- If shared regulators -->
+                  <template v-else><Node v-bind="stArr[0].edge[0]"/></template>
+                </td>
+                <td>
+                  <InteractorRow
+                      :source-edge-data="stArr[0]"
+                      :target-edge-data="stArr[1]"
+                  />
+                </td>
               </tr>
             </template>
           </tbody>
