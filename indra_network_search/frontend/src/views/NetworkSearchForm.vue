@@ -298,7 +298,7 @@
                         v-model="max_per_node"
                         :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
                         :min="1"
-                        label="Maximum number of children per node in unweighted breadth first search"
+                        label="Max children per node"
                         type="number"
                     />
                     <BaseInputBS
