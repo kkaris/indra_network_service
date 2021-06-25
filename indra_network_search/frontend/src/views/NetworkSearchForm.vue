@@ -3,13 +3,6 @@
     <!-- <pre>{{ networkSearchQuery }}</pre>-->
     <!--
       Todo:
-        - Add border for form (use cards?)
-        - Organize options according to type of search
-        - Implement some basic styling that makes the form readable
-        - Make Multi-select prettier (find package):
-          + Check out https://github.com/vueform/multiselect, used in
-            indra_db/benchmarker/view_app/benchmark.html
-          +
         - Add hover or "?" text for help
         - Put checkboxes in row-col setup; Try
           + col-auto class -
