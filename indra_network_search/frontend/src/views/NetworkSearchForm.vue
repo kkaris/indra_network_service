@@ -19,8 +19,8 @@
           https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
     <form class="review-form" @submit.prevent="sendForm">
-      <h1>The Network Search Form</h1>
-      <h2>Basic Search Options</h2>
+      <h1 class="text-center">The Network Search Form</h1>
+      <h2 class="text-center">Basic Search Options</h2>
       <div class="container">
         <div class="row">
           <div class="col">
@@ -41,7 +41,7 @@
           </div>
         </div>
       </div>
-      <h2>Detailed Search Options</h2>
+      <h2 class="text-center">Detailed Search Options</h2>
       <div
           class="accordion"
           :id="accordionID"
@@ -306,7 +306,9 @@
           </div>
         </div>
       </div> <!-- end accordion -->
-      <div class="row">
+      <div
+          class="row justify-content-center align-middle d-flex align-items-center"
+          style="margin-top: 10px">
         <div class="col-2">
           <button
               :class="{ disabledButton: cannotSubmit }"
