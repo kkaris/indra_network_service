@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <h1>Results</h1>
-    <p>Click on titles to expand results</p>
+    <h1 class="text-center">Results</h1>
+    <p class="text-center">Click on titles to expand results</p>
     <!--Source/Target info???-->
     <!--Ontology Results-->
     <CommonParents

@@ -5,7 +5,7 @@
       :id="strUUID"
       :value="modelValue"
       :placeholder="ph"
-      :title="ph"
+      :title="compTitle"
       @input="$emit('update:modelValue', $event.target.value)"
       class="form-control"
     >
@@ -29,6 +29,10 @@ export default {
     placeholder: {
       type: String,
       default: ''
+    },
+    title: {
+      type: String,
+      default: ''
     }
   },
   setup() {
@@ -43,6 +47,9 @@ export default {
     },
     ph() {
       return this.placeholder || this.label
+    },
+    compTitle() {
+      return this.title || this.ph
     }
   }
 }

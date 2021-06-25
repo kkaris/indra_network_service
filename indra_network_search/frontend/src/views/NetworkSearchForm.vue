@@ -3,13 +3,6 @@
     <!-- <pre>{{ networkSearchQuery }}</pre>-->
     <!--
       Todo:
-        - Add border for form (use cards?)
-        - Organize options according to type of search
-        - Implement some basic styling that makes the form readable
-        - Make Multi-select prettier (find package):
-          + Check out https://github.com/vueform/multiselect, used in
-            indra_db/benchmarker/view_app/benchmark.html
-          +
         - Add hover or "?" text for help
         - Put checkboxes in row-col setup; Try
           + col-auto class -
@@ -26,8 +19,8 @@
           https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
     <form class="review-form" @submit.prevent="sendForm">
-      <h1>The Network Search Form</h1>
-      <h2>Basic Search Options</h2>
+      <h1 class="text-center">The Network Search Form</h1>
+      <h2 class="text-center">Basic Search Options</h2>
       <div class="container">
         <div class="row">
           <div class="col">
@@ -48,7 +41,7 @@
           </div>
         </div>
       </div>
-      <h2>Detailed Search Options</h2>
+      <h2 class="text-center">Detailed Search Options</h2>
       <div
           class="accordion"
           :id="accordionID"
@@ -135,6 +128,15 @@
                 </div>
                 <div class="row">
                   <div class="col">
+                    <BaseInputBS
+                        v-model.number="cull_best_node"
+                        :min="1"
+                        label="Highest Degree Node Culling Frequency"
+                        :title="cullTitle"
+                        type="number"
+                    />
+                  </div>
+                  <div class="col">
                     <Multiselect
                         v-model="stmt_filter"
                         mode="tags"
@@ -144,8 +146,6 @@
                         :createTag="false"
                         :options="stmtFilterOptions"
                     />
-                  </div>
-                  <div class="col">
                     <Multiselect
                         v-model="allowed_ns"
                         mode="tags"
@@ -158,7 +158,7 @@
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-md-auto">
+                  <div class="col-6">
                     <BaseCheckboxBS
                         v-model="weighted"
                         label="Weighted search"
@@ -180,6 +180,8 @@
                         :disabled="!isNotOpenSearch && !cannotSubmit"
                         label="Include Search for shared regulators of source/target"
                     />
+                  </div>
+                  <div class="col-6">
                   </div>
                 </div>
               </div>
@@ -296,7 +298,7 @@
                         v-model="max_per_node"
                         :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
                         :min="1"
-                        label="Maximum number of children per node in unweighted breadth first search"
+                        label="Max children per node"
                         type="number"
                     />
                     <BaseInputBS
@@ -313,7 +315,9 @@
           </div>
         </div>
       </div> <!-- end accordion -->
-      <div class="row">
+      <div
+          class="row justify-content-center align-middle d-flex align-items-center"
+          style="margin-top: 10px">
         <div class="col-2">
           <button
               :class="{ disabledButton: cannotSubmit }"
@@ -338,6 +342,7 @@
     </form>
   </div>
   <ResultArea
+      v-if="!emptyResult"
       v-bind="results"
   />
 </template>
@@ -350,6 +355,7 @@ import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/views/ResultArea";
 import Multiselect from "@vueform/multiselect"
+import sharedHelpers from "@/helpers/sharedHelpers";
 
 export default {
   components: {
@@ -382,6 +388,10 @@ export default {
       shared_regulators: false,
       terminal_ns: [],
       format: "html", // This is hardcoded here and is not an option
+      cullTitle: "At the specified frequency, the highest degree node will "
+          + "be added to the node blacklist and excluded from further "
+          + "results for path queries (only applies to breadth first search "
+          + "and source-target path searches)",
       signOptions: [
         { label: "+", value: 0 },
         { label: "-", value: 1 },
@@ -509,6 +519,23 @@ export default {
     },
     isAnyWeighted() {
       return this.isContextWeighted || this.weighted;
+    },
+    emptyResult() {
+      const noPaths = sharedHelpers.isEmptyObject(this.results.path_results);
+      const noPathsRev = sharedHelpers.isEmptyObject(
+          this.results.reverse_path_results
+      );
+      const noOnt =
+          sharedHelpers.isEmptyObject(this.results.ontology_results) ||
+          !(this.results.ontology_results.parents &&
+            this.results.ontology_results.parents.length);
+      const shrdTarg = sharedHelpers.isEmptyObject(
+          this.results.shared_target_results
+      );
+      const shrdReg = sharedHelpers.isEmptyObject(
+          this.results.shared_regulators_results
+      );
+      return noPaths && noPathsRev && noOnt && shrdTarg && shrdReg
     },
     strUUID() {
       return `form-id-${this.uuid}`
