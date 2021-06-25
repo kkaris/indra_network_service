@@ -333,6 +333,7 @@
     </form>
   </div>
   <ResultArea
+      v-if="!emptyResult"
       v-bind="results"
   />
 </template>
@@ -345,6 +346,7 @@ import AxiosMethods from "@/services/AxiosMethods";
 import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/views/ResultArea";
 import Multiselect from "@vueform/multiselect"
+import sharedHelpers from "@/helpers/sharedHelpers";
 
 export default {
   components: {
@@ -504,6 +506,23 @@ export default {
     },
     isAnyWeighted() {
       return this.isContextWeighted || this.weighted;
+    },
+    emptyResult() {
+      const noPaths = sharedHelpers.isEmptyObject(this.results.path_results);
+      const noPathsRev = sharedHelpers.isEmptyObject(
+          this.results.reverse_path_results
+      );
+      const noOnt =
+          sharedHelpers.isEmptyObject(this.results.ontology_results) ||
+          !(this.results.ontology_results.parents &&
+            this.results.ontology_results.parents.length);
+      const shrdTarg = sharedHelpers.isEmptyObject(
+          this.results.shared_target_results
+      );
+      const shrdReg = sharedHelpers.isEmptyObject(
+          this.results.shared_regulators_results
+      );
+      return noPaths && noPathsRev && noOnt && shrdTarg && shrdReg
     },
     strUUID() {
       return `form-id-${this.uuid}`
