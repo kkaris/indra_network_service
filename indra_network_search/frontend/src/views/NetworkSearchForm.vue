@@ -19,7 +19,13 @@
           https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
     <form class="review-form" @submit.prevent="sendForm">
-      <h1 class="text-center">The Network Search Form</h1>
+      <h1 class="text-center">The INDRA Network Search</h1>
+      <p class="text-center">
+        Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a>
+      </p>
+      <p class="text-center">
+        Read the <a href="https://indra-network-search.readthedocs.io/en/latest/">General Docs</a>
+      </p>
       <h2 class="text-center">Basic Search Options</h2>
       <div class="container">
         <div class="row">
