@@ -4,7 +4,7 @@
       <div class="col-5">
         <Node v-bind="subjNode" /><i class="bi bi-arrow-right"></i><Node v-bind="objNode" />
       </div>
-      <div class="col-5">
+      <div class="col-5 text-end">
         <SourceDisplay :source_counts="source_counts" />
       </div>
       <div class="col">

@@ -16,7 +16,7 @@ TodO for future:
   </tr>
  -->
   <td>{{ stmtType }}</td>
-  <td>
+  <td style="text-align: end">
     <SourceDisplay :source_counts="stmtTypeSupport.source_counts" />
   </td>
   <td><a :href="linkToDB"><i class="bi bi-box-arrow-up-right"></i></a></td>
