@@ -327,10 +327,17 @@
         <div class="col-2">
           <button
               :class="{ disabledButton: cannotSubmit }"
-              :disabled="cannotSubmit"
+              :disabled="cannotSubmit || isLoading"
               class="button btn btn-secondary btn-lg"
               type="submit"
-          >Submit
+          >
+            <div v-show="isLoading">
+              <span
+                  class="spinner-border spinner-border-sm" role="status"
+                  aria-hidden="true"
+              ></span>
+            </div>
+            Submit
           </button>
         </div>
         <div class="col-2">
@@ -393,6 +400,7 @@ export default {
       two_way: false,
       shared_regulators: false,
       terminal_ns: [],
+      isLoading: false,
       format: "html", // This is hardcoded here and is not an option
       cullTitle: "At the specified frequency, the highest degree node will "
           + "be added to the node blacklist and excluded from further "
@@ -566,6 +574,7 @@ export default {
       if (!this.validateForm()) {
         return false
       }
+      this.isLoading = true;
       AxiosMethods.submitForm(this.networkSearchQuery)
       .then(response => {
         console.log('Query resolved!');
@@ -574,6 +583,9 @@ export default {
       })
       .catch(error => {
         console.log(error)
+      })
+      .then(() => {
+        this.isLoading = false;
       })
     },
     splitTrim(inputText) {
