@@ -54,7 +54,7 @@
         </table>
       </div>
       <div class="modal-footer">
-        Modal footer<br/>
+        <span v-show="serverError">The server has an error...</span><br/>
         <button type="button"
                 class="btn btn-secondary"
                 data-bs-dismiss="modal"
@@ -97,6 +97,7 @@ export default {
   data() {
     return {
       xrefs: [],
+      serverError: false
     }
   },
   computed: {
@@ -117,10 +118,12 @@ export default {
       if (!this.xrefs.length) {
         AxiosMethods.getXrefs(this.namespace, this.identifier)
             .then(response => {
+              this.serverError = false;
               this.xrefs = response.data;
             })
             .catch(error => {
               console.log(error)
+              this.serverError = true;
             })
       }
       else {
