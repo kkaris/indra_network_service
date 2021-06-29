@@ -101,7 +101,7 @@ export default {
   },
   computed: {
     title() {
-      return `Grounded to: ${this.namespace}:${this.identifier}.` +
+      return `Grounded to: ${this.namespace}:${this.identifier}. ` +
           'Click for more info';
     },
     allRefs() {
