@@ -5,13 +5,13 @@
         <h4>
           <!-- Header N-edge paths | Source -> {X_n} -> target | source badges | collapse toggle icon -->
           {{ edgeCount }}-edge paths;
-          <template v-if="sourceExist"><Node v-bind="source" /></template>
+          <template v-if="sourceExist"><NodeModal v-bind="source" /></template>
           <template v-else>X0</template>
           <i class="bi bi-arrow-right"></i>
           <template v-for="n in edgeCount - 1" :key="n">
             X{{ n }}<i class="bi bi-arrow-right"></i>
           </template>
-          <template v-if="targetExist"><Node v-bind="target" /></template>
+          <template v-if="targetExist"><NodeModal v-bind="target" /></template>
           <template v-else>X{{ pathNodeCountNum + 1 }}</template>
           <span
               style="margin-left: 10px"
@@ -58,12 +58,12 @@
 
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
-import Node from "@/components/Result/Node";
+import NodeModal from "@/components/Result/NodeModal";
 import Path from "@/components/Result/Path";
 import UniqueID from "@/helpers/BasicHelpers";
 
 export default {
-  components: {Path, Node},
+  components: {Path, NodeModal},
   props: {
     // Follows one entry in
     // indra_network_search.data_models::PathResultData.paths: Dict[int, List[Path]]

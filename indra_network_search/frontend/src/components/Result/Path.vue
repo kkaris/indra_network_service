@@ -1,9 +1,9 @@
 <template>
   <td class="border-end align-middle">
-    <Node v-bind="path[0]" />
+    <NodeModal v-bind="path[0]" />
     <template v-for="(nodeObj, index) in path.slice(1)" :key="index">
       <i class="bi bi-arrow-right"></i>
-      <Node v-bind="nodeObj"/>
+      <NodeModal v-bind="nodeObj"/>
     </template>
   </td>
   <td>
@@ -19,11 +19,11 @@
 
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
-import Node from "@/components/Result/Node";
+import NodeModal from "@/components/Result/NodeModal";
 import Edge from "@/components/Result/Edge";
 
 export default {
-  components: {Edge, Node},
+  components: {Edge, NodeModal},
   props: {
     // Follows indra_network_search.data_models::Path
     path: {
