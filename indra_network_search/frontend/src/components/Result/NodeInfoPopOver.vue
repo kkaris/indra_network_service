@@ -1,18 +1,15 @@
 <template>
 <!-- Utilizes BootStrap 5's modal component -->
 <!-- Button triggered modal -->
-<button
+<a
     type="button"
     :title="title"
     @click="fillXrefs()"
-    class="btn btn-primary"
+    class="node-modal"
     data-bs-toggle="modal"
     :data-bs-target="`#${strUUID}`">
-    <!-- Fixme: make a component UUID
-          Make link instead of button for Node
-    -->
   <b>{{ name }}</b>
-</button>
+</a>
 
 <!-- Modal -->
 <div class="modal fade"
