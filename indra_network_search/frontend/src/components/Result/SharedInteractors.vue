@@ -28,9 +28,9 @@
               <tr>
                 <td class="align-middle">
                   <!-- If shared targets -->
-                  <template v-if="downstream"><Node v-bind="stArr[0].edge[1]"/></template>
+                  <template v-if="downstream"><NodeModal v-bind="stArr[0].edge[1]"/></template>
                   <!-- If shared regulators -->
-                  <template v-else><Node v-bind="stArr[0].edge[0]"/></template>
+                  <template v-else><NodeModal v-bind="stArr[0].edge[0]"/></template>
                 </td>
                 <td>
                   <InteractorRow
@@ -48,13 +48,13 @@
 </template>
 
 <script>
-import Node from "@/components/Result/Node";
+import NodeModal from "@/components/Result/NodeModal";
 import sharedHelpers from "@/helpers/sharedHelpers";
 import UniqueID from "@/helpers/BasicHelpers";
 import InteractorRow from "@/components/Result/InteractorRow";
 
 export default {
-  components: {InteractorRow, Node},
+  components: {InteractorRow, NodeModal},
   props: {
     // Follows indra_network_search.data_models::SharedInteractorsResults
     source_data: {

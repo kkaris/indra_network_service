@@ -2,13 +2,19 @@
   <div class="container">
     <div class="row d-flex justify-content-center">
       <div class="col-5">
-        <Node v-bind="subjNode" /><i class="bi bi-arrow-right"></i><Node v-bind="objNode" />
+        <NodeModal v-bind="subjNode" />
+        <i class="bi bi-arrow-right"></i>
+        <NodeModal v-bind="objNode" />
       </div>
       <div class="col-5 text-end">
         <SourceDisplay :source_counts="source_counts" />
       </div>
       <div class="col">
-        <span><a :href="db_url_edge"><i class="bi bi-box-arrow-up-right"></i></a></span>
+        <span>
+          <a :href="db_url_edge">
+            <i class="bi bi-box-arrow-up-right"></i>
+          </a>
+        </span>
       </div>
       <div class="col">
         <a
@@ -34,13 +40,13 @@
 </template>
 
 <script>
-import Node from "@/components/Result/Node";
+import NodeModal from "@/components/Result/NodeModal";
 import EdgeSupport from "@/components/Result/EdgeSupport";
 import sharedHelpers from "@/helpers/sharedHelpers";
 import UniqueID from "@/helpers/BasicHelpers";
 import SourceDisplay from "@/components/Result/SourceDisplay";
 export default {
-  components: {SourceDisplay, EdgeSupport, Node},
+  components: {SourceDisplay, EdgeSupport, NodeModal},
   props: {
     // Follows BaseModel indra_network_search.data_models::EdgeData
     edge: {

@@ -28,7 +28,7 @@
           <tbody>
             <template v-for="(pnode, key, index) in parents" :key="index">
               <tr>
-                <td>{{ pnode.name }}</td>
+                <td><NodeModal v-bind="pnode"/></td>
                 <td>{{ pnode.namespace }}</td>
                 <td>{{ pnode.identifier }}</td>
                 <td class="col">
@@ -46,8 +46,10 @@
 <script>
 import sharedHelpers from "@/helpers/sharedHelpers";
 import UniqueID from "@/helpers/BasicHelpers";
+import NodeModal from "@/components/Result/NodeModal";
 
 export default {
+  components: {NodeModal},
   props: {
     source: {
       type: Object,
