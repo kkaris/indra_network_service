@@ -31,7 +31,7 @@
             aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <table class="border">
+        <table class="table">
           <thead>
             <tr>
               <th>Namespace</th>
