@@ -109,13 +109,18 @@ export default {
   },
   methods: {
     fillXrefs() {
-      AxiosMethods.getXrefs(this.namespace, this.identifier)
-      .then(response => {
-        this.xrefs = response.data;
-      })
-      .catch(error => {
-        console.log(error)
-      })
+      if (!this.xrefs.length) {
+        AxiosMethods.getXrefs(this.namespace, this.identifier)
+            .then(response => {
+              this.xrefs = response.data;
+            })
+            .catch(error => {
+              console.log(error)
+            })
+      }
+      else {
+        return false;
+      }
     }
   },
   setup() {
