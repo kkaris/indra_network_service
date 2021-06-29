@@ -62,7 +62,9 @@ export default {
       return this.stmtTypeSupport.statements.length;
     },
     linkToDB() {
-      return `https://db.indra.bio/statements/from_agents?subject=${this.subjNode.name}&object=${this.objNode.name}&type=${this.stmtType}&format=html`;
+      return 'https://db.indra.bio/statements/from_agents?' +
+      `subject=${this.subjNode.name}&object=${this.objNode.name}` +
+      `&type=${this.stmtType}&format=html`;
     },
     english() {
       if (!this.stmtTypeSupport.statements ||
