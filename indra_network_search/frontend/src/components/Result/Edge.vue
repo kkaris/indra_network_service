@@ -10,7 +10,11 @@
         <SourceDisplay :source_counts="source_counts" />
       </div>
       <div class="col">
-        <span><a :href="db_url_edge"><i class="bi bi-box-arrow-up-right"></i></a></span>
+        <span>
+          <a :href="db_url_edge">
+            <i class="bi bi-box-arrow-up-right"></i>
+          </a>
+        </span>
       </div>
       <div class="col">
         <a
