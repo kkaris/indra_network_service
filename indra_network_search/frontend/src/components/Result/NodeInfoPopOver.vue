@@ -42,8 +42,13 @@
           <tbody>
             <tr v-for="(triple, index) in allRefs"
                 :key="`${strUUID}-row${index}`">
-              <td v-for="(item, colindex) in triple"
-                  :key="`${strUUID}-row${index}-col${colindex}`">{{ item }}</td>
+              <td>{{ triple[0] }}</td>
+              <td>{{ triple[1] }}</td>
+              <td>
+                <a :href="triple[2]">
+                  <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              </td>
             </tr>
           </tbody>
         </table>
