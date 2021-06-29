@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const baseUrl = "https://network.indra.bio/dev";
+
 const apiClient = axios.create({
-  baseURL: "https://network.indra.bio/dev",
+  baseURL: baseUrl,
   withCredentials: false,
   headers: {
     Accept: "application/json",
@@ -9,8 +11,16 @@ const apiClient = axios.create({
   },
 });
 
+const apiGetClient = axios.create({
+  baseURL: baseUrl,
+  withCredentials: false,
+});
+
 export default {
   submitForm(networkSearchQuery) {
     return apiClient.post("/query", networkSearchQuery);
   },
+  getXrefs(ns, id) {
+    return apiGetClient.get(`/xrefs?ns=${ns}&id=${id}`);
+  }
 };
