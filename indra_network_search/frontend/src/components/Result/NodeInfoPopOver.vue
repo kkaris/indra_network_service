@@ -23,7 +23,7 @@
         <h5
             class="modal-title"
             :id="`label-${strUUID}`"
-        >Modal title</h5>
+        >Cross References for {{ name }}</h5>
         <button
             type="button"
             class="btn-close"
