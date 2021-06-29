@@ -3,11 +3,13 @@ The IndraNetworkSearch REST API
 """
 import logging
 from os import environ
+from typing import List
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
+from indra.databases import get_identifiers_url
 from .util import load_indra_graph
 from .data_models import Results, NetworkSearchQuery, SubgraphRestQuery, \
     SubgraphResults
@@ -37,6 +39,17 @@ async def root_redirect():
     This is a temporary solution until the Vue frontend is in place
     """
     return RedirectResponse(app.root_path + '/redoc')
+
+
+@app.get('/xrefs', response_model=List[List[str]])
+def get_xrefs(ns: str, id: str):
+    """Get all cross-refs given a namespace and ID"""
+    # Todo: offload util features and capabilities, such as this one, to a new
+    #  UtilApi class
+    xrefs = bio_ontology.get_mappings(ns=ns, id=id)
+    xrefs_w_lookup = [[n, i, get_identifiers_url(n, i)]
+                      for n, i in xrefs]
+    return xrefs_w_lookup
 
 
 @app.get('/health', response_model=Health)
