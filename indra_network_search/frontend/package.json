@@ -10,6 +10,8 @@
   "dependencies": {
     "@popperjs/core": "^2.9.2",
     "@vueform/multiselect": "^2.0.0",
+    "@vuelidate/core": "^2.0.0-alpha.19",
+    "@vuelidate/validators": "^2.0.0-alpha.17",
     "axios": "^0.21.1",
     "bootstrap": "^5.0.0",
     "bootstrap-icons": "^1.5.0",
