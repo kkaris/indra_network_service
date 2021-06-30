@@ -10,7 +10,7 @@
         - Consider datalists for autocomplete text inputs:
           https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
-    <form class="review-form" @submit.prevent="sendForm">
+    <form @submit.prevent="sendForm">
       <h1 class="text-center">The INDRA Network Search</h1>
       <p class="text-center">
         Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a> and
@@ -365,6 +365,8 @@ import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/views/ResultArea";
 import Multiselect from "@vueform/multiselect"
 import sharedHelpers from "@/helpers/sharedHelpers";
+import useVuelidate from "@vuelidate/core";
+import { requiredIf, minLength } from "@vuelidate/validators";
 
 export default {
   components: {
@@ -603,8 +605,21 @@ export default {
   setup() {
     const uuid = UniqueID().getID();
     return {
-      uuid
+      uuid,
+      v$: useVuelidate()
     }
   },
+  validations() {
+    return {
+      source: {
+        minLength: minLength(0),
+        requiredIf: requiredIf(this.target.length === 0),
+      },
+      target: {
+        minLength: minLength(0),
+        requiredIf: requiredIf(this.source.length === 0)
+      }
+    }
+  }
 };
 </script>
