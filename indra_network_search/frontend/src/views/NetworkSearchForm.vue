@@ -1,20 +1,12 @@
 <template>
   <div class="container">
-    <!-- <pre>{{ networkSearchQuery }}</pre>-->
     <!--
       Todo:
         - Add hover or "?" text for help
-        - Put checkboxes in row-col setup; Try
-          + col-auto class -
-            https://getbootstrap.com/docs/5.0/forms/layout/#auto-sizing
-          + or row-cols-auto -
-            https://getbootstrap.com/docs/5.0/layout/grid/#row-columns
-          or horizontal form -
-            https://getbootstrap.com/docs/5.0/forms/layout/#horizontal-form
         - See if it's possible to set form inputs to their defaults if the
           field/input is disabled. This could be done by checking
           $attrs.disabled, which will be Boolean if defined, otherwise
-          undefined
+          undefined. Otherwise, check out vuelidate (until vuetify exists)
         - Consider datalists for autocomplete text inputs:
           https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
