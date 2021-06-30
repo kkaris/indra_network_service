@@ -10,7 +10,7 @@
         - Consider datalists for autocomplete text inputs:
           https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
-    <form @submit.prevent="sendForm">
+    <form id="search-form" @submit.prevent="sendForm">
       <h1 class="text-center">The INDRA Network Search</h1>
       <p class="text-center">
         Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a> and
