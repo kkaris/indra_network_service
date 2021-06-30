@@ -31,6 +31,7 @@
                 label="Source node"
                 type="text"
                 placeholder="e.g. 'MEK'"
+                :errors="v$.source.$errors"
             />
           </div>
           <div class="col">
@@ -39,6 +40,7 @@
                 label="Target node"
                 type="text"
                 placeholder="e.g. 'ACE2'"
+                :errors="v$.target.$errors"
             />
           </div>
         </div>
