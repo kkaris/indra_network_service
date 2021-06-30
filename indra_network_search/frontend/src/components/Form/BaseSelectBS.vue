@@ -18,7 +18,14 @@
       >{{ option.label }}</option>
     </select>
     <label :for="strUUID" class="form-label" v-if="label">{{ label }}</label>
-    <p v-if="error" style="color: #A00000">{{ error }}</p>
+    <template v-if="errors.length > 0">
+      <p
+          v-for="error in errors"
+          :key="error.$uid"
+          style="color: #A00000">
+        {{ error.$message }}
+      </p>
+    </template>
   </div>
 </template>
 
@@ -40,9 +47,11 @@ export default {
       type: Array,
       required: true
     },
-    error: {
-      type: String,
-      default: ''
+    errors: {
+      type: Array,
+      default: () => {
+        return [];
+      }
     }
   },
   setup() {
