@@ -13,6 +13,7 @@
         class="form-check-label"
         :for="strUUID"
     >{{ label }}</label>
+    <p v-if="error" style="color: #A00000">{{ error }}</p>
   </div>
 </template>
 
@@ -28,6 +29,10 @@ export default {
     modelValue: {
       type: Boolean,
       default: false
+    },
+    error: {
+      type: String,
+      default: ''
     }
   },
   setup() {

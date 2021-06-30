@@ -10,6 +10,7 @@
       class="form-control"
     >
     <label :for="strUUID" class="form-label" v-if="label">{{ label }}</label>
+    <p v-if="error" style="color: #A00000">{{ error }}</p>
   </div>
 </template>
 
@@ -31,6 +32,10 @@ export default {
       default: ''
     },
     title: {
+      type: String,
+      default: ''
+    },
+    error: {
       type: String,
       default: ''
     }

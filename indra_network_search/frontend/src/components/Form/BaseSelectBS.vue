@@ -18,6 +18,7 @@
       >{{ option.label }}</option>
     </select>
     <label :for="strUUID" class="form-label" v-if="label">{{ label }}</label>
+    <p v-if="error" style="color: #A00000">{{ error }}</p>
   </div>
 </template>
 
@@ -38,6 +39,10 @@ export default {
       // Assumed to be an object with option.label and option.value
       type: Array,
       required: true
+    },
+    error: {
+      type: String,
+      default: ''
     }
   },
   setup() {
