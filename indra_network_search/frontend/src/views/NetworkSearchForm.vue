@@ -649,7 +649,7 @@ export default {
       depth_limit: {
         minValue: minValue(1)
       },
-      timed_out: {
+      user_timeout: {
         between: between(2, 120)
       }
     }
