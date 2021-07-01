@@ -368,7 +368,11 @@ import ResultArea from "@/views/ResultArea";
 import Multiselect from "@vueform/multiselect"
 import sharedHelpers from "@/helpers/sharedHelpers";
 import useVuelidate from "@vuelidate/core";
-import { requiredIf, minLength } from "@vuelidate/validators";
+import {
+  requiredIf, minLength, between, minValue, helpers
+} from "@vuelidate/validators";
+
+const cullFreq = (val) => !helpers.req(val) || minValue(1);
 
 export default {
   components: {
@@ -620,6 +624,33 @@ export default {
       target: {
         minLength: minLength(0),
         requiredIf: requiredIf(this.source.length === 0)
+      },
+      k_shortest: {
+        between: between(1, 50)
+      },
+      path_length: {
+        minValue: minValue(1)
+      },
+      belief_cutoff: {
+        between: between(0, 1)
+      },
+      cull_best_node: {
+        cullFrequency: cullFreq
+      },
+      const_c: {
+        minValue: minValue(1)
+      },
+      const_tk: {
+        minValue: minValue(1)
+      },
+      max_per_node: {
+        minValue: minValue(1)
+      },
+      depth_limit: {
+        minValue: minValue(1)
+      },
+      timed_out: {
+        between: between(2, 120)
       }
     }
   }
