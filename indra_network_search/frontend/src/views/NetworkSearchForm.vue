@@ -32,6 +32,7 @@
                 type="text"
                 placeholder="e.g. 'MEK'"
                 :errors="v$.source.$errors"
+                @blur="v$.source.$touch()"
             />
           </div>
           <div class="col">
@@ -41,6 +42,7 @@
                 type="text"
                 placeholder="e.g. 'ACE2'"
                 :errors="v$.target.$errors"
+                @blur="v$.target.$touch()"
             />
           </div>
         </div>
@@ -99,6 +101,8 @@
                         :min="1"
                         label="Path length"
                         type="number"
+                        :errors="v$.path_length.$errors"
+                        @blur="v$.path_length.$touch()"
                     />
                   </div>
                   <div class="col">
@@ -117,6 +121,8 @@
                         :min="1"
                         label="Max Paths"
                         type="number"
+                        :errors="v$.k_shortest.$errors"
+                        @blur="v$.k_shortest.$touch()"
                     />
                   </div>
                   <div class="col">
@@ -127,6 +133,8 @@
                         :step="0.01"
                         label="Belief Cutoff"
                         type="number"
+                        :errors="v$.belief_cutoff.$errors"
+                        @blur="v$.belief_cutoff.$touch()"
                     />
                   </div>
                 </div>
@@ -138,6 +146,8 @@
                         label="Highest Degree Node Culling Frequency"
                         :title="cullTitle"
                         type="number"
+                        :errors="v$.cull_best_node.$errors"
+                        @blur="v$.cull_best_node.$touch()"
                     />
                   </div>
                   <div class="col">
@@ -232,6 +242,8 @@
                       :min="1"
                       label="Constant C"
                       type="number"
+                      :errors="v$.const_c.$errors"
+                      @blur="v$.const_c.$touch()"
                   />
                 </div>
               </div>
@@ -251,6 +263,8 @@
                       :min="1"
                       label="Constant Tk"
                       type="number"
+                      :errors="v$.const_tk.$errors"
+                      @blur="v$.const_tk.$touch()"
                   />
                 </div>
               </div>
@@ -304,6 +318,8 @@
                         :min="1"
                         label="Max children per node"
                         type="number"
+                        :errors="v$.max_per_node.$errors"
+                        @blur="v$.max_per_node.$touch()"
                     />
                     <BaseInputBS
                         v-model="depth_limit"
@@ -311,6 +327,8 @@
                         :min="1"
                         label="Depth limit in unweighted search"
                         type="number"
+                        :errors="v$.depth_limit.$errors"
+                        @blur="v$.depth_limit.$touch()"
                     />
                   </div>
                 </div>
@@ -347,6 +365,8 @@
               :style="{ maxWidth: '100px' }"
               label="Timeout"
               type="number"
+              :errors="v$.user_timeout.$errors"
+              @blur="v$.user_timeout.$touch()"
           />
         </div>
       </div>
