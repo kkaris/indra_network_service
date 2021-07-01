@@ -67,6 +67,12 @@
                 :aria-controls="accordionIDObj.accordionBody1ID"
             >
               <strong>General Filter Options</strong>
+              <template v-if="generalErrors">|
+                <span style="color: #A00000">
+                  {{ generalErrors }} error{{ generalErrors > 1 ? 's' : '' }}
+                  detected
+                </span>
+              </template>
             </button>
           </h3>
           <div
@@ -217,6 +223,12 @@
                 :aria-controls="accordionIDObj.accordionBody2ID"
             >
               <strong>Context Search Options</strong>
+              <template v-if="contextErrors">|
+                <span style="color: #A00000">
+                  {{ contextErrors }} error{{ contextErrors > 1 ? 's' : '' }}
+                  detected
+                </span>
+              </template>
             </button>
           </h3>
           <div
@@ -286,6 +298,12 @@
                 :aria-controls="accordionIDObj.accordionBody3ID"
             >
               <strong>Open Search Options</strong>
+              <template v-if="openErrors">|
+                <span style="color: #A00000">
+                  {{ openErrors }} error{{ openErrors > 1 ? 's' : '' }}
+                  detected
+                </span>
+              </template>
             </button>
           </h3>
           <div
@@ -574,6 +592,23 @@ export default {
           this.results.shared_regulators_results
       );
       return noPaths && noPathsRev && noOnt && shrdTarg && shrdReg
+    },
+    generalErrors() {
+      const bel = this.v$.belief_cutoff.$errors.length;
+      const cull = this.v$.cull_best_node.$errors.length;
+      const kShort = this.v$.k_shortest.$errors.length;
+      const pLen = this.v$.path_length.$errors.length;
+      return [bel, cull, kShort, pLen].reduce((ps, a) => ps + a, 0);
+    },
+    contextErrors() {
+      const c = this.v$.const_c.$errors.length;
+      const tk = this.v$.const_tk.$errors.length;
+      return [c, tk].reduce((ps, a) => ps + a, 0);
+    },
+    openErrors() {
+      const mpn = this.v$.max_per_node.$errors.length;
+      const dl = this.v$.depth_limit.$errors.length;
+      return [mpn, dl].reduce((ps, a) => ps + a, 0);
     },
     strUUID() {
       return `form-id-${this.uuid}`
