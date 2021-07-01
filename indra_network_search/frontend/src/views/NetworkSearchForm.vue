@@ -13,11 +13,15 @@
     <form class="review-form" @submit.prevent="sendForm">
       <h1 class="text-center">The INDRA Network Search</h1>
       <p class="text-center">
-        Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a>
+        Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a> and
+        read the <a href="https://indra-network-search.readthedocs.io/en/latest/">General Docs</a>
       </p>
-      <p class="text-center">
-        Read the <a href="https://indra-network-search.readthedocs.io/en/latest/">General Docs</a>
-      </p>
+      <div class="text-center container">
+        <b class="text-muted">Currently unavailable on dev endpoint:</b>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item text-muted">Automatic grounding</li>
+        </ul>
+      </div>
       <h2 class="text-center">Basic Search Options</h2>
       <div class="container">
         <div class="row">
