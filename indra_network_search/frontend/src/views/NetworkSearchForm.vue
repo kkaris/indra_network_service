@@ -574,8 +574,8 @@ export default {
   },
   methods: {
     sendForm() {
-      // Form validation goes here
-      if (!this.validateForm()) {
+      this.v$.$touch();
+      if (this.v$.$error()) {
         return false
       }
       this.isLoading = true;
