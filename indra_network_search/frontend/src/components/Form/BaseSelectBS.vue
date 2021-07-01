@@ -18,6 +18,14 @@
       >{{ option.label }}</option>
     </select>
     <label :for="strUUID" class="form-label" v-if="label">{{ label }}</label>
+    <template v-if="errors.length > 0">
+      <p
+          v-for="error in errors"
+          :key="error.$uid"
+          style="color: #A00000">
+        {{ error.$message ? error.$message : 'Invalid entry' }}
+      </p>
+    </template>
   </div>
 </template>
 
@@ -38,6 +46,12 @@ export default {
       // Assumed to be an object with option.label and option.value
       type: Array,
       required: true
+    },
+    errors: {
+      type: Array,
+      default: () => {
+        return [];
+      }
     }
   },
   setup() {

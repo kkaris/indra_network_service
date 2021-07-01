@@ -10,7 +10,7 @@
         - Consider datalists for autocomplete text inputs:
           https://getbootstrap.com/docs/5.0/forms/form-control/#datalists
      -->
-    <form class="review-form" @submit.prevent="sendForm">
+    <form id="search-form" @submit.prevent="sendForm">
       <h1 class="text-center">The INDRA Network Search</h1>
       <p class="text-center">
         Read the <a href="https://network.indra.bio/dev/redoc">API Docs</a> and
@@ -31,6 +31,8 @@
                 label="Source node"
                 type="text"
                 placeholder="e.g. 'MEK'"
+                :errors="v$.source.$errors"
+                @blur="v$.source.$touch()"
             />
           </div>
           <div class="col">
@@ -39,6 +41,8 @@
                 label="Target node"
                 type="text"
                 placeholder="e.g. 'ACE2'"
+                :errors="v$.target.$errors"
+                @blur="v$.target.$touch()"
             />
           </div>
         </div>
@@ -63,6 +67,12 @@
                 :aria-controls="accordionIDObj.accordionBody1ID"
             >
               <strong>General Filter Options</strong>
+              <template v-if="generalErrors">|
+                <span style="color: #A00000">
+                  {{ generalErrors }} error{{ generalErrors > 1 ? 's' : '' }}
+                  detected
+                </span>
+              </template>
             </button>
           </h3>
           <div
@@ -97,6 +107,8 @@
                         :min="1"
                         label="Path length"
                         type="number"
+                        :errors="v$.path_length.$errors"
+                        @blur="v$.path_length.$touch()"
                     />
                   </div>
                   <div class="col">
@@ -115,6 +127,8 @@
                         :min="1"
                         label="Max Paths"
                         type="number"
+                        :errors="v$.k_shortest.$errors"
+                        @blur="v$.k_shortest.$touch()"
                     />
                   </div>
                   <div class="col">
@@ -125,6 +139,8 @@
                         :step="0.01"
                         label="Belief Cutoff"
                         type="number"
+                        :errors="v$.belief_cutoff.$errors"
+                        @blur="v$.belief_cutoff.$touch()"
                     />
                   </div>
                 </div>
@@ -136,6 +152,8 @@
                         label="Highest Degree Node Culling Frequency"
                         :title="cullTitle"
                         type="number"
+                        :errors="v$.cull_best_node.$errors"
+                        @blur="v$.cull_best_node.$touch()"
                     />
                   </div>
                   <div class="col">
@@ -205,6 +223,12 @@
                 :aria-controls="accordionIDObj.accordionBody2ID"
             >
               <strong>Context Search Options</strong>
+              <template v-if="contextErrors">|
+                <span style="color: #A00000">
+                  {{ contextErrors }} error{{ contextErrors > 1 ? 's' : '' }}
+                  detected
+                </span>
+              </template>
             </button>
           </h3>
           <div
@@ -230,6 +254,8 @@
                       :min="1"
                       label="Constant C"
                       type="number"
+                      :errors="v$.const_c.$errors"
+                      @blur="v$.const_c.$touch()"
                   />
                 </div>
               </div>
@@ -249,6 +275,8 @@
                       :min="1"
                       label="Constant Tk"
                       type="number"
+                      :errors="v$.const_tk.$errors"
+                      @blur="v$.const_tk.$touch()"
                   />
                 </div>
               </div>
@@ -270,6 +298,12 @@
                 :aria-controls="accordionIDObj.accordionBody3ID"
             >
               <strong>Open Search Options</strong>
+              <template v-if="openErrors">|
+                <span style="color: #A00000">
+                  {{ openErrors }} error{{ openErrors > 1 ? 's' : '' }}
+                  detected
+                </span>
+              </template>
             </button>
           </h3>
           <div
@@ -302,6 +336,8 @@
                         :min="1"
                         label="Max children per node"
                         type="number"
+                        :errors="v$.max_per_node.$errors"
+                        @blur="v$.max_per_node.$touch()"
                     />
                     <BaseInputBS
                         v-model="depth_limit"
@@ -309,6 +345,8 @@
                         :min="1"
                         label="Depth limit in unweighted search"
                         type="number"
+                        :errors="v$.depth_limit.$errors"
+                        @blur="v$.depth_limit.$touch()"
                     />
                   </div>
                 </div>
@@ -323,7 +361,7 @@
         <div class="col-2">
           <button
               :class="{ disabledButton: cannotSubmit }"
-              :disabled="cannotSubmit || isLoading"
+              :disabled="cannotSubmit || isLoading || v$.$invalid"
               class="button btn btn-secondary btn-lg"
               type="submit"
           >
@@ -345,6 +383,8 @@
               :style="{ maxWidth: '100px' }"
               label="Timeout"
               type="number"
+              :errors="v$.user_timeout.$errors"
+              @blur="v$.user_timeout.$touch()"
           />
         </div>
       </div>
@@ -365,6 +405,12 @@ import UniqueID from "@/helpers/BasicHelpers";
 import ResultArea from "@/views/ResultArea";
 import Multiselect from "@vueform/multiselect"
 import sharedHelpers from "@/helpers/sharedHelpers";
+import useVuelidate from "@vuelidate/core";
+import {
+  requiredIf, minLength, between, minValue, helpers
+} from "@vuelidate/validators";
+
+const cullFreq = (val) => !helpers.req(val) || val > 0;
 
 export default {
   components: {
@@ -547,6 +593,23 @@ export default {
       );
       return noPaths && noPathsRev && noOnt && shrdTarg && shrdReg
     },
+    generalErrors() {
+      const bel = this.v$.belief_cutoff.$errors.length;
+      const cull = this.v$.cull_best_node.$errors.length;
+      const kShort = this.v$.k_shortest.$errors.length;
+      const pLen = this.v$.path_length.$errors.length;
+      return [bel, cull, kShort, pLen].reduce((ps, a) => ps + a, 0);
+    },
+    contextErrors() {
+      const c = this.v$.const_c.$errors.length;
+      const tk = this.v$.const_tk.$errors.length;
+      return [c, tk].reduce((ps, a) => ps + a, 0);
+    },
+    openErrors() {
+      const mpn = this.v$.max_per_node.$errors.length;
+      const dl = this.v$.depth_limit.$errors.length;
+      return [mpn, dl].reduce((ps, a) => ps + a, 0);
+    },
     strUUID() {
       return `form-id-${this.uuid}`
     },
@@ -566,8 +629,8 @@ export default {
   },
   methods: {
     sendForm() {
-      // Form validation goes here
-      if (!this.validateForm()) {
+      this.v$.$touch();
+      if (this.v$.$error) {
         return false
       }
       this.isLoading = true;
@@ -603,8 +666,51 @@ export default {
   setup() {
     const uuid = UniqueID().getID();
     return {
-      uuid
+      uuid,
+      v$: useVuelidate()
     }
   },
+  validations() {
+    return {
+      source: {
+        minLength: minLength(0),
+        requiredIf: requiredIf(this.target.length === 0),
+      },
+      target: {
+        minLength: minLength(0),
+        requiredIf: requiredIf(this.source.length === 0)
+      },
+      k_shortest: {
+        between: between(1, 50)
+      },
+      path_length: {
+        minValue: minValue(1)
+      },
+      belief_cutoff: {
+        between: between(0, 1)
+      },
+      cull_best_node: {
+        freq: helpers.withMessage(
+            'If provided, the minimum value allowed is 1.',
+            cullFreq
+        ),
+      },
+      const_c: {
+        minValue: minValue(1)
+      },
+      const_tk: {
+        minValue: minValue(1)
+      },
+      max_per_node: {
+        minValue: minValue(1)
+      },
+      depth_limit: {
+        minValue: minValue(1)
+      },
+      user_timeout: {
+        between: between(2, 120)
+      }
+    }
+  }
 };
 </script>
