@@ -361,7 +361,7 @@
         <div class="col-2">
           <button
               :class="{ disabledButton: cannotSubmit }"
-              :disabled="cannotSubmit || isLoading"
+              :disabled="cannotSubmit || isLoading || v$.$invalid"
               class="button btn btn-secondary btn-lg"
               type="submit"
           >
