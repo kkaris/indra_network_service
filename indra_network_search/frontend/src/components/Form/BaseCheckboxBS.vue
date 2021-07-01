@@ -18,7 +18,7 @@
           v-for="error in errors"
           :key="error.$uid"
           style="color: #A00000">
-        {{ error.$message }}
+        {{ error.$message ? error.$message : 'Invalid entry' }}
       </p>
     </template>
   </div>
