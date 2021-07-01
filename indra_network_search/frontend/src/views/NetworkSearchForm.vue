@@ -392,7 +392,7 @@ import {
   requiredIf, minLength, between, minValue, helpers
 } from "@vuelidate/validators";
 
-const cullFreq = (val) => !helpers.req(val) || minValue(1);
+const cullFreq = (val) => !helpers.req(val) || val > 0;
 
 export default {
   components: {
@@ -655,7 +655,10 @@ export default {
         between: between(0, 1)
       },
       cull_best_node: {
-        cullFrequency: cullFreq
+        freq: helpers.withMessage(
+            'If provided, the minimum value allowed is 1.',
+            cullFreq
+        ),
       },
       const_c: {
         minValue: minValue(1)
