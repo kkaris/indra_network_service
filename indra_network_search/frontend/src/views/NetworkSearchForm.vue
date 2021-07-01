@@ -630,7 +630,7 @@ export default {
   methods: {
     sendForm() {
       this.v$.$touch();
-      if (this.v$.$error()) {
+      if (this.v$.$error) {
         return false
       }
       this.isLoading = true;
