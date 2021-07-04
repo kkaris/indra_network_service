@@ -341,6 +341,7 @@
                     />
                     <BaseInputBS
                         v-model="depth_limit"
+                        :default-value="depth_limit_default"
                         :disabled="isNotOpenSearch || isContextSearch || isAnyWeighted"
                         :min="1"
                         label="Depth limit in unweighted search"
@@ -348,6 +349,7 @@
                         :errors="v$.depth_limit.$errors"
                         @blur="v$.depth_limit.$touch()"
                     />
+                    <p>depth_limit={{ depth_limit }}</p>
                   </div>
                 </div>
               </div>
@@ -377,6 +379,7 @@
         <div class="col-2">
           <BaseInputBS
               v-model.number="user_timeout"
+              :default-value="user_timeout_default"
               :max="120"
               :min="2"
               :step="1"
@@ -418,6 +421,8 @@ export default {
   },
   data() {
     return {
+      user_timeout_default: 30,
+      depth_limit_default: 2,
       source: "",
       target: "",
       stmt_filter: [],

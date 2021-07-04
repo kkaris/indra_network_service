@@ -6,7 +6,9 @@
       :value="modelValue"
       :placeholder="ph"
       :title="compTitle"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="$emit('update:modelValue',
+                    this.$attrs.disabled ? defaultValue :
+                    $event.target.value)"
       class="form-control"
     >
     <label :for="strUUID" class="form-label" v-if="label">{{ label }}</label>
@@ -31,6 +33,10 @@ export default {
       default: ''
     },
     modelValue: {
+      type: [String, Number],
+      default: ''
+    },
+    defaultValue: {
       type: [String, Number],
       default: ''
     },
@@ -64,6 +70,9 @@ export default {
     },
     compTitle() {
       return this.title || this.ph
+    },
+    isDisabled() {
+      return document.getElementById(this.strUUID).disabled
     }
   }
 }
