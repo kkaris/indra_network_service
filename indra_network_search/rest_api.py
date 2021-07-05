@@ -115,12 +115,15 @@ def sub_graph(search_query: SubgraphRestQuery):
 
 
 if DEBUG:
-    from .tests.util import _setup_graph, _setup_signed_node_graph
-    dir_graph = _setup_graph()
-    sign_node_graph = _setup_signed_node_graph(False)
+    # from .tests.util import _setup_graph, _setup_signed_node_graph
+    # dir_graph = _setup_graph()
+    # sign_node_graph = _setup_signed_node_graph(False)
+    import networkx as nx
     network_search_api = IndraNetworkSearchAPI(
-        unsigned_graph=dir_graph, signed_node_graph=sign_node_graph
+        unsigned_graph=nx.DiGraph(),
+        signed_node_graph=nx.DiGraph()
     )
+    bio_ontology.initialize()
 else:
     # dir_graph, _, sign_node_graph, _ = \
     #     load_indra_graph(unsigned_graph=True, unsigned_multi_graph=False,
