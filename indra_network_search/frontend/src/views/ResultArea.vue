@@ -2,32 +2,65 @@
   <div class="container">
     <h1>Results</h1>
     <p>Click on titles to expand results</p>
-    <!--Source/Target info???-->
-    <!--Ontology Results-->
-    <CommonParents
-        v-if="hasOntRes"
-        v-bind="ontology_results"
-    />
-    <!--Path Results-->
-    <PathResults
-        v-if="hasPathRes"
-        v-bind="{...path_results, title: 'Path Results'}"
-    />
-    <!--Reverse Path Results-->
-    <PathResults
-        v-if="hasRevPathRes"
-        v-bind="{ ...reverse_path_results, title: 'Reverse Path Results' }"
-    />
-    <!--Shared Targets-->
-    <SharedInteractors
-        v-if="hasSharedTargets"
-        v-bind="shared_target_results"
-    />
-    <!--Shared Regulators-->
-    <SharedInteractors
-        v-if="hasSharedRegs"
-        v-bind="shared_regulators_results"
-    />
+    <div
+        class="accordion"
+        :id="accordionID"
+    >
+      <!--Source/Target info???-->
+      <!--Ontology Results-->
+      <div v-if="hasOntRes" class="accordion-item">
+        <h2 class="accordion-header" :id="accordionIDObj.accHeadOnt">
+          <button
+              class="accordion-button"
+              type="button"
+              data-bs-toggle="collapse"
+              :data-bs-target="`#${accordionIDObj.accBodyOnt}`"
+              aria-expanded="false"
+              :aria-controls="accordionIDObj.accBodyOnt"
+          >
+            Path Results
+          </button>
+        </h2>
+        <div
+            class="accordion-collapse collapse show"
+            :id="accordionIDObj.accBodyOnt"
+            :aria-labelledby="accordionIDObj.accHeadOnt"
+        >
+          <div class="accordion-body">
+            <CommonParents v-bind="ontology_results" />
+          </div>
+        </div>
+      </div>
+    </div>
+      <!--Path Results-->
+<!--      <div class="accordion-item">-->
+        <PathResults
+          v-if="hasPathRes"
+          v-bind="{...path_results, title: 'Path Results'}"
+      />
+<!--      </div>-->
+      <!--Reverse Path Results-->
+<!--      <div class="accordion-item">-->
+        <PathResults
+          v-if="hasRevPathRes"
+          v-bind="{ ...reverse_path_results, title: 'Reverse Path Results' }"
+      />
+<!--      </div>-->
+      <!--Shared Targets-->
+<!--      <div class="accordion-item">-->
+        <SharedInteractors
+          v-if="hasSharedTargets"
+          v-bind="shared_target_results"
+      />
+<!--      </div>-->
+      <!--Shared Regulators-->
+<!--      <div class="accordion-item">-->
+        <SharedInteractors
+          v-if="hasSharedRegs"
+          v-bind="shared_regulators_results"
+      />
+<!--      </div>-->
+<!--    </div> accordion end-->
   </div>
 </template>
 
@@ -36,6 +69,7 @@ import sharedHelpers from "@/helpers/sharedHelpers";
 import PathResults from "@/components/Result/PathResults";
 import CommonParents from "@/components/Result/CommonParents";
 import SharedInteractors from "@/components/Result/SharedInteractors";
+import UniqueID from "@/helpers/BasicHelpers";
 
 export default {
   components: {SharedInteractors, CommonParents, PathResults},
@@ -45,6 +79,23 @@ export default {
   *          objNode: this.testNode2}"
   * */
   computed: {
+    accordionID() {
+      return `accordion-${this.uuid}`
+    },
+    accordionIDObj() {
+      return {
+        accHeadOnt: `headerOnt-${this.accordionID}`,
+        accBodyOnt: `headerOnt-${this.accordionID}`,
+        accHeadPath: `headerPath-${this.accordionID}`,
+        accBodyPath: `headerPath-${this.accordionID}`,
+        accHeadRevPath: `headerRevPath-${this.accordionID}`,
+        accBodyRevPath: `headerRevPath-${this.accordionID}`,
+        accHeadTar: `headerTar-${this.accordionID}`,
+        accBodyTar: `headerTar-${this.accordionID}`,
+        accHeadReg: `headerReg-${this.accordionID}`,
+        accBodyReg: `headerReg-${this.accordionID}`,
+      }
+    },
     hasPathRes() {
       return !(sharedHelpers.isEmptyObject(this.path_results))
     },
@@ -123,6 +174,12 @@ export default {
       default: null
       // Validated in children
     },
+  },
+  setup() {
+    const uuid = UniqueID().getID();
+    return {
+      uuid
+    }
   }
 };
 </script>
